@@ -4,11 +4,15 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch --preserveWatchOutput",
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "@workspace/typescript-config": "workspace:*"
+  },
   "exports": {
-    "./*": "./src/*.ts"
+    "./*": "./dist/*.js"
   }
 }
