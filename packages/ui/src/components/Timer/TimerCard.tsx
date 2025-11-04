@@ -1,288 +1,181 @@
 import { useTimer } from "@workspace/features/Timer/hooks/useTimer";
-import { type TimerConfig } from "@workspace/types/Timer";
 import { Button } from "@workspace/ui/components/button";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card";
-import { Input } from "@workspace/ui/components/input";
-import { Label } from "@workspace/ui/components/label";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@workspace/ui/components/tabs";
-import {
-  CircleTimer,
-  CIRCUMFERENCE,
-} from "@workspace/ui/components/Timer/CircleTimer";
-import { cn } from "@workspace/ui/lib/utils";
-import { useEffect, useRef, useState } from "react";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@workspace/ui/components/dialog";
+import { CircleTimer } from "@workspace/ui/components/Timer/CircleTimer";
+import { Pause, Play, RotateCcw, Settings, SkipForward } from "lucide-react";
+import { useState } from "react";
 
 export default function TimerCard() {
   const {
     state,
     config,
     isRunning,
-    canStart,
-    currentTimeFormatted,
-    progress,
-    displayInfo,
-    phaseDescription,
-    pomodoroPhase,
-    pomodoroSession,
+    currentTime,
     start,
     pause,
     reset,
     switchMode,
-    updateConfig,
   } = useTimer();
 
-  const totalTime = 1 * 60;
-  const [timeLeft, setTimeLeft] = useState(totalTime);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  // Start countdown
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          if (intervalRef.current) clearInterval(intervalRef.current);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, []);
+  // Get current phase info for Pomodoro
+  const phase = state.pomodoro?.phase || "focus";
+  const completedSessions = state.pomodoro?.completedSessions || 0;
 
-  // Update settings only. Apply changes with the Reset button below
-  const handleSettingChange = (
-    timerType: keyof TimerConfig,
-    setting: string,
-    value: number,
-  ) => {
-    updateConfig({
-      [timerType]: {
-        ...config[timerType],
-        [setting]: value,
-      },
-    } as Partial<TimerConfig>);
+  // Calculate total duration based on current phase
+  const getTotalDuration = () => {
+    if (state.mode === "pomodoro") {
+      if (phase === "short_break")
+        return config.pomodoro.shortBreakDuration * 60;
+      if (phase === "long_break") return config.pomodoro.longBreakDuration * 60;
+      return config.pomodoro.workDuration * 60;
+    }
+    if (state.mode === "countdown") {
+      return config.countdown.duration * 60;
+    }
+    return 0; // stopwatch doesn't have a total duration
   };
 
-  const strokeDashoffset = CIRCUMFERENCE * (1 - progress / 100);
+  const handleToggle = () => {
+    if (isRunning) {
+      pause();
+    } else {
+      start();
+    }
+  };
+
+  const handleTimerClick = () => {
+    setSettingsOpen(true);
+  };
+
+  const handleSkip = () => {
+    reset(); // In pomodoro, this moves to next phase
+  };
+
+  const handleSwitchMode = (mode: "pomodoro" | "stopwatch" | "countdown") => {
+    switchMode(mode);
+    setSettingsOpen(false);
+  };
 
   return (
-    <Card className={cn("w-full max-w-lg max-h-full ")}>
-      <CardHeader>
-        <CardTitle>Multi-Timer</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Timer display */}
-        <div className="flex items-center justify-center text-3xl font-mono">
-          {currentTimeFormatted}
-        </div>
+    <div className="relative flex flex-col items-center justify-center gap-4">
+      {/* Settings Button - Top Right */}
+      <div className="absolute top-0 right-0">
+        <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+          <DialogTrigger asChild>
+            <button
+              className="p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-200 border border-white/20"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5 text-white" />
+            </button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Timer Mode</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col gap-3 mt-4">
+              <Button
+                variant={state.mode === "pomodoro" ? "default" : "outline"}
+                className="w-full justify-start"
+                onClick={() => handleSwitchMode("pomodoro")}
+              >
+                <span className="text-2xl mr-3">🍅</span>
+                <div className="text-left">
+                  <div className="font-semibold">Pomodoro</div>
+                  <div className="text-xs text-muted-foreground">
+                    Work sessions with breaks
+                  </div>
+                </div>
+              </Button>
+              <Button
+                variant={state.mode === "stopwatch" ? "default" : "outline"}
+                className="w-full justify-start"
+                onClick={() => handleSwitchMode("stopwatch")}
+              >
+                <span className="text-2xl mr-3">⏱️</span>
+                <div className="text-left">
+                  <div className="font-semibold">Stopwatch</div>
+                  <div className="text-xs text-muted-foreground">
+                    Count up from zero
+                  </div>
+                </div>
+              </Button>
+              <Button
+                variant={state.mode === "countdown" ? "default" : "outline"}
+                className="w-full justify-start"
+                onClick={() => handleSwitchMode("countdown")}
+              >
+                <span className="text-2xl mr-3">⏳</span>
+                <div className="text-left">
+                  <div className="font-semibold">Countdown</div>
+                  <div className="text-xs text-muted-foreground">
+                    Count down to zero
+                  </div>
+                </div>
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
 
-        {/* Circle Progress Timer */}
-        <div className="flex items-center justify-center">
-          <CircleTimer
-            isRunning={isRunning}
-            strokeDashoffset={strokeDashoffset}
-            currentTimeFormatted={currentTimeFormatted}
-          />
-        </div>
-      </CardContent>
-      <CardFooter className="flex items-center justify-center">
-        <Button
-          className="w-48 h-12 text-2xl rounded-3xl"
-          onClick={() => {
-            if (isRunning) {
-              pause();
-            } else {
-              start();
-            }
-          }}
+      {/* Circle Timer */}
+      <CircleTimer
+        timeLeft={currentTime}
+        totalDuration={getTotalDuration()}
+        phase={phase}
+        completedSessions={completedSessions}
+        sessionsUntilLongBreak={config.pomodoro.sessionsUntilLongBreak}
+        workDuration={config.pomodoro.workDuration * 60}
+        shortBreakDuration={config.pomodoro.shortBreakDuration * 60}
+        longBreakDuration={config.pomodoro.longBreakDuration * 60}
+        onTimerClick={handleTimerClick}
+      />
+
+      {/* Control Buttons - Below Timer */}
+      <div className="flex items-center gap-3 mt-2">
+        {/* Reset Button - Left */}
+        <button
+          onClick={reset}
+          className="p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-200 border border-white/20"
+          title="Reset timer"
         >
-          {isRunning ? "Pause" : "Play"}
-        </Button>
-      </CardFooter>
-    </Card>
+          <RotateCcw className="w-5 h-5 text-white" />
+        </button>
+
+        {/* Play/Pause Button - Center */}
+        <button
+          onClick={handleToggle}
+          className="p-5 rounded-full bg-white hover:bg-white/90 shadow-lg hover:shadow-xl transition-all duration-200"
+          title={isRunning ? "Pause" : "Start"}
+        >
+          {isRunning ? (
+            <Pause className="w-7 h-7 text-gray-900 fill-gray-900" />
+          ) : (
+            <Play className="w-7 h-7 text-gray-900 fill-gray-900 ml-0.5" />
+          )}
+        </button>
+
+        {/* Skip Button - Right (only for pomodoro) */}
+        {state.mode === "pomodoro" ? (
+          <button
+            onClick={handleSkip}
+            className="p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-200 border border-white/20"
+            title="Skip to next"
+          >
+            <SkipForward className="w-5 h-5 text-white" />
+          </button>
+        ) : (
+          <div className="w-[52px]" /> // Spacer to maintain alignment
+        )}
+      </div>
+    </div>
   );
 }
-
-const TimerSetting = ({
-  config,
-  handleSettingChange,
-}: {
-  config: {
-    pomodoro: {
-      workDuration: number;
-      shortBreakDuration: number;
-      longBreakDuration: number;
-      sessionsUntilLongBreak: number;
-    };
-    stopwatch: {
-      maxDuration?: number | undefined;
-    };
-    countdown: {
-      duration: number;
-    };
-  };
-  handleSettingChange: (
-    timerType: keyof TimerConfig,
-    setting: string,
-    value: number,
-  ) => void;
-}) => {
-  return (
-    <>
-      <Tabs defaultValue="pomodoro">
-        <TabsList className="w-full">
-          <TabsTrigger value="pomodoro">Pomodoro</TabsTrigger>
-          <TabsTrigger value="stopwatch">Stopwatch</TabsTrigger>
-          <TabsTrigger value="countdown">Countdown</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="pomodoro">
-          <div className="space-y-6 my-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 m-2 gap-4">
-              <div className="">
-                <Label htmlFor="pomodoro-work-duration">Work duration</Label>
-                <Input
-                  id="pomodoro-work-duration"
-                  type="number"
-                  min={1}
-                  defaultValue={config.pomodoro.workDuration}
-                  onChange={(e) => {
-                    const newWorkDuration = Number(e.target.value);
-                    handleSettingChange(
-                      "pomodoro",
-                      "workDuration",
-                      newWorkDuration,
-                    );
-                  }}
-                />
-              </div>
-              <div className="">
-                <Label htmlFor="pomodoro-short-break-duration">
-                  Short break duration
-                </Label>
-                <Input
-                  id="pomodoro-short-break-duration"
-                  type="number"
-                  min={1}
-                  defaultValue={config.pomodoro.shortBreakDuration}
-                  onChange={(e) => {
-                    const newBreakDuration = Number(e.target.value);
-                    handleSettingChange(
-                      "pomodoro",
-                      "shortBreakDuration",
-                      newBreakDuration,
-                    );
-                  }}
-                />
-              </div>
-              <div className="">
-                <Label htmlFor="pomodoro-long-break-duration">
-                  Long break duration
-                </Label>
-                <Input
-                  id="pomodoro-long-break-duration"
-                  type="number"
-                  min={1}
-                  defaultValue={config.pomodoro.longBreakDuration}
-                  onChange={(e) => {
-                    const newBreakDuration = Number(e.target.value);
-                    handleSettingChange(
-                      "pomodoro",
-                      "longBreakDuration",
-                      newBreakDuration,
-                    );
-                  }}
-                />
-              </div>
-              <div className="">
-                <Label htmlFor="pomodoro-session-until-long-break">
-                  Work session until long break duration
-                </Label>
-                <Input
-                  id="pomodoro-session-until-long-break"
-                  type="number"
-                  min={1}
-                  defaultValue={config.pomodoro.sessionsUntilLongBreak}
-                  onChange={(e) => {
-                    const newSessionUntil = Number(e.target.value);
-                    handleSettingChange(
-                      "pomodoro",
-                      "sessionsUntilLongBreak",
-                      newSessionUntil,
-                    );
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="stopwatch">
-          <div className="space-y-4 my-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 m-2 gap-4">
-              <div>
-                <Label htmlFor="stopwatch-note">Stopwatch</Label>
-                <div className="text-sm text-muted-foreground">
-                  Stopwatch has no duration settings — it counts up from 0.
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="stopwatch-reset-on-switch">
-                  Reset on mode switch
-                </Label>
-                <input
-                  id="stopwatch-reset-on-switch"
-                  type="checkbox"
-                  className="mt-2"
-                  checked={false}
-                  onChange={() => {
-                    // placeholder: if you want to add a setting later,
-                    // handleSettingChange("stopwatch", "resetOnSwitch", value)
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-        <TabsContent value="countdown">
-          <div className="space-y-6 my-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 m-2 gap-4">
-              <div>
-                <Label htmlFor="countdown-duration">Duration (minutes)</Label>
-                <Input
-                  id="countdown-duration"
-                  type="number"
-                  min={1}
-                  defaultValue={config.countdown.duration}
-                  onChange={(e) => {
-                    const newDuration = Number(e.target.value);
-                    handleSettingChange("countdown", "duration", newDuration);
-                  }}
-                />
-              </div>
-              <div>
-                <Label htmlFor="countdown-autostop">Auto stop at 0</Label>
-                <div className="text-sm text-muted-foreground">
-                  Countdown stops automatically when it reaches zero.
-                </div>
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </>
-  );
-};

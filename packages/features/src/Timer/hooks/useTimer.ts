@@ -228,7 +228,7 @@ export function useTimer(options: UseTimerOptions = {}) {
               // Countdown completed
               handleComplete();
             } else {
-              // Pomodoro or interval - transition phase
+              // Pomodoro transition phase
               handlePhaseTransition();
               return newState;
             }

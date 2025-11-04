@@ -1,33 +1,21 @@
 "use client";
 
-import Footer from "@/components/footer/footer";
-import Header from "@/components/header/header";
-import AvatarSetting from "@/components/header/header-avatar-setting";
-import { useTimer } from "@workspace/features/Timer/hooks/useTimer";
+import BottomConfig from "@/components/Config/BottomConfig";
 import type { Task } from "@workspace/types/Task";
-import {
-  CircleTimer,
-  CIRCUMFERENCE,
-} from "@workspace/ui/components/Timer/CircleTimer";
+import TimerCard from "@workspace/ui/components/Timer/TimerCard";
 import Image from "next/image";
-import { SetStateAction, useState } from "react";
+import { useState } from "react";
 
 export default function PlayPage() {
-  const [bgType, setBgType] = useState<"video" | "image">("video");
-  const [bgLink, setBgLink] = useState<string>(
-    "videos/lagoon_background_video_1.mp4",
-  );
-
-  const { isRunning, progress, currentTimeFormatted } = useTimer();
+  const [bgType, setBgType] = useState<"video" | "image">("image");
+  const [bgLink, setBgLink] = useState<string>("images/cozy_workplace_1.jpg");
 
   const [currentTask, setCurrentTask] = useState<Task | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
 
-  const strokeDashoffset = CIRCUMFERENCE * (1 - progress / 100);
-
   return (
     <>
-      <div className="fixed inset-0 -z-10">
+      <div className="fixed inset-0 -z-10" aria-hidden="true">
         {bgType === "video" ? (
           <video
             src={`/${bgLink}`}
@@ -43,30 +31,22 @@ export default function PlayPage() {
         ) : (
           <Image
             src={`/${bgLink}`}
-            alt="Lagoon Background Image"
+            alt="Background Image"
             fill
-            className={`absolute `}
+            sizes="100vw"
+            objectFit="cover"
+            priority
+            className={``}
           />
         )}
       </div>
-      <div className="h-screen w-screen bg-transparent">
-        {/* Header Section */}
-        <Header />
-
+      <section className="h-full w-full bg-transparent">
         {/* Main Content Area */}
         <div className="h-full w-full flex items-center justify-center">
-          {/* Timer Card */}
-          {/* <TimerCard /> */}
-
-          <CircleTimer
-            isRunning={isRunning}
-            strokeDashoffset={strokeDashoffset}
-            currentTimeFormatted={currentTimeFormatted}
-          />
+          <TimerCard />
         </div>
-
-        <Footer setBgType={setBgType} setBgLink={setBgLink} />
-      </div>
+      </section>
+      <BottomConfig setBgType={setBgType} setBgLink={setBgLink} />
     </>
   );
 }

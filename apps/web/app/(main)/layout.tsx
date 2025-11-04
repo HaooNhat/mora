@@ -1,3 +1,5 @@
+import Header from "@/components/Header/Header";
+
 export default function Layout({
   children,
 }: Readonly<{
@@ -5,9 +7,8 @@ export default function Layout({
 }>) {
   return (
     <>
-      <main className="relative w-full h-screen overflow-hidden">
-        {children}
-      </main>
+      <Header />
+      <main className="w-full h-full overflow-hidden">{children}</main>
     </>
   );
 }
