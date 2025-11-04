@@ -1,0 +1,25 @@
+{
+  "name": "@workspace/types",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch --preserveWatchOutput",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@workspace/typescript-config": "workspace:*"
+  },
+  "exports": {
+    "./Session": "./dist/Session.js",
+    "./Project": "./dist/Project.js",
+    "./Task": "./dist/Task.js",
+    "./Timer": "./dist/Timer.js",
+    "./Music": "./dist/Music.js",
+    "./*": "./dist/*.js"
+  }
+}
