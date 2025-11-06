@@ -9,6 +9,7 @@ import {
 } from "@workspace/ui/components/dialog";
 import { CircleTimer } from "@workspace/ui/components/Timer/CircleTimer";
 import { Pause, Play, RotateCcw, Settings, SkipForward } from "lucide-react";
+import { motion } from "motion/react";
 import { useState } from "react";
 
 export default function TimerCard() {
@@ -127,55 +128,87 @@ export default function TimerCard() {
       </div>
 
       {/* Circle Timer */}
-      <CircleTimer
-        timeLeft={currentTime}
-        totalDuration={getTotalDuration()}
-        phase={phase}
-        completedSessions={completedSessions}
-        sessionsUntilLongBreak={config.pomodoro.sessionsUntilLongBreak}
-        workDuration={config.pomodoro.workDuration * 60}
-        shortBreakDuration={config.pomodoro.shortBreakDuration * 60}
-        longBreakDuration={config.pomodoro.longBreakDuration * 60}
-        onTimerClick={handleTimerClick}
-      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, type: "spring" }}
+      >
+        <CircleTimer
+          timeLeft={currentTime}
+          totalDuration={getTotalDuration()}
+          phase={phase}
+          completedSessions={completedSessions}
+          sessionsUntilLongBreak={config.pomodoro.sessionsUntilLongBreak}
+          workDuration={config.pomodoro.workDuration * 60}
+          shortBreakDuration={config.pomodoro.shortBreakDuration * 60}
+          longBreakDuration={config.pomodoro.longBreakDuration * 60}
+          onTimerClick={handleTimerClick}
+        />
+      </motion.div>
 
       {/* Control Buttons - Below Timer */}
-      <div className="flex items-center gap-3 mt-2">
+      <motion.div
+        className="flex items-center gap-3 mt-8 pb-2"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
         {/* Reset Button - Left */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
           onClick={reset}
-          className="p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-200 border border-white/20"
+          className="p-2 rounded-full bg-gradient-to-br from-cyan-400/20 to-teal-400/20 hover:from-cyan-400/30 hover:to-teal-400/30 backdrop-blur-md transition-all duration-200 border border-cyan-400/30 hover:border-cyan-400/50"
           title="Reset timer"
+          aria-label="Reset timer to initial time"
         >
-          <RotateCcw className="w-5 h-5 text-white" />
-        </button>
+          <RotateCcw className="w-4 h-4 text-cyan-300/70 hover:text-cyan-300 transition-colors" />
+        </motion.button>
 
         {/* Play/Pause Button - Center */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.12 }}
+          whileTap={{ scale: 0.92 }}
           onClick={handleToggle}
-          className="p-5 rounded-full bg-white hover:bg-white/90 shadow-lg hover:shadow-xl transition-all duration-200"
-          title={isRunning ? "Pause" : "Start"}
+          className="flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 hover:from-cyan-300 hover:to-teal-300 shadow-lg hover:shadow-xl transition-all duration-200 font-medium text-slate-900"
+          title={isRunning ? "Pause timer" : "Start timer"}
+          aria-label={isRunning ? "Pause timer" : "Start timer"}
+          aria-pressed={isRunning}
         >
           {isRunning ? (
-            <Pause className="w-7 h-7 text-gray-900 fill-gray-900" />
+            <>
+              <Pause className="w-5 h-5 fill-slate-900" />
+              <span>Pause</span>
+            </>
           ) : (
-            <Play className="w-7 h-7 text-gray-900 fill-gray-900 ml-0.5" />
+            <>
+              <motion.div
+                animate={{ x: [0, 2, 0] }}
+                transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5 }}
+              >
+                <Play className="w-5 h-5 fill-slate-900" />
+              </motion.div>
+              <span>Focus</span>
+            </>
           )}
-        </button>
+        </motion.button>
 
         {/* Skip Button - Right (only for pomodoro) */}
         {state.mode === "pomodoro" ? (
-          <button
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
             onClick={handleSkip}
-            className="p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-200 border border-white/20"
-            title="Skip to next"
+            className="p-2 rounded-full bg-gradient-to-br from-cyan-400/20 to-teal-400/20 hover:from-cyan-400/30 hover:to-teal-400/30 backdrop-blur-md transition-all duration-200 border border-cyan-400/30 hover:border-cyan-400/50"
+            title="Skip to next phase"
+            aria-label="Skip to next Pomodoro phase"
           >
-            <SkipForward className="w-5 h-5 text-white" />
-          </button>
+            <SkipForward className="w-4 h-4 text-cyan-300/70 hover:text-cyan-300 transition-colors" />
+          </motion.button>
         ) : (
-          <div className="w-[52px]" /> // Spacer to maintain alignment
+          <div className="w-8" />
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

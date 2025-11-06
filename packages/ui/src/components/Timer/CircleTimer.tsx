@@ -8,7 +8,7 @@ import { useState } from "react";
 const RADIUS = 180;
 const STROKE = 12;
 const NORMALIZED_RADIUS = RADIUS - STROKE / 2;
-export const CIRCUMFERENCE = 2 * Math.PI * NORMALIZED_RADIUS;
+const CIRCUMFERENCE = 2 * Math.PI * NORMALIZED_RADIUS;
 
 type TimerPhase = "focus" | "short_break" | "long_break";
 

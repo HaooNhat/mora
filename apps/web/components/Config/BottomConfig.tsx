@@ -1,3 +1,4 @@
+import { BgTypes } from "@/app/(main)/page";
 import { Button } from "@workspace/ui/components/button";
 import {
   Dialog,
@@ -12,8 +13,8 @@ import {
   DrawerTitle,
 } from "@workspace/ui/components/drawer";
 import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";
-import { cn } from "@workspace/ui/lib/utils";
-import { Wallpaper, Image as ImageIcon, Video } from "lucide-react";
+import { BACKGROUND_GRADIENTS, cn } from "@workspace/ui/lib/utils";
+import { Image as ImageIcon, Palette, Video, Wallpaper } from "lucide-react";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
@@ -32,11 +33,11 @@ const SETTINGS_DISPLAY = {
 // ============================================================================
 
 interface FooterProps {
-  setBgType: Dispatch<SetStateAction<"video" | "image">>;
+  setBgType: Dispatch<SetStateAction<BgTypes>>;
   setBgLink: Dispatch<SetStateAction<string>>;
 }
 
-type TabType = "images" | "videos";
+type TabType = "colors" | "images" | "videos";
 
 // ============================================================================
 // Utility Functions
@@ -74,9 +75,11 @@ const formatFileName = (filename: string): string => {
 export default function BottomConfig({ setBgType, setBgLink }: FooterProps) {
   const [openBgSetting, setOpenBgSetting] = useState<boolean>(false);
   const [backgrounds, setBackgrounds] = useState<{
+    colors: Record<string, string>;
     images: string[];
     videos: string[];
   }>({
+    colors: BACKGROUND_GRADIENTS,
     images: [],
     videos: [],
   });
@@ -87,14 +90,17 @@ export default function BottomConfig({ setBgType, setBgLink }: FooterProps) {
     fetch("/backgrounds.json")
       .then((res) => res.json())
       .then((data) => {
-        setBackgrounds(data);
+        setBackgrounds((prev) => ({
+          ...data,
+          colors: prev.colors,
+        }));
       })
       .catch((err) => {
         console.log("Failed to fetch backgrounds: ", err);
       });
   }, []);
 
-  const handleSelect = (type: "video" | "image", link: string) => {
+  const handleSelect = (type: BgTypes, link: string) => {
     setBgType(type);
     setBgLink(link);
     setOpenBgSetting(false);
@@ -151,10 +157,11 @@ export default function BottomConfig({ setBgType, setBgLink }: FooterProps) {
 
 interface BackgroundContentProps {
   backgrounds: {
+    colors: Record<string, string>;
     images: string[];
     videos: string[];
   };
-  handleSelect: (type: "video" | "image", link: string) => void;
+  handleSelect: (type: BgTypes, link: string) => void;
   className?: string;
 }
 
@@ -163,19 +170,41 @@ const BackgroundContent = ({
   handleSelect,
   className,
 }: BackgroundContentProps) => {
-  const [activeTab, setActiveTab] = useState<TabType>("images");
+  const [activeTab, setActiveTab] = useState<TabType>("colors");
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
   };
 
+  const hasColors = Object.keys(backgrounds.colors).length > 0;
   const hasImages = backgrounds.images.length > 0;
   const hasVideos = backgrounds.videos.length > 0;
 
   return (
     <div className={cn("space-y-4", className)}>
       {/* Tab Navigation */}
-      <div className="flex gap-2 border-b">
+      <div className="flex items-center justify-between gap-2 border-b">
+        <button
+          onClick={() => handleTabChange("colors")}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 font-medium transition-all relative",
+            activeTab === "colors"
+              ? "text-primary"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          <Palette className="h-4 w-4" />
+          Colors
+          {hasColors && (
+            <span className="text-xs bg-muted px-1.5 py-0.5 rounded">
+              {Object.keys(backgrounds.colors).length}
+            </span>
+          )}
+          {activeTab === "colors" && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+          )}
+        </button>
+
         <button
           onClick={() => handleTabChange("images")}
           className={cn(
@@ -221,10 +250,42 @@ const BackgroundContent = ({
 
       {/* Tab Content */}
       <div className="overflow-y-auto max-h-[50vh]">
+        {activeTab === "colors" && (
+          <div className="space-y-3">
+            {hasColors ? (
+              <div className="p-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {Object.entries(backgrounds.colors).map(([name, color]) => (
+                  <div
+                    key={name}
+                    className="group cursor-pointer border rounded-lg overflow-hidden hover:ring-2 hover:ring-primary transition-all hover:shadow-lg"
+                    onClick={() => handleSelect("color", name)}
+                  >
+                    <div className="relative aspect-video bg-muted">
+                      <div
+                        className={`absolute w-full h-full bg-gradient-to-br ${color} group-hover:scale-105 transition-transform duration-200`}
+                      ></div>
+                    </div>
+                    <div className="p-2 bg-card">
+                      <p className="text-xs font-medium truncate">
+                        {name.slice(0, 1).toLocaleUpperCase() + name.slice(1)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                <Palette className="h-12 w-12 mb-2 opacity-50" />
+                <p>No colors available</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTab === "images" && (
           <div className="space-y-3">
             {hasImages ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              <div className="p-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {backgrounds.images.map((img) => (
                   <div
                     key={img}
@@ -260,7 +321,7 @@ const BackgroundContent = ({
         {activeTab === "videos" && (
           <div className="space-y-3">
             {hasVideos ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              <div className="p-1 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {backgrounds.videos.map((vid) => (
                   <div
                     key={vid}
