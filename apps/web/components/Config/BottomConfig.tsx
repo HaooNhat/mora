@@ -109,14 +109,19 @@ export default function BottomConfig({ setBgType, setBgLink }: FooterProps) {
   return (
     <>
       <aside className="absolute bottom-0 w-full flex items-center justify-center gap-4 px-4 py-4 z-10">
-        <Button
-          variant={"outline"}
-          onClick={() => {
-            setOpenBgSetting((prev) => !prev);
-          }}
-        >
-          <Wallpaper />
-        </Button>
+        <div className="">
+          <Button
+            variant={"outline"}
+            size={"default"}
+            title="Background settings"
+            onClick={() => {
+              setOpenBgSetting(true);
+            }}
+            className=""
+          >
+            <Wallpaper />
+          </Button>
+        </div>
 
         {isMobile ? (
           <Drawer open={openBgSetting} onOpenChange={setOpenBgSetting}>
@@ -134,7 +139,7 @@ export default function BottomConfig({ setBgType, setBgLink }: FooterProps) {
           </Drawer>
         ) : (
           <Dialog open={openBgSetting} onOpenChange={setOpenBgSetting}>
-            <DialogContent className="max-w-3xl max-h-[80vh]">
+            <DialogContent className={`max-w-3xl max-h-[80vh]`}>
               <DialogHeader>
                 <DialogTitle>{SETTINGS_DISPLAY.background.title}</DialogTitle>
               </DialogHeader>
@@ -183,7 +188,7 @@ const BackgroundContent = ({
   return (
     <div className={cn("space-y-4", className)}>
       {/* Tab Navigation */}
-      <div className="flex items-center justify-between gap-2 border-b">
+      <div className="flex items-center justify-evenly gap-2 border-b">
         <button
           onClick={() => handleTabChange("colors")}
           className={cn(

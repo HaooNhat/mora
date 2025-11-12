@@ -1,80 +1,324 @@
 import {
-  createInitialTimerState,
-  DEFAULT_TIMER_CONFIG,
   type PomodoroPhase,
-  TIMER_DISPLAY_INFO,
   type TimerConfig,
+  type TimerEvent,
+  type TimerEventPayload,
   type TimerMode,
   type TimerState,
+  calculateProgress,
+  createInitialTimerState,
+  DEFAULT_TIMER_CONFIG,
+  formatTime,
+  getPhaseDuration,
+  isPomodoroMode,
+  TIMER_DISPLAY_INFO,
+  TimerError,
+  TimerErrorCode,
+  validateTimerConfig,
 } from "@workspace/types/Timer";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const formatHMS = (totalSeconds: number) => {
-  const s = Math.max(0, Math.floor(totalSeconds));
-  const hours = Math.floor(s / 3600);
-  const minutes = Math.floor((s % 3600) / 60);
-  const seconds = s % 60;
+// ============================================================================
+// Types
+// ============================================================================
 
-  const pad = (n: number) => String(n).padStart(2, "0");
-
-  return hours > 0
-    ? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
-    : `${pad(minutes)}:${pad(seconds)}`;
-};
-
+/**
+ * Options for useTimer hook
+ */
 interface UseTimerOptions {
+  /** Initial timer configuration */
   config?: Partial<TimerConfig>;
+  /** Initial timer mode */
+  initialMode?: TimerMode;
+  /** Callback fired when timer completes */
   onComplete?: (mode: TimerMode) => void;
+  /** Callback fired when pomodoro phase changes */
   onPhaseChange?: (phase: PomodoroPhase) => void;
+  /** Callback fired on each tick (every second) */
   onTick?: (state: TimerState) => void;
+  /** Callback fired on any timer event */
+  onEvent?: (payload: TimerEventPayload) => void;
+  /** Enable persistence to localStorage */
+  enablePersistence?: boolean;
+  /** localStorage key for persisting state */
+  persistenceKey?: string;
 }
 
-export function useTimer(options: UseTimerOptions = {}) {
-  const { config: userConfig, onComplete, onPhaseChange, onTick } = options;
+/**
+ * Return type of useTimer hook
+ */
+interface UseTimerReturn {
+  // State
+  state: TimerState;
+  config: TimerConfig;
 
-  // Merge user config with defaults
-  const config = useRef<TimerConfig>({
-    ...DEFAULT_TIMER_CONFIG,
-    ...userConfig,
-    pomodoro: { ...DEFAULT_TIMER_CONFIG.pomodoro, ...userConfig?.pomodoro },
-    countdown: { ...DEFAULT_TIMER_CONFIG.countdown, ...userConfig?.countdown },
-    stopwatch: { ...DEFAULT_TIMER_CONFIG.stopwatch, ...userConfig?.stopwatch },
+  // Computed values
+  isRunning: boolean;
+  isPaused: boolean;
+  isCompleted: boolean;
+  canStart: boolean;
+  canPause: boolean;
+  currentTime: number;
+  currentTimeFormatted: string;
+  totalTimeFormatted: string;
+  progress: number;
+  displayInfo: (typeof TIMER_DISPLAY_INFO)[TimerMode];
+  phaseDescription: string;
+
+  // Mode-specific state
+  pomodoroPhase?: PomodoroPhase;
+  pomodoroSession?: number;
+  pomodoroCompletedSessions?: number;
+
+  // Actions
+  start: () => void;
+  pause: () => void;
+  stop: () => void;
+  skip: () => void;
+  reset: () => void;
+  switchMode: (mode: TimerMode) => void;
+  updateConfig: (config: Partial<TimerConfig>) => void;
+
+  // Error state
+  error: Error | null;
+  clearError: () => void;
+}
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const STORAGE_PREFIX = "timer";
+const DEFAULT_PERSISTENCE_KEY = `${STORAGE_PREFIX}_state`;
+
+// ============================================================================
+// Hook Implementation
+// ============================================================================
+
+/**
+ * Custom hook for managing timer state and operations
+ *
+ * @example
+ * ```tsx
+ * const {
+ *   state,
+ *   isRunning,
+ *   currentTimeFormatted,
+ *   start,
+ *   pause,
+ *   reset
+ * } = useTimer({
+ *   config: { pomodoro: { workDuration: 30 } },
+ *   onComplete: (mode) => console.log(`${mode} completed!`)
+ * });
+ * ```
+ */
+export function useTimer(options: UseTimerOptions = {}): UseTimerReturn {
+  const {
+    config: userConfig,
+    initialMode = "pomodoro",
+    onComplete,
+    onPhaseChange,
+    onTick,
+    onEvent,
+    enablePersistence = false,
+    persistenceKey = DEFAULT_PERSISTENCE_KEY,
+  } = options;
+
+  // ============================================================================
+  // State
+  // ============================================================================
+
+  const [error, setError] = useState<Error | null>(null);
+
+  // Validated configuration
+  const [config, setConfig] = useState<TimerConfig>(() => {
+    try {
+      return validateTimerConfig(userConfig || {});
+    } catch (err) {
+      setError(
+        new TimerError(
+          "Invalid timer configuration",
+          TimerErrorCode.INVALID_CONFIG,
+          { config: userConfig },
+        ),
+      );
+      console.error("Invalid timer configuration: ", err);
+      return DEFAULT_TIMER_CONFIG;
+    }
   });
 
   // Timer state
-  const [timerState, setTimerState] = useState<TimerState>(() =>
-    createInitialTimerState("pomodoro", config.current),
-  );
+  const [timerState, setTimerState] = useState<TimerState>(() => {
+    // Try to restore from localStorage if persistence enabled
+    if (enablePersistence) {
+      try {
+        const stored = localStorage.getItem(persistenceKey);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          // Convert date strings back to Date objects
+          if (parsed.startTime) {
+            parsed.startTime = new Date(parsed.startTime);
+          }
+          return parsed as TimerState;
+        }
+      } catch (err) {
+        console.warn("Failed to restore timer state from localStorage:", err);
+      }
+    }
 
-  // Refs for accurate timing
+    return createInitialTimerState(initialMode, config);
+  });
+
+  // ============================================================================
+  // Refs
+  // ============================================================================
+
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number | null>(null);
   const pausedTimeRef = useRef<number>(0);
 
-  const calculateProgress = useCallback((state: TimerState): number => {
-    if (state.mode === "stopwatch") {
-      return 0;
+  // Store callbacks in refs to avoid re-creating interval
+  const onCompleteRef = useRef(onComplete);
+  const onPhaseChangeRef = useRef(onPhaseChange);
+  const onTickRef = useRef(onTick);
+  const onEventRef = useRef(onEvent);
+
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+    onPhaseChangeRef.current = onPhaseChange;
+    onTickRef.current = onTick;
+    onEventRef.current = onEvent;
+  }, [onComplete, onPhaseChange, onTick, onEvent]);
+
+  // ============================================================================
+  // Persistence
+  // ============================================================================
+
+  /**
+   * Persists current state to localStorage
+   */
+  const persistState = useCallback(
+    (state: TimerState) => {
+      if (!enablePersistence) return;
+
+      try {
+        localStorage.setItem(persistenceKey, JSON.stringify(state));
+      } catch (err) {
+        console.warn("Failed to persist timer state:", err);
+        setError(
+          new TimerError(
+            "Failed to save timer state",
+            TimerErrorCode.STORAGE_ERROR,
+            { error: err },
+          ),
+        );
+      }
+    },
+    [enablePersistence, persistenceKey],
+  );
+
+  // Persist state changes
+  useEffect(() => {
+    persistState(timerState);
+  }, [timerState, persistState]);
+
+  // ============================================================================
+  // Event Emission
+  // ============================================================================
+
+  /**
+   * Emits a timer event
+   */
+  const emitEvent = useCallback(
+    (event: TimerEvent) => {
+      const payload: TimerEventPayload = {
+        event,
+        timestamp: new Date(),
+        mode: timerState.mode,
+        status: timerState.status,
+        currentTime: timerState.currentTime,
+        phase: timerState.pomodoro?.phase,
+      };
+
+      onEventRef.current?.(payload);
+    },
+    [timerState],
+  );
+
+  // ============================================================================
+  // Timer Operations
+  // ============================================================================
+
+  /**
+   * Starts or resumes the timer
+   */
+  const start = useCallback(() => {
+    if (timerState.status === "running") return;
+
+    try {
+      startTimeRef.current = Date.now() - pausedTimeRef.current;
+      pausedTimeRef.current = 0;
+
+      setTimerState((prev) => ({
+        ...prev,
+        status: "running",
+        startTime: new Date(),
+      }));
+
+      const event =
+        timerState.status === "paused" ? "timer_resumed" : "timer_started";
+      emitEvent(event);
+    } catch (err) {
+      setError(
+        new TimerError(
+          "Failed to start timer",
+          TimerErrorCode.INVALID_TRANSITION,
+          { error: err },
+        ),
+      );
     }
+  }, [timerState.status, emitEvent]);
 
-    if (state.totalTime === 0) return 0;
+  /**
+   * Pauses the timer
+   */
+  const pause = useCallback(() => {
+    if (timerState.status !== "running") return;
 
-    const elapsed = state.totalTime - state.currentTime;
-    return Math.min(100, Math.max(0, (elapsed / state.totalTime) * 100));
-  }, []);
+    try {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
 
-  const updateConfig = useCallback((newConfig: Partial<TimerConfig>) => {
-    config.current = {
-      ...config.current,
-      ...newConfig,
-      pomodoro: { ...config.current.pomodoro, ...newConfig?.pomodoro },
-      countdown: { ...config.current.countdown, ...newConfig?.countdown },
-      stopwatch: { ...config.current.stopwatch, ...newConfig?.stopwatch },
-    };
-  }, []);
+      if (startTimeRef.current) {
+        pausedTimeRef.current = Date.now() - startTimeRef.current;
+      }
 
-  const switchMode = useCallback(
-    (mode: TimerMode) => {
-      // Stop current timer
+      setTimerState((prev) => ({
+        ...prev,
+        status: "paused",
+        pausedTime: pausedTimeRef.current / 1000,
+      }));
+
+      emitEvent("timer_paused");
+    } catch (err) {
+      setError(
+        new TimerError(
+          "Failed to pause timer",
+          TimerErrorCode.INVALID_TRANSITION,
+          { error: err },
+        ),
+      );
+    }
+  }, [timerState.status, emitEvent]);
+
+  /**
+   * Stops the timer completely
+   */
+  const stop = useCallback(() => {
+    try {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -83,129 +327,182 @@ export function useTimer(options: UseTimerOptions = {}) {
       startTimeRef.current = null;
       pausedTimeRef.current = 0;
 
-      // TODO: check this calculateProgress function
-      const newState = createInitialTimerState(mode, config.current);
+      setTimerState((prev) => ({
+        ...prev,
+        status: "idle",
+        pausedTime: 0,
+      }));
+
+      emitEvent("timer_stopped");
+    } catch (err) {
+      setError(
+        new TimerError(
+          "Failed to stop timer",
+          TimerErrorCode.INVALID_TRANSITION,
+          { error: err },
+        ),
+      );
+    }
+  }, [emitEvent]);
+
+  const skip = useCallback(() => {
+    try {
+      handlePhaseTransition();
+
+      emitEvent("timer_skipped");
+    } catch (err) {
+      setError(
+        new TimerError(
+          "Failed to skip timer",
+          TimerErrorCode.INVALID_TRANSITION,
+          { error: err },
+        ),
+      );
+    }
+  }, [emitEvent]);
+
+  /**
+   * Handles timer completion
+   */
+  const handleComplete = useCallback(() => {
+    setTimerState((prev) => ({ ...prev, status: "completed" }));
+    emitEvent("timer_completed");
+    onCompleteRef.current?.(timerState.mode);
+  }, [timerState.mode, emitEvent]);
+
+  /**
+   * Handles pomodoro phase transition
+   */
+  const handlePhaseTransition = useCallback(() => {
+    setTimerState((prev) => {
+      if (!isPomodoroMode(prev)) return prev;
+
+      const cfg = config.pomodoro;
+      let newPhase: PomodoroPhase;
+      let newSession = prev.pomodoro.session;
+      let newCompleted = prev.pomodoro.completedSessions;
+
+      if (prev.pomodoro.phase === "focus") {
+        // Work finished - go to break
+        newSession += 1;
+        newCompleted += 1;
+
+        if (newSession % cfg.sessionsUntilLongBreak === 0) {
+          newPhase = "long_break";
+        } else {
+          newPhase = "short_break";
+        }
+      } else {
+        // Break finished - go to work
+        newPhase = "focus";
+      }
+
+      const duration = getPhaseDuration(newPhase, cfg);
+
+      emitEvent("phase_changed");
+      onPhaseChangeRef.current?.(newPhase);
+
+      return {
+        ...prev,
+        pomodoro: {
+          phase: newPhase,
+          session: newSession,
+          completedSessions: newCompleted,
+        },
+        currentTime: duration,
+        totalTime: duration,
+        progress: 0,
+        status: "idle",
+      };
+    });
+  }, [config.pomodoro, emitEvent]);
+
+  /**
+   * Resets timer to initial state
+   */
+  const reset = useCallback(() => {
+    try {
+      stop();
+
+      const newState = createInitialTimerState(timerState.mode, config);
       setTimerState({
         ...newState,
         progress: calculateProgress(newState),
       });
+
+      emitEvent("timer_reset");
+    } catch (err) {
+      setError(
+        new TimerError(
+          "Failed to reset timer",
+          TimerErrorCode.INVALID_TRANSITION,
+          { error: err },
+        ),
+      );
+    }
+  }, [timerState.mode, config, stop, emitEvent]);
+
+  /**
+   * Switches timer mode
+   */
+  const switchMode = useCallback(
+    (mode: TimerMode) => {
+      try {
+        stop();
+
+        const newState = createInitialTimerState(mode, config);
+        setTimerState({
+          ...newState,
+          progress: calculateProgress(newState),
+        });
+
+        emitEvent("mode_changed");
+      } catch (err) {
+        setError(
+          new TimerError(
+            "Failed to switch mode",
+            TimerErrorCode.INVALID_TRANSITION,
+            { error: err, mode },
+          ),
+        );
+      }
     },
-    [calculateProgress],
+    [config, stop, emitEvent],
   );
 
-  const start = useCallback(() => {
-    if (timerState.status === "running") return;
+  /**
+   * Updates timer configuration
+   */
+  const updateConfig = useCallback(
+    (newConfig: Partial<TimerConfig>) => {
+      try {
+        const validated = validateTimerConfig({ ...config, ...newConfig });
+        setConfig(validated);
+        emitEvent("config_updated");
+      } catch (err) {
+        setError(
+          new TimerError(
+            "Invalid configuration update",
+            TimerErrorCode.INVALID_CONFIG,
+            { config: newConfig },
+          ),
+        );
+        console.error("Invalid configuration update: ", err);
+      }
+    },
+    [config, emitEvent],
+  );
 
-    startTimeRef.current = Date.now() - pausedTimeRef.current;
-    pausedTimeRef.current = 0;
-
-    setTimerState((prev) => ({
-      ...prev,
-      status: "running",
-      startTime: new Date(),
-    }));
-  }, [timerState.status]);
-
-  const pause = useCallback(() => {
-    if (timerState.status !== "running") return;
-
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-
-    if (startTimeRef.current) {
-      pausedTimeRef.current = Date.now() - startTimeRef.current;
-    }
-
-    setTimerState((prev) => ({
-      ...prev,
-      status: "paused",
-      pausedTime: pausedTimeRef.current / 1000,
-    }));
-  }, [timerState.status]);
-
-  const stop = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-
-    startTimeRef.current = null;
-    pausedTimeRef.current = 0;
-
-    setTimerState((prev) => ({
-      ...prev,
-      status: "idle",
-      pausedTime: 0,
-    }));
+  /**
+   * Clears error state
+   */
+  const clearError = useCallback(() => {
+    setError(null);
   }, []);
 
-  const reset = useCallback(() => {
-    stop();
-
-    const newState = createInitialTimerState(timerState.mode, config.current);
-    setTimerState({
-      ...newState,
-      progress: calculateProgress(newState),
-    });
-  }, [timerState.mode, stop, calculateProgress]);
-
-  const handleComplete = useCallback(() => {
-    setTimerState((prev) => ({ ...prev, status: "completed" }));
-    onComplete?.(timerState.mode);
-  }, [timerState.mode, onComplete]);
-
-  const handlePhaseTransition = useCallback(() => {
-    setTimerState((prev) => {
-      const newState = { ...prev };
-
-      if (prev.mode === "pomodoro" && prev.pomodoro) {
-        const cfg = config.current.pomodoro;
-
-        if (prev.pomodoro.phase === "focus") {
-          // Work finished - go to break
-          const nextSession = prev.pomodoro.session + 1;
-
-          if (nextSession % cfg.sessionsUntilLongBreak === 0) {
-            // Long break time
-            newState.pomodoro = {
-              ...prev.pomodoro,
-              phase: "long_break",
-              session: nextSession,
-              completedSessions: prev.pomodoro.completedSessions + 1,
-            };
-            newState.currentTime = cfg.longBreakDuration * 60;
-            newState.totalTime = cfg.longBreakDuration * 60;
-            onPhaseChange?.("long_break");
-          } else {
-            // Short break time
-            newState.pomodoro = {
-              ...prev.pomodoro,
-              phase: "short_break",
-              session: nextSession,
-              completedSessions: prev.pomodoro.completedSessions + 1,
-            };
-            newState.currentTime = cfg.shortBreakDuration * 60;
-            newState.totalTime = cfg.shortBreakDuration * 60;
-            onPhaseChange?.("short_break");
-          }
-        } else {
-          // Break finished - go to work
-          newState.pomodoro = {
-            ...prev.pomodoro,
-            phase: "focus",
-          };
-          newState.currentTime = cfg.workDuration * 60;
-          newState.totalTime = cfg.workDuration * 60;
-          onPhaseChange?.("focus");
-        }
-      }
-
-      newState.progress = calculateProgress(newState);
-      return newState;
-    });
-  }, [handleComplete, onPhaseChange, calculateProgress]);
+  // ============================================================================
+  // Timer Tick Effect
+  // ============================================================================
 
   useEffect(() => {
     if (timerState.status !== "running") return;
@@ -221,24 +518,22 @@ export function useTimer(options: UseTimerOptions = {}) {
         } else {
           // Count down
           if (prev.currentTime <= 1) {
-            // Timer reached zero
             newState.currentTime = 0;
 
             if (prev.mode === "countdown") {
-              // Countdown completed
               handleComplete();
-            } else {
-              // Pomodoro transition phase
+            } else if (isPomodoroMode(prev)) {
               handlePhaseTransition();
-              return newState;
             }
-          } else {
-            newState.currentTime = prev.currentTime - 1;
+
+            return newState;
           }
+
+          newState.currentTime = prev.currentTime - 1;
         }
 
         newState.progress = calculateProgress(newState);
-        onTick?.(newState);
+        onTickRef.current?.(newState);
 
         return newState;
       });
@@ -255,11 +550,12 @@ export function useTimer(options: UseTimerOptions = {}) {
     timerState.mode,
     handleComplete,
     handlePhaseTransition,
-    calculateProgress,
-    onTick,
   ]);
 
-  // Cleanup on unmount
+  // ============================================================================
+  // Cleanup
+  // ============================================================================
+
   useEffect(() => {
     return () => {
       if (intervalRef.current) {
@@ -268,7 +564,10 @@ export function useTimer(options: UseTimerOptions = {}) {
     };
   }, []);
 
-  // Computed values
+  // ============================================================================
+  // Computed Values
+  // ============================================================================
+
   const isRunning = timerState.status === "running";
   const isPaused = timerState.status === "paused";
   const isCompleted = timerState.status === "completed";
@@ -276,20 +575,22 @@ export function useTimer(options: UseTimerOptions = {}) {
     timerState.status === "idle" || timerState.status === "paused";
   const canPause = timerState.status === "running";
 
-  const currentTimeFormatted = formatHMS(timerState.currentTime);
-  const totalTimeFormatted = formatHMS(timerState.totalTime);
-
+  const currentTimeFormatted = formatTime(timerState.currentTime);
+  const totalTimeFormatted = formatTime(timerState.totalTime);
   const displayInfo = TIMER_DISPLAY_INFO[timerState.mode];
 
-  // Phase description for pomodoro and interval
   const phaseDescription = timerState.pomodoro
-    ? `Session ${timerState.pomodoro.session} - ${timerState.pomodoro.phase}`
+    ? `Session ${timerState.pomodoro.session} - ${timerState.pomodoro.phase.replace("_", " ")}`
     : displayInfo.description;
+
+  // ============================================================================
+  // Return
+  // ============================================================================
 
   return {
     // State
     state: timerState,
-    config: config.current,
+    config,
 
     // Computed values
     isRunning,
@@ -297,8 +598,6 @@ export function useTimer(options: UseTimerOptions = {}) {
     isCompleted,
     canStart,
     canPause,
-
-    // Display values
     currentTime: timerState.currentTime,
     currentTimeFormatted,
     totalTimeFormatted,
@@ -309,13 +608,19 @@ export function useTimer(options: UseTimerOptions = {}) {
     // Mode-specific state
     pomodoroPhase: timerState.pomodoro?.phase,
     pomodoroSession: timerState.pomodoro?.session,
+    pomodoroCompletedSessions: timerState.pomodoro?.completedSessions,
 
     // Actions
     start,
     pause,
     stop,
+    skip,
     reset,
     switchMode,
     updateConfig,
+
+    // Error handling
+    error,
+    clearError,
   };
 }

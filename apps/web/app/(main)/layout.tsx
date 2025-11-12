@@ -1,3 +1,4 @@
+import ConfigDock from "@/components/Dock/ConfigDock";
 import Header from "@/components/Header/Header";
 
 export default function Layout({
@@ -6,9 +7,10 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <div className="flex flex-col h-dvh md:h-screen">
       <Header />
-      <main className="w-full h-full overflow-hidden">{children}</main>
-    </>
+      <main className="flex-1 overflow-auto">{children}</main>
+      <ConfigDock />
+    </div>
   );
 }
