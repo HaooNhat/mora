@@ -6,13 +6,15 @@ export default function Header({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        "flex items-center justify-between px-4 py-3 md:py-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "flex items-center justify-between px-4 py-4 md:py-4",
         className,
       )}
     >
-      <div className="flex items-center gap-2">
-        <Droplets className="w-5 h-5 md:w-6 md:h-6" />
-        <span className="text-lg md:text-xl font-semibold">Lagoon</span>
+      <div className="flex items-center gap-2 opacity-90">
+        <Droplets className="size-6 md:size-7 lg:size-8 opacity-75" />
+        <span className="text-2xl md:text-3xl font-semibold text-shadow-lg opacity-75">
+          Lagoon
+        </span>
       </div>
 
       {/* User setting */}

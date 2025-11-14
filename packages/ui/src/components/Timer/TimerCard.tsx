@@ -5,21 +5,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@workspace/ui/components/dialog";
 import { CircleTimer } from "@workspace/ui/components/Timer/CircleTimer";
-import {
-  Pause,
-  Play,
-  RotateCcw,
-  Settings,
-  SkipForward,
-  TimerReset,
-} from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
-import { WaterRippleBackground } from "@workspace/ui/components/WaterEffect/WaterRippleBackground";
 import { cn } from "@workspace/ui/lib/utils";
+import { Pause, Play, SkipForward, TimerReset } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
 
 export default function TimerCard() {
   const {
@@ -77,9 +68,9 @@ export default function TimerCard() {
     <div className="relative flex flex-col h-full items-center justify-evenly gap-6 md:gap-8 w-full max-w-md">
       {/* Circle Timer */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.75 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, type: "spring" }}
+        transition={{ duration: 1.5, type: "spring" }}
         className="relative w-full aspect-square flex items-center justify-center"
       >
         <CircleTimer
@@ -92,34 +83,35 @@ export default function TimerCard() {
           longBreakDuration={config.pomodoro.longBreakDuration * 60}
           onTimerClick={handleTimerClick}
         />
-        {isRunning && <WaterRippleBackground />}
+        {/* {isRunning && <WaterRippleBackground />} */}
       </motion.div>
 
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, type: "spring" }}
-        className="w-full flex items-center justify-center gap-4"
+        transition={{ duration: 1.5, type: "spring" }}
+        className="w-full flex items-center justify-center gap-8"
       >
-        <AnimatePresence mode="wait">
-          {!isRunning && (
-            <Button
-              variant={"secondary"}
-              size={"sm"}
-              onClick={skip}
-              className="rounded-full"
-              asChild
+        <AnimatePresence initial={false}>
+          {!isRunning ? (
+            <motion.div
+              key="reset"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              whileHover={{ scale: 1.1, y: -6 }}
+              transition={{ duration: 0.5 }}
             >
-              <motion.button
-                initial={{ opacity: 0, x: 8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 8 }}
-                transition={{ duration: 0.2 }}
+              <Button
+                variant={"secondary"}
+                size={"sm"}
+                onClick={handleReset}
+                className="rounded-xl"
               >
                 <TimerReset />
-              </motion.button>
-            </Button>
-          )}
+              </Button>
+            </motion.div>
+          ) : null}
         </AnimatePresence>
         <Button
           data-state={isRunning ? "running" : "paused"}
@@ -127,15 +119,13 @@ export default function TimerCard() {
           onClick={handleToggle}
           size="lg"
           className={cn(
-            "w-4/12 flex items-center justify-center gap-2 rounded-full text-lg font-medium transition-all duration-400",
+            "w-40 flex items-center justify-center gap-2 rounded-xl text-lg font-medium",
           )}
           asChild
         >
           <motion.button
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className=""
+            whileHover={{ scale: 1.1, y: -6 }}
+            transition={{ duration: 0.3 }}
           >
             {isRunning ? (
               <>
@@ -150,20 +140,21 @@ export default function TimerCard() {
             )}
           </motion.button>
         </Button>
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           {!isRunning && (
             <Button
               variant={"secondary"}
               size={"sm"}
-              onClick={skip}
-              className="rounded-full"
+              onClick={handleSkip}
+              className="rounded-xl"
               asChild
             >
               <motion.button
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -8 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                whileHover={{ scale: 1.1, y: -6 }}
+                transition={{ duration: 0.3 }}
               >
                 <SkipForward />
               </motion.button>

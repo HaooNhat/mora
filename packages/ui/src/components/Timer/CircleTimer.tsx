@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
 const RADIUS = 180;
-const STROKE = 8;
+const STROKE = 10;
 const NORMALIZED_RADIUS = RADIUS - STROKE / 2;
 const CIRCUMFERENCE = 2 * Math.PI * NORMALIZED_RADIUS;
 
