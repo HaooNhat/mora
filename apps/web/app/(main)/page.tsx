@@ -1,59 +1,93 @@
 "use client";
 
-import ConfigDock from "@/components/Dock/ConfigDock";
-import Header from "@/components/Header/Header";
-import TimerCard from "@workspace/ui/components/Timer/TimerCard";
+import ConfigDock, {
+  LOCAL_STORAGE_BG_KEY,
+} from "@/components/dock/config-dock";
+import Header from "@/components/header/header";
+import TimerCard from "@workspace/features/timer/components/timer-card";
+import { cn } from "@workspace/ui/lib/utils";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export type BgTypes = "color" | "video" | "image";
 
+/**
+ * Main play page with dynamic background and timer
+ */
 export default function PlayPage() {
+  // -------------- Hooks -------------------------------------------
+  // Background state (kept local as it's UI-specific)
   const [bgType, setBgType] = useState<BgTypes>("image");
-  const [bgLink, setBgLink] = useState<string>("images/cozy-work-room.jpg");
+  const [bgLink, setBgLink] = useState<string>("images/cozy-bedroom.jpg");
+
+  // --------------- Effects ----------------------------------------
+  // Load saved background from localStorage
+  useEffect(() => {
+    try {
+      const savedBg = localStorage.getItem(LOCAL_STORAGE_BG_KEY);
+      if (savedBg) {
+        const { type, link } = JSON.parse(savedBg);
+        setBgType(type);
+        setBgLink(link);
+      }
+    } catch (err) {
+      console.error("Failed to load background from localStorage:", err);
+    }
+  }, []);
+
+  // --------------- Render Logics ----------------------------------
+  const BackgroundImage = () => {
+    return (
+      <div className="absolute inset-0 w-full h-full">
+        {bgType === "image" && (
+          <Image
+            src={`/${bgLink}`}
+            alt="Background Image"
+            fill
+            sizes="100vw"
+            style={{ objectFit: "cover" }}
+            priority
+          />
+        )}
+        {bgType === "video" && (
+          <video
+            src={`/${bgLink}`}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            Your browser does not support the video tag.
+          </video>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
-      <div className="flex flex-col h-dvh md:h-screen">
-        <Header />
-        <main className="flex-1 overflow-auto">
-          <div className="fixed inset-0 -z-10" aria-hidden="true">
-            {/* {bgType === "color" && ( */}
-            {/*   <div className={`absolute inset-0 w-full h-full`}></div> */}
-            {/* )} */}
-            {bgType === "image" && (
-              <Image
-                src={`/${bgLink}`}
-                alt="Background Image"
-                fill
-                sizes="100vw"
-                objectFit="cover"
-                priority
-                className={``}
-              />
-            )}
-            {bgType === "video" && (
-              <video
-                src={`/${bgLink}`}
-                autoPlay
-                loop
-                muted
-                preload="none"
-                className="absolute inset-0 w-full h-full object-cover"
-              >
-                <source
-                  src="videos/lagoon_background_video.mp4"
-                  type="video/mp4"
-                />
-                Your browser does not support the video tag.
-              </video>
-            )}
-          </div>
-          <section className="h-full w-full flex items-center justify-center">
-            <TimerCard />
-          </section>
-        </main>
-        <ConfigDock setBgType={setBgType} setBgLink={setBgLink} />
+      <div className="fixed inset-0 -z-10" aria-hidden="true"></div>
+      <BackgroundImage />
+
+      {/* Main content */}
+      <div className="flex flex-col h-dvh md:h-screen md:p-4 transition-all duration-1000">
+        <div
+          className={cn(
+            "md:border-2 h-full md:rounded-lg flex flex-col bg-background/90 transition-all duration-1000",
+          )}
+        >
+          <Header />
+
+          <main className="flex-1 overflow-auto">
+            <section className="h-full w-full flex items-center justify-center">
+              <TimerCard />
+            </section>
+          </main>
+
+          <ConfigDock setBgType={setBgType} setBgLink={setBgLink} />
+        </div>
       </div>
     </>
   );

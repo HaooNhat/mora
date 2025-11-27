@@ -11,17 +11,24 @@
   "dependencies": {
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "@workspace/types": "workspace:*"
+    "lucide-react": "^0.475.0",
+    "motion": "^12.23.24",
+    "@workspace/types": "workspace:*",
+    "@workspace/ui": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^20.19.9",
     "@types/react": "^19.1.9",
-    "@workspace/typescript-config": "workspace:*"
+    "@types/react-dom": "^19.1.7",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "typescript": "^5.9.2"
   },
   "exports": {
-    "./Timer/*": "./dist/Timer/*.js",
-    "./Project/*": "./dist/Project/*.js",
-    "./Task/*": "./dist/Task/*.js",
-    "./Music/*": "./dist/Music/*.js",
+    "./timer/*": "./dist/timer/*.js",
+    "./project/*": "./dist/project/*.js",
+    "./task/*": "./dist/task/*.js",
+    "./music/*": "./dist/music/*.js",
     "./*": "./dist/*.js"
   }
 }

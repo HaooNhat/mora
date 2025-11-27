@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@workspace/core": "workspace:*",
     "@workspace/features": "workspace:*",
     "@workspace/types": "workspace:*",
     "@workspace/ui": "workspace:*",

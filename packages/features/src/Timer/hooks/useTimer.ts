@@ -47,7 +47,7 @@ interface UseTimerOptions {
 /**
  * Return type of useTimer hook
  */
-interface UseTimerReturn {
+export interface UseTimerReturn {
   // State
   state: TimerState;
   config: TimerConfig;
