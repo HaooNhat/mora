@@ -13,8 +13,7 @@
   },
   "dependencies": {
     "@workspace/core": "workspace:*",
-    "@workspace/features": "workspace:*",
-    "@workspace/types": "workspace:*",
+    "@workspace/frontend": "workspace:*",
     "@workspace/ui": "workspace:*",
     "lucide-react": "^0.548.0",
     "motion": "^12.23.24",

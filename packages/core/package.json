@@ -15,6 +15,13 @@
     "@workspace/typescript-config": "workspace:*"
   },
   "exports": {
-    "./*": "./dist/*.js"
+    "./timer": {
+      "types": "./dist/timer/index.d.ts",
+      "default": "./dist/timer/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
   }
 }

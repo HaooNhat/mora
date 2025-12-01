@@ -4,8 +4,7 @@ import ConfigDock, {
   LOCAL_STORAGE_BG_KEY,
 } from "@/components/dock/config-dock";
 import Header from "@/components/header/header";
-import TimerCard from "@workspace/features/timer/components/timer-card";
-import { cn } from "@workspace/ui/lib/utils";
+import TimerCard from "@/components/timer/timer-card";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -15,12 +14,17 @@ export type BgTypes = "color" | "video" | "image";
  * Main play page with dynamic background and timer
  */
 export default function PlayPage() {
-  // -------------- Hooks -------------------------------------------
+  // ==========================================================================
+  // HOOKS
+  // ==========================================================================
+
   // Background state (kept local as it's UI-specific)
   const [bgType, setBgType] = useState<BgTypes>("image");
   const [bgLink, setBgLink] = useState<string>("images/cozy-bedroom.jpg");
 
-  // --------------- Effects ----------------------------------------
+  // ==========================================================================
+  // EFFECTS
+  // ==========================================================================
   // Load saved background from localStorage
   useEffect(() => {
     try {
@@ -35,7 +39,9 @@ export default function PlayPage() {
     }
   }, []);
 
-  // --------------- Render Logics ----------------------------------
+  // ==========================================================================
+  // RENDER LOGICS
+  // ==========================================================================
   const BackgroundImage = () => {
     return (
       <div className="absolute inset-0 w-full h-full">
@@ -68,16 +74,13 @@ export default function PlayPage() {
 
   return (
     <>
-      <div className="fixed inset-0 -z-10" aria-hidden="true"></div>
-      <BackgroundImage />
+      <div className="fixed inset-0 -z-10" aria-hidden="true">
+        <BackgroundImage />
+      </div>
 
       {/* Main content */}
       <div className="flex flex-col h-dvh md:h-screen md:p-4 transition-all duration-1000">
-        <div
-          className={cn(
-            "md:border-2 h-full md:rounded-lg flex flex-col bg-background/90 transition-all duration-1000",
-          )}
-        >
+        <div className="md:border-2 h-full md:rounded-lg flex flex-col bg-background/90 transition-all duration-1000">
           <Header />
 
           <main className="flex-1 overflow-auto">

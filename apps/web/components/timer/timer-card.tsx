@@ -19,30 +19,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workspace/ui/components/dialog";
-import { CircleTimer } from "@workspace/features/timer/components/circle-timer";
+import { CircleTimer } from "@/components/timer/circle-timer";
+import useTimer from "@workspace/frontend/hooks/use-timer";
+import { TimerMode } from "@workspace/core/timer";
 
 export default function TimerCard() {
   // Access global timer state
   const {
-    state,
+    timerState: state,
     config,
+
     isRunning,
-    currentTimeFormatted,
+    formattedTime,
     progress,
-    pomodoroPhase,
-    pomodoroCompletedSessions,
+
     start,
     pause,
     reset,
-    skip,
-    switchMode,
-  } = useAppTimer();
+    skipPhase,
+    setMode,
+  } = useTimer();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
-
-  // Get current phase info for Pomodoro
-  const phase = pomodoroPhase || "focus";
-  const completedSessions = pomodoroCompletedSessions || 0;
 
   const handleToggle = () => {
     if (isRunning) {
@@ -57,15 +55,15 @@ export default function TimerCard() {
   };
 
   const handleSkip = () => {
-    skip();
+    skipPhase();
   };
 
   const handleReset = () => {
     reset();
   };
 
-  const handleSwitchMode = (mode: "pomodoro" | "stopwatch" | "countdown") => {
-    switchMode(mode);
+  const handleSwitchMode = (mode: TimerMode) => {
+    setMode(mode);
     setSettingsOpen(false);
   };
 
@@ -79,9 +77,9 @@ export default function TimerCard() {
         className="relative w-full aspect-square flex items-center justify-center"
       >
         <CircleTimer
-          currentTimeFormatted={currentTimeFormatted}
+          currentTimeFormatted={formattedTime}
           progress={progress}
-          completedSessions={completedSessions}
+          completedSessions={state.pomodoro?.completedSessions || 0}
           sessionsUntilLongBreak={config.pomodoro.sessionsUntilLongBreak}
           workDuration={config.pomodoro.workDuration * 60}
           shortBreakDuration={config.pomodoro.shortBreakDuration * 60}
@@ -217,19 +215,6 @@ export default function TimerCard() {
                 <div className="font-semibold">Stopwatch</div>
                 <div className="text-xs text-muted-foreground">
                   Count up from zero
-                </div>
-              </div>
-            </Button>
-            <Button
-              variant={state.mode === "countdown" ? "default" : "outline"}
-              className="w-full justify-start"
-              onClick={() => handleSwitchMode("countdown")}
-            >
-              <span className="text-2xl mr-3">⏳</span>
-              <div className="text-left">
-                <div className="font-semibold">Countdown</div>
-                <div className="text-xs text-muted-foreground">
-                  Count down to zero
                 </div>
               </div>
             </Button>

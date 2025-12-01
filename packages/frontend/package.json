@@ -1,0 +1,30 @@
+{
+  "name": "@workspace/frontend",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch --preserveWatchOutput",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "@workspace/core": "workspace:*",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.9",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "typescript": "^5.9.2"
+  },
+  "exports": {
+    "./hooks/*": "./dist/hooks/*.js",
+    "./stores/*": "./dist/stores/*.js",
+    "./*": "./dist/*.js"
+  }
+}
