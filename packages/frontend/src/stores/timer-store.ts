@@ -1,15 +1,14 @@
+import { DEFAULT_TIMER_CONFIG } from "@workspace/core/timer/constants";
 import {
   createInitialTimerState,
-  DEFAULT_TIMER_CONFIG,
   pauseTimer,
   resetTimer,
   skipPomodoroPhase,
   startTimer,
   tickTimer,
-  type TimerConfig,
-  type TimerMode,
-  type TimerState,
-} from "@workspace/core/timer/index";
+} from "@workspace/core/timer/engine";
+import { TimerConfig } from "@workspace/core/timer/schema";
+import { TimerMode, TimerState } from "@workspace/core/timer/types";
 import { create } from "zustand";
 
 interface TimerStore {
@@ -18,7 +17,14 @@ interface TimerStore {
   config: TimerConfig;
 
   // Actions
+  /**
+   * Timer tick - called every second when running
+   */
   tick: () => void;
+
+  /**
+   * Start or resume timer
+   */
   start: () => void;
   pause: () => void;
   reset: () => void;
@@ -34,14 +40,12 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
   timerState: createInitialTimerState("pomodoro", DEFAULT_TIMER_CONFIG),
   config: DEFAULT_TIMER_CONFIG,
 
-  // Timer tick - called every second when running
   tick: () => {
     const { timerState, config } = get();
     const newState = tickTimer(timerState, config);
     set({ timerState: newState });
   },
 
-  // Start or resume timer
   start: () => {
     const { timerState } = get();
     const newState = startTimer(timerState);
@@ -95,6 +99,7 @@ export const useTimerStore = create<TimerStore>((set, get) => ({
   updateConfig: (newConfig: Partial<TimerConfig>) => {
     const { config, timerState } = get();
     const updatedConfig = { ...config, ...newConfig };
+
     // Reset timer with new config if not running
     if (timerState.status === "idle") {
       const newState = createInitialTimerState(timerState.mode, updatedConfig);

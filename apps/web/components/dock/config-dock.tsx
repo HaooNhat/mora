@@ -16,17 +16,18 @@ import {
 } from "@workspace/ui/components/drawer";
 import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";
 import { cn } from "@workspace/ui/lib/utils";
-import {
-  ImageIcon,
-  Monitor,
-  Moon,
-  SlidersVertical,
-  Sun,
-  Video,
-} from "lucide-react";
-import { useTheme } from "next-themes";
+import { ImageIcon, SlidersVertical, Video } from "lucide-react";
 import Image from "next/image";
-import { Dispatch, JSX, SetStateAction, useEffect, useState } from "react";
+import {
+  Dispatch,
+  JSX,
+  memo,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 export const LOCAL_STORAGE_BG_KEY = "app-selected-background";
 
@@ -34,11 +35,8 @@ const SETTINGS_DISPLAY = {
   background: { title: "Choose your background" },
 };
 
-type TabType = "colors" | "images" | "videos";
-type Attribution = {
-  href: string;
-  text: string;
-};
+type TabType = "images" | "videos";
+type Attribution = { href: string; text: string };
 type ImageSetting = { url: string; attribution: Attribution };
 
 interface ConfigDockProps {
@@ -47,14 +45,13 @@ interface ConfigDockProps {
 }
 
 export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
-  const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
   const [openBgSetting, setOpenBgSetting] = useState(false);
   const [backgrounds, setBackgrounds] = useState<{
-    colors: string;
     images: ImageSetting[];
     videos: string[];
+    colors: string;
   }>({ colors: "", images: [], videos: [] });
   const [attribution, setAttribution] = useState<Attribution | null>(null);
 
@@ -69,35 +66,43 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
       .catch((err) => console.error("Failed to fetch backgrounds:", err));
   }, []);
 
-  const handleSelect = (
-    type: BgTypes,
-    link: string,
-    attributionData: Attribution | null = null,
-  ) => {
-    // setTheme(type === "color" ? "system" : "lagoon");
-    setBgType(type);
-    setBgLink(link);
-    setAttribution(attributionData);
-    setOpenBgSetting(false);
+  const handleBgSelect = useCallback(
+    (
+      type: BgTypes,
+      link: string,
+      attributionData: Attribution | null = null,
+    ) => {
+      setBgType(type);
+      setBgLink(link);
+      setAttribution(attributionData);
+      setOpenBgSetting(false);
 
-    localStorage.setItem(
-      LOCAL_STORAGE_BG_KEY,
-      JSON.stringify({ type, link, attribution: attributionData }),
-    );
-  };
+      localStorage.setItem(
+        LOCAL_STORAGE_BG_KEY,
+        JSON.stringify({ type, link, attribution: attributionData }),
+      );
+    },
+    [setBgType, setBgLink],
+  );
 
-  if (!mounted) return null;
+  if (!mounted) return <aside className="h-16 bg-background"></aside>;
 
   return (
-    <aside className="h-16 flex gap-2 items-center justify-evenly">
-      <div className="flex-1 flex items-center justify-start pl-2 md:pl-8 lg:pl-10">
+    <aside
+      className={cn(
+        "h-14 flex gap-2 w-full max-w-lg items-center justify-evenly bg-background md:rounded-2xl md:border-2",
+        !isMobile && "absolute bottom-4 right-1/2 translate-x-1/2",
+      )}
+    >
+      <div className="flex-1 flex items-center justify-start">
         <Button
-          variant="outline"
+          variant="ghost"
           size="default"
           onClick={() => setOpenBgSetting(true)}
           className="rounded-lg"
         >
           <SlidersVertical />
+          Settings
         </Button>
       </div>
 
@@ -109,31 +114,16 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
         </div>
       )}
 
-      <div className="flex-1 flex items-center justify-end gap-1 pr-2 md:pr-8 lg:pr-10 rounded-xl">
-        <div className="flex items-center gap-0.5 border rounded-xl bg-card">
-          {["light", "dark", "system"].map((t) => (
-            <Button
-              key={t}
-              variant={theme === t ? "outline" : "ghost"}
-              size="default"
-              onClick={() => setTheme(t)}
-              className="rounded-xl"
-            >
-              {t === "light" ? <Sun /> : t === "dark" ? <Moon /> : <Monitor />}
-            </Button>
-          ))}
-        </div>
-      </div>
-
       {isMobile ? (
         <Drawer open={openBgSetting} onOpenChange={setOpenBgSetting}>
           <DrawerContent>
             <DrawerHeader>
               <DrawerTitle>{SETTINGS_DISPLAY.background.title}</DrawerTitle>
             </DrawerHeader>
-            <BackgroundContent
+
+            <MemoBackgroundContent
               backgrounds={backgrounds}
-              handleSelect={handleSelect}
+              handleSelect={handleBgSelect}
               className="p-4 pb-8"
             />
           </DrawerContent>
@@ -144,9 +134,10 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
             <DialogHeader>
               <DialogTitle>{SETTINGS_DISPLAY.background.title}</DialogTitle>
             </DialogHeader>
-            <BackgroundContent
+
+            <MemoBackgroundContent
               backgrounds={backgrounds}
-              handleSelect={handleSelect}
+              handleSelect={handleBgSelect}
             />
           </DialogContent>
         </Dialog>
@@ -155,19 +146,22 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
   );
 }
 
-const formatFileName = (filename: string) =>
-  filename
-    .split("/")
-    .pop()
-    ?.replace(/\.(jpg|jpeg|png|gif|mp4|webm)$/i, "")
-    .replace(/[_-]/g, " ")
-    .replace(/\b\w/g, (l) => l.toUpperCase()) || filename;
+function formatFileName(filename: string) {
+  return (
+    filename
+      .split("/")
+      .pop()
+      ?.replace(/\.(jpg|jpeg|png|gif|mp4|webm)$/i, "")
+      .replace(/[_-]/g, " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase()) || filename
+  );
+}
 
 interface BackgroundContentProps {
   backgrounds: {
-    colors: string;
     images: ImageSetting[];
     videos: string[];
+    colors: string;
   };
   handleSelect: (
     type: BgTypes,
@@ -184,25 +178,23 @@ const BackgroundContent = ({
 }: BackgroundContentProps) => {
   const [activeTab, setActiveTab] = useState<TabType>("images");
 
-  const tabs: {
-    key: TabType;
-    icon: JSX.Element;
-    label: string;
-    count: number;
-  }[] = [
-    {
-      key: "images",
-      icon: <ImageIcon className="h-4 w-4" />,
-      label: "Images",
-      count: backgrounds.images.length,
-    },
-    {
-      key: "videos",
-      icon: <Video className="h-4 w-4" />,
-      label: "Videos",
-      count: backgrounds.videos.length,
-    },
-  ];
+  const tabs = useMemo(
+    () => [
+      {
+        key: "images" as const,
+        icon: <ImageIcon className="h-4 w-4" />,
+        label: "Images",
+        count: backgrounds.images.length,
+      },
+      {
+        key: "videos" as const,
+        icon: <Video className="h-4 w-4" />,
+        label: "Videos",
+        count: backgrounds.videos.length,
+      },
+    ],
+    [backgrounds.images.length, backgrounds.videos.length],
+  );
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -232,8 +224,8 @@ const BackgroundContent = ({
       </div>
 
       <div className="overflow-y-auto max-h-[50vh]">
-        {activeTab === "images" ? (
-          backgrounds.images.length ? (
+        {activeTab === "images" &&
+          (backgrounds.images.length ? (
             <div className="p-1 grid grid-cols-2 gap-3">
               {backgrounds.images.map(({ url, attribution }) => (
                 <div
@@ -263,11 +255,10 @@ const BackgroundContent = ({
               icon={<ImageIcon className="h-12 w-12 mb-2 opacity-50" />}
               label="No images available"
             />
-          )
-        ) : null}
+          ))}
 
-        {activeTab === "videos" ? (
-          backgrounds.videos.length ? (
+        {activeTab === "videos" &&
+          (backgrounds.videos.length ? (
             <div className="p-1 grid grid-cols-2 gap-3">
               {backgrounds.videos.map((vid) => (
                 <div
@@ -283,9 +274,6 @@ const BackgroundContent = ({
                       playsInline
                       className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200"
                     />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                      <Video className="h-8 w-8 text-white opacity-0 group-hover:opacity-70 transition-opacity" />
-                    </div>
                   </div>
                   <div className="p-2 bg-card">
                     <p className="text-xs font-medium truncate">
@@ -300,12 +288,13 @@ const BackgroundContent = ({
               icon={<Video className="h-12 w-12 mb-2 opacity-50" />}
               label="No videos available"
             />
-          )
-        ) : null}
+          ))}
       </div>
     </div>
   );
 };
+
+const MemoBackgroundContent = memo(BackgroundContent);
 
 const EmptyState = ({ icon, label }: { icon: JSX.Element; label: string }) => (
   <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">

@@ -1,4 +1,4 @@
-import { calculateProgress, formatTime } from "@workspace/core/timer/index";
+import { calculateProgress, formatTime } from "@workspace/core/timer/engine";
 import { useTimerStore } from "@workspace/frontend/stores/timer-store";
 import { useEffect } from "react";
 
@@ -25,9 +25,10 @@ export default function useTimer() {
   // Derived values
   const progress = calculateProgress(store.timerState);
   const formattedTime = formatTime(store.timerState.currentTime);
+
+  const isIdle = store.timerState.status === "idle";
   const isRunning = store.timerState.status === "running";
   const isPaused = store.timerState.status === "paused";
-  const isIdle = store.timerState.status === "idle";
   const isCompleted = store.timerState.status === "completed";
 
   return {

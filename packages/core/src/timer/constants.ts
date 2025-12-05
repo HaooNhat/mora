@@ -2,7 +2,7 @@
 // Default Configurations
 // ============================================================================
 
-import { TimerConfig } from "./schema.js";
+import { TimerConfig } from "@workspace/core/timer/schema";
 
 /**
  * Default timer configuration

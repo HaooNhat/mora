@@ -48,7 +48,7 @@ export type TimerState = {
   pausedTime: number;
 
   // Mode-specific state
-  pomodoro: PomodoroState | null;
+  pomodoro: PomodoroState;
 };
 
 // ============================================================================
@@ -72,11 +72,11 @@ export class TimerError extends Error {
 /**
  * Error codes for timer operations
  */
-export const TimerErrorCode = {
+export const TimerErrorCodes = {
   INVALID_CONFIG: "INVALID_CONFIG",
   INVALID_STATE: "INVALID_STATE",
   INVALID_TRANSITION: "INVALID_TRANSITION",
   STORAGE_ERROR: "STORAGE_ERROR",
 } as const;
 
-export type TimerErrorCode = keyof typeof TimerErrorCode;
+export type TimerErrorCode = keyof typeof TimerErrorCodes;

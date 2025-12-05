@@ -1,18 +1,24 @@
 "use client";
 
+import {
+  PomodoroPhase,
+  TimerMode,
+  TimerStatus,
+} from "@workspace/core/timer/types";
+import { Button } from "@workspace/ui/components/button";
+import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";
 import { cn } from "@workspace/ui/lib/utils";
-import { Droplets } from "lucide-react";
+import { Droplets, SlidersVertical } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
-
-const RADIUS = 180;
-const STROKE = 10;
-const NORMALIZED_RADIUS = RADIUS - STROKE / 2;
-const CIRCUMFERENCE = 2 * Math.PI * NORMALIZED_RADIUS;
+import { Dispatch, SetStateAction, useState } from "react";
 
 interface CircleTimerProps {
   currentTimeFormatted: string;
   progress: number;
+  mode: TimerMode;
+  status: TimerStatus;
+  setSettingsOpen: Dispatch<SetStateAction<boolean>>;
+  phase: PomodoroPhase;
   completedSessions: number;
   sessionsUntilLongBreak: number;
   workDuration: number;
@@ -25,32 +31,23 @@ interface CircleTimerProps {
 /**
  * CircleTimer component - pure presentational
  */
-export function CircleTimer({
-  currentTimeFormatted,
-  progress,
-  completedSessions,
-  sessionsUntilLongBreak,
-  workDuration,
-  shortBreakDuration,
-  longBreakDuration,
-  onTimerClick,
-  className,
-}: CircleTimerProps) {
+export function CircleTimer(props: CircleTimerProps) {
   const [hovered, setHovered] = useState(false);
+  const isMobile = useIsMobile();
+
+  const RADIUS = isMobile ? 160 : 180;
+  const STROKE = 10;
+  const NORMALIZED_RADIUS = RADIUS - STROKE / 2;
+  const CIRCUMFERENCE = 2 * Math.PI * NORMALIZED_RADIUS;
 
   return (
     <div
       className={cn(
         "relative flex flex-col items-center justify-center select-none z-10",
-        className,
+        props.className,
       )}
     >
-      <div
-        className="relative cursor-pointer"
-        onClick={onTimerClick}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
+      <div className="relative cursor-pointer" onClick={props.onTimerClick}>
         {/* Background circle */}
         <svg
           className="w-[360px] h-[360px] transform -rotate-90"
@@ -78,15 +75,46 @@ export function CircleTimer({
             strokeLinecap="round"
             fill="transparent"
             strokeDasharray={CIRCUMFERENCE}
-            strokeDashoffset={(CIRCUMFERENCE * progress) / 100}
+            strokeDashoffset={(CIRCUMFERENCE * props.progress) / 100}
             initial={{ strokeDashoffset: CIRCUMFERENCE }}
-            animate={{ strokeDashoffset: CIRCUMFERENCE * (1 - progress / 100) }}
+            animate={{
+              strokeDashoffset: CIRCUMFERENCE * (1 - props.progress / 100),
+            }}
             transition={{ duration: 0.3 }}
           />
         </svg>
 
+        <AnimatePresence>
+          {props.status !== "running" && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ type: "spring", duration: 1.5 }}
+              className={cn(
+                "absolute top-0 right-0",
+                !isMobile && "translate-x-1/2 -translate-y-1/2",
+              )}
+            >
+              <Button
+                variant="ghost"
+                onClick={() => props.setSettingsOpen(true)}
+                size="lg"
+                className="rounded-xl"
+                aria-label="Open timer settings"
+              >
+                <SlidersVertical />
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Time or hover info */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center font-mono">
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-2/3 font-mono"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
           <AnimatePresence mode="wait">
             {!hovered ? (
               <motion.div
@@ -95,9 +123,50 @@ export function CircleTimer({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.2 }}
-                className="text-4xl md:text-5xl font-bold text-foreground"
+                className="flex flex-col h-full items-center justify-evenly gap-12"
               >
-                {currentTimeFormatted}
+                {props.mode === "pomodoro" && (
+                  <div className="text-base font-light text-foreground/50">
+                    {props.phase
+                      .split("_")
+                      .map((word) => {
+                        return word[0]?.toLocaleUpperCase() + word.slice(1);
+                      })
+                      .join(" ")}
+                  </div>
+                )}
+
+                <div className="text-4xl md:text-5xl font-bold text-foreground">
+                  {props.currentTimeFormatted}
+                </div>
+
+                {/* Session wave indicators */}
+                {props.mode === "pomodoro" && (
+                  <div className="flex gap-1.5">
+                    {Array.from({ length: props.sessionsUntilLongBreak }).map(
+                      (_, i) => {
+                        const currentSession =
+                          (props.completedSessions || 0) %
+                          props.sessionsUntilLongBreak;
+
+                        return (
+                          <motion.div key={i}>
+                            <Droplets
+                              className={cn(
+                                "w-6 h-6 border-blue-500",
+                                i < currentSession
+                                  ? "text-foreground"
+                                  : i === currentSession
+                                    ? "text-foreground/60 animate-float"
+                                    : "text-muted-foreground/30",
+                              )}
+                            />
+                          </motion.div>
+                        );
+                      },
+                    )}
+                  </div>
+                )}
               </motion.div>
             ) : (
               <motion.div
@@ -106,29 +175,14 @@ export function CircleTimer({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
                 transition={{ duration: 0.2 }}
-                className="text-base md:text-lg text-foreground font-medium space-y-1"
+                className="flex flex-col h-full items-center justify-center text-base md:text-lg text-foreground font-medium space-y-1"
               >
-                <p>Work: {Math.floor(workDuration / 60)}m</p>
-                <p>Break: {Math.floor(shortBreakDuration / 60)}m</p>
-                <p>Long Break: {Math.floor(longBreakDuration / 60)}m</p>
+                <p>Work: {Math.floor(props.workDuration)}m</p>
+                <p>Break: {Math.floor(props.shortBreakDuration)}m</p>
+                <p>Long Break: {Math.floor(props.longBreakDuration)}m</p>
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Session wave indicators */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {Array.from({ length: sessionsUntilLongBreak }).map((_, i) => (
-              <Droplets
-                key={i}
-                className={cn(
-                  "w-4 h-4 md:w-5 md:h-5",
-                  i < completedSessions % sessionsUntilLongBreak
-                    ? "text-foreground"
-                    : "text-muted-foreground/30",
-                )}
-              />
-            ))}
-          </div>
         </div>
       </div>
     </div>

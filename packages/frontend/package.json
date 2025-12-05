@@ -23,8 +23,8 @@
     "typescript": "^5.9.2"
   },
   "exports": {
+    "./*": "./dist/index.js",
     "./hooks/*": "./dist/hooks/*.js",
-    "./stores/*": "./dist/stores/*.js",
-    "./*": "./dist/*.js"
+    "./stores/*": "./dist/stores/*.js"
   }
 }

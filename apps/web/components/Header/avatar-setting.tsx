@@ -5,6 +5,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar";
+import { Button } from "@workspace/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +21,9 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu";
+import { Sun, Moon, Monitor } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useMemo } from "react";
 
 export default function AvatarSetting() {
   const { theme, setTheme } = useTheme();
@@ -82,3 +85,26 @@ export default function AvatarSetting() {
     </>
   );
 }
+
+export const ThemeTabs = () => {
+  const { theme, setTheme } = useTheme();
+  const themeButtons = useMemo(() => ["light", "dark", "system"] as const, []);
+
+  return (
+    <div className="flex-1 flex items-center justify-end gap-1 pr-2 md:pr-8 lg:pr-10 rounded-xl">
+      <div className="flex items-center gap-0.5 border rounded-xl bg-card">
+        {themeButtons.map((t) => (
+          <Button
+            key={t}
+            variant={theme === t ? "outline" : "ghost"}
+            size="default"
+            onClick={() => setTheme(t)}
+            className="rounded-xl"
+          >
+            {t === "light" ? <Sun /> : t === "dark" ? <Moon /> : <Monitor />}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+};

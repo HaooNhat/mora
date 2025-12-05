@@ -5,6 +5,7 @@ import ConfigDock, {
 } from "@/components/dock/config-dock";
 import Header from "@/components/header/header";
 import TimerCard from "@/components/timer/timer-card";
+import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -21,6 +22,8 @@ export default function PlayPage() {
   // Background state (kept local as it's UI-specific)
   const [bgType, setBgType] = useState<BgTypes>("image");
   const [bgLink, setBgLink] = useState<string>("images/cozy-bedroom.jpg");
+
+  const isMobile = useIsMobile();
 
   // ==========================================================================
   // EFFECTS
@@ -79,17 +82,31 @@ export default function PlayPage() {
       </div>
 
       {/* Main content */}
-      <div className="flex flex-col h-dvh md:h-screen md:p-4 transition-all duration-1000">
-        <div className="md:border-2 h-full md:rounded-lg flex flex-col bg-background/90 transition-all duration-1000">
-          <Header />
+      <div className="relative h-dvh md:h-screen transition-all duration-1000">
+        <div className="absolute inset-0 h-full w-full md:p-4 lg:p-8 max-w-[1920px] transition-all duration-1000">
+          <div className="h-full w-full flex flex-col md:border-2 md:rounded-lg bg-background/90">
+            <Header />
 
-          <main className="flex-1 overflow-auto">
-            <section className="h-full w-full flex items-center justify-center">
-              <TimerCard />
-            </section>
-          </main>
+            <main className="flex-1 overflow-auto md:pb-6">
+              <section className="h-full w-full flex items-center justify-evenly gap-4">
+                {!isMobile && (
+                  <div className="w-full h-full max-w-md border-2 rounded-2xl">
+                    <div></div>
+                  </div>
+                )}
 
-          <ConfigDock setBgType={setBgType} setBgLink={setBgLink} />
+                <div className="flex flex-col w-full h-full max-w-md pb-6 items-center justify-center">
+                  <TimerCard />
+                </div>
+
+                {!isMobile && (
+                  <div className="w-full h-full max-w-md border-2 rounded-2xl"></div>
+                )}
+              </section>
+            </main>
+
+            <ConfigDock setBgType={setBgType} setBgLink={setBgLink} />
+          </div>
         </div>
       </div>
     </>

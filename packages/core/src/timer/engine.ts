@@ -1,6 +1,15 @@
-import { DEFAULT_TIMER_CONFIG } from "./constants";
-import { PomodoroConfig, TimerConfig, TimerConfigSchema } from "./schema";
-import { PomodoroPhase, PomodoroState, TimerMode, TimerState } from "./types";
+import { DEFAULT_TIMER_CONFIG } from "@workspace/core/timer/constants";
+import {
+  PomodoroConfig,
+  TimerConfig,
+  TimerConfigSchema,
+} from "@workspace/core/timer/schema";
+import {
+  PomodoroPhase,
+  PomodoroState,
+  TimerMode,
+  TimerState,
+} from "@workspace/core/timer/types";
 
 /**
  * Validates and returns a safe timer configuration
@@ -166,6 +175,7 @@ export function getNextPomodoroPhase(
     const isLongBreak = state.session % config.sessionsUntilLongBreak === 0;
     return isLongBreak ? "long_break" : "short_break";
   }
+
   // After any break, go back to focus
   return "focus";
 }
@@ -212,8 +222,8 @@ export function tickTimer(state: TimerState, config: TimerConfig): TimerState {
     }
 
     const shouldAutoTransition =
-      (state.pomodoro.phase === "focus" && state.autoWork) ||
-      (state.pomodoro.phase !== "focus" && state.autoBreak);
+      (state.pomodoro.phase === "focus" && state.autoBreak) ||
+      (state.pomodoro.phase !== "focus" && state.autoWork);
 
     if (shouldAutoTransition) {
       // Auto-transition to next phase
