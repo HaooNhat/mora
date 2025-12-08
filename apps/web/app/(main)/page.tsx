@@ -84,23 +84,24 @@ export default function PlayPage() {
       {/* Main content */}
       <div className="relative h-dvh md:h-screen transition-all duration-1000">
         <div className="absolute inset-0 h-full w-full md:p-4 lg:p-8 max-w-[1920px] transition-all duration-1000">
-          <div className="h-full w-full flex flex-col md:border-2 md:rounded-lg bg-background/90">
+          <div className="h-full w-full flex flex-col md:border-2 md:rounded-xl bg-background/50">
             <Header />
 
             <main className="flex-1 overflow-auto md:pb-6">
               <section className="h-full w-full flex items-center justify-evenly gap-4">
                 {!isMobile && (
-                  <div className="w-full h-full max-w-md border-2 rounded-2xl">
-                    <div></div>
+                  <div className="w-full h-full flex flex-col max-w-md gap-2">
+                    <div className="flex-3/5 border-2 rounded-2xl bg-background/60 hover:bg-background/80 md:border-2 md:rounded-4xl md:shadow-xl"></div>
+                    <div className="flex-2/5 border-2 rounded-2xl bg-background/60 hover:bg-background/80 md:border-2 md:rounded-4xl md:shadow-xl"></div>
                   </div>
                 )}
 
-                <div className="flex flex-col w-full h-full max-w-md pb-6 items-center justify-center">
-                  <TimerCard />
+                <div className="flex flex-col w-full h-full max-w-md md:pb-6 items-center justify-center">
+                  <TimerCard className="bg-background/60 hover:bg-background/80 md:border-2 md:rounded-4xl md:shadow-xl" />
                 </div>
 
                 {!isMobile && (
-                  <div className="w-full h-full max-w-md border-2 rounded-2xl"></div>
+                  <div className="w-full h-full max-w-md bg-background/60 hover:bg-background/80 md:border-2 md:rounded-4xl md:shadow-xl"></div>
                 )}
               </section>
             </main>

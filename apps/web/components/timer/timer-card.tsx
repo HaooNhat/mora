@@ -23,7 +23,11 @@ const options = [
   { id: "stopwatch" as TimerMode, label: "Stopwatch" },
 ];
 
-export default function TimerCard() {
+interface TimerCardProps {
+  className?: string;
+}
+
+export default function TimerCard({ className }: TimerCardProps) {
   const {
     timerState,
     config,
@@ -72,27 +76,59 @@ export default function TimerCard() {
   /** memo to avoid re-render on every tick */
   const modeButtons = useMemo(
     () =>
-      options.map((opt) => {
+      options.map((opt, i) => {
         const isActive = opt.id === timerState.mode;
+        const isFirst = i === 0;
+        const isLast = i === options.length - 1;
         return (
-          <button
+          <motion.li
             key={opt.id}
+            initial={false}
+            animate={{}}
             onClick={() => handleSetMode(opt.id)}
             className={cn(
-              "px-3 py-1.5 text-sm font-medium rounded-2xl",
-              isActive && "bg-primary/50",
+              "relative list-none px-3 py-1.5 text-sm font-medium rounded-2xl",
+              isActive
+                ? "text-primary-foreground"
+                : "bg-transparent text-foreground",
             )}
             aria-pressed={isActive}
           >
-            {opt.label}
-          </button>
+            <p className="relative z-10">{opt.label}</p>
+            {isActive ? (
+              <motion.div
+                id="underline"
+                layoutId="underline"
+                style={{
+                  borderTopLeftRadius: isFirst ? 16 : 0,
+                  borderBottomLeftRadius: isFirst ? 16 : 0,
+                  borderTopRightRadius: isLast ? 16 : 0,
+                  borderBottomRightRadius: isLast ? 16 : 0,
+                }}
+                transition={{
+                  duration: 1,
+                  type: "spring",
+                  bounce: 0.5,
+                  ease: "easeOut",
+                }}
+                className={cn(
+                  "absolute inset-0 h-full w-full bg-primary/80 z-0",
+                )}
+              />
+            ) : null}
+          </motion.li>
         );
       }),
     [timerState.mode, handleSetMode],
   );
 
   return (
-    <div className="relative flex flex-col h-full items-center justify-evenly gap-6 md:gap-8 w-full max-w-md py-4 border-2 rounded-4xl shadow-xl">
+    <div
+      className={cn(
+        "relative flex flex-col h-full items-center justify-evenly gap-4 w-full max-w-md py-4",
+        className,
+      )}
+    >
       {/* Timer switchers */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}

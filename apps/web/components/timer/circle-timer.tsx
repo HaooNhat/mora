@@ -9,8 +9,23 @@ import { Button } from "@workspace/ui/components/button";
 import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";
 import { cn } from "@workspace/ui/lib/utils";
 import { Droplets, SlidersVertical } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, Variants } from "motion/react";
 import { Dispatch, SetStateAction, useState } from "react";
+
+const draw: Variants = {
+  hidden: { pathLength: 0, opacity: 0 },
+  visible: (i: number) => {
+    const delay = i * 0.5;
+    return {
+      pathLength: 1,
+      opacity: 1,
+      transition: {
+        pathLength: { delay, type: "spring", duration: 1.5, bounce: 0 },
+        opacity: { delay, duration: 0.01 },
+      },
+    };
+  },
+};
 
 interface CircleTimerProps {
   currentTimeFormatted: string;
@@ -49,20 +64,26 @@ export function CircleTimer(props: CircleTimerProps) {
     >
       <div className="relative cursor-pointer" onClick={props.onTimerClick}>
         {/* Background circle */}
-        <svg
-          className="w-[360px] h-[360px] transform -rotate-90"
+        <motion.svg
           role="img"
+          initial="hidden"
+          animate="visible"
+          width={360}
+          height={360}
           viewBox="0 0 360 360"
+          className="transform -rotate-90"
           aria-hidden="true"
         >
           {/* Background circle */}
-          <circle
+          <motion.circle
             cx="180"
             cy="180"
             r={NORMALIZED_RADIUS}
-            className="stroke-foreground/30"
             strokeWidth={STROKE}
+            strokeLinecap="round"
             fill="transparent"
+            variants={draw}
+            className="stroke-foreground/30"
           />
 
           {/* Foreground progress circle */}
@@ -70,7 +91,6 @@ export function CircleTimer(props: CircleTimerProps) {
             cx="180"
             cy="180"
             r={NORMALIZED_RADIUS}
-            className="stroke-foreground/90"
             strokeWidth={STROKE}
             strokeLinecap="round"
             fill="transparent"
@@ -81,8 +101,9 @@ export function CircleTimer(props: CircleTimerProps) {
               strokeDashoffset: CIRCUMFERENCE * (1 - props.progress / 100),
             }}
             transition={{ duration: 0.3 }}
+            className="stroke-foreground/90"
           />
-        </svg>
+        </motion.svg>
 
         <AnimatePresence>
           {props.status !== "running" && (

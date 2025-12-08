@@ -1,6 +1,7 @@
 "use client";
 
 import { BgTypes } from "@/app/(main)/page";
+import { useTimerStore } from "@workspace/frontend/stores/timer-store";
 import { Button } from "@workspace/ui/components/button";
 import {
   Dialog,
@@ -16,7 +17,15 @@ import {
 } from "@workspace/ui/components/drawer";
 import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";
 import { cn } from "@workspace/ui/lib/utils";
-import { ImageIcon, SlidersVertical, Video } from "lucide-react";
+import {
+  ChartLine,
+  ImageIcon,
+  PencilLine,
+  Settings,
+  UserPen,
+  Video,
+} from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import {
   Dispatch,
@@ -45,7 +54,7 @@ interface ConfigDockProps {
 }
 
 export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(767);
   const [mounted, setMounted] = useState(false);
   const [openBgSetting, setOpenBgSetting] = useState(false);
   const [backgrounds, setBackgrounds] = useState<{
@@ -54,6 +63,7 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
     colors: string;
   }>({ colors: "", images: [], videos: [] });
   const [attribution, setAttribution] = useState<Attribution | null>(null);
+  const status = useTimerStore((state) => state.timerState.status);
 
   useEffect(() => setMounted(true), []);
 
@@ -88,32 +98,63 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
   if (!mounted) return <aside className="h-16 bg-background"></aside>;
 
   return (
-    <aside
-      className={cn(
-        "h-14 flex gap-2 w-full max-w-lg items-center justify-evenly bg-background md:rounded-2xl md:border-2",
-        !isMobile && "absolute bottom-4 right-1/2 translate-x-1/2",
-      )}
-    >
-      <div className="flex-1 flex items-center justify-start">
-        <Button
-          variant="ghost"
-          size="default"
-          onClick={() => setOpenBgSetting(true)}
-          className="rounded-lg"
-        >
-          <SlidersVertical />
-          Settings
-        </Button>
-      </div>
+    <>
+      <AnimatePresence>
+        {status !== "running" && (
+          <motion.aside
+            initial={{ opacity: 0, scale: 0, y: 40 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0, y: 40 }}
+            transition={{ type: "spring", duration: 1, bounce: 0.4 }}
+            className={cn(
+              "h-14 flex w-full max-w-lg items-center justify-evenly bg-background/90 md:rounded-2xl md:border-2 shadow-2xl",
+              !isMobile && "w-fit absolute bottom-4 right-1/2 translate-x-1/2",
+            )}
+          >
+            <div className="flex items-center justify-start md:gap-2 md:px-4">
+              <Button
+                variant="ghost"
+                size="default"
+                onClick={() => setOpenBgSetting(true)}
+                className="rounded-lg text-accent-foreground/70"
+              >
+                <Settings />
+                <p className="text-sm">Settings</p>
+              </Button>
 
-      {attribution && (
-        <div className="border-2 rounded-lg bg-card/50 px-3 py-1">
-          <a href={attribution.href} target="_blank" rel="noreferrer">
-            {attribution.text}
-          </a>
-        </div>
-      )}
+              <Button
+                variant="ghost"
+                size="default"
+                onClick={() => setOpenBgSetting(true)}
+                className="rounded-lg text-accent-foreground/70"
+              >
+                <ChartLine />
+                Stats
+              </Button>
 
+              <Button
+                variant="ghost"
+                size="default"
+                onClick={() => setOpenBgSetting(true)}
+                className="rounded-lg text-accent-foreground/70"
+              >
+                <PencilLine />
+                Notes
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="default"
+                onClick={() => setOpenBgSetting(true)}
+                className="rounded-lg text-accent-foreground/70"
+              >
+                <UserPen />
+                Profile
+              </Button>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
       {isMobile ? (
         <Drawer open={openBgSetting} onOpenChange={setOpenBgSetting}>
           <DrawerContent>
@@ -142,7 +183,7 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
           </DialogContent>
         </Dialog>
       )}
-    </aside>
+    </>
   );
 }
 
@@ -226,30 +267,32 @@ const BackgroundContent = ({
       <div className="overflow-y-auto max-h-[50vh]">
         {activeTab === "images" &&
           (backgrounds.images.length ? (
-            <div className="p-1 grid grid-cols-2 gap-3">
-              {backgrounds.images.map(({ url, attribution }) => (
-                <div
-                  key={url}
-                  className="group cursor-pointer border rounded-lg overflow-hidden hover:ring-2 hover:ring-primary transition-all hover:shadow-lg"
-                  onClick={() => handleSelect("image", url, attribution)}
-                >
-                  <div className="relative aspect-video bg-muted">
-                    <Image
-                      src={`/${url}`}
-                      alt={formatFileName(url)}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-200"
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                    />
+            <>
+              <div className="p-1 grid grid-cols-2 gap-3">
+                {backgrounds.images.map(({ url, attribution }) => (
+                  <div
+                    key={url}
+                    className="group cursor-pointer border rounded-lg overflow-hidden hover:ring-2 hover:ring-primary transition-all hover:shadow-lg"
+                    onClick={() => handleSelect("image", url, attribution)}
+                  >
+                    <div className="relative aspect-video bg-muted">
+                      <Image
+                        src={`/${url}`}
+                        alt={formatFileName(url)}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-200"
+                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                      />
+                    </div>
+                    <div className="p-2 bg-card">
+                      <p className="text-xs font-medium truncate">
+                        {formatFileName(url)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="p-2 bg-card">
-                    <p className="text-xs font-medium truncate">
-                      {formatFileName(url)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </>
           ) : (
             <EmptyState
               icon={<ImageIcon className="h-12 w-12 mb-2 opacity-50" />}
@@ -302,3 +345,19 @@ const EmptyState = ({ icon, label }: { icon: JSX.Element; label: string }) => (
     <p>{label}</p>
   </div>
 );
+
+const ShowAttribution = ({
+  attribution,
+}: {
+  attribution?: { text: string; href: string };
+}) => {
+  if (attribution)
+    return (
+      <div className="border-2 rounded-lg bg-card/50 px-3 py-1">
+        <a href={attribution.href} target="_blank" rel="noreferrer">
+          {attribution.text}
+        </a>
+      </div>
+    );
+  return null;
+};
