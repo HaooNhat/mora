@@ -4,12 +4,30 @@ import ConfigDock, {
   LOCAL_STORAGE_BG_KEY,
 } from "@/components/dock/config-dock";
 import Header from "@/components/header/header";
+import MusicCard from "@/components/music/music-card";
+import { ProjectsPanel } from "@/components/project/project-panel";
 import TimerCard from "@/components/timer/timer-card";
+import { useTimerStore } from "@workspace/frontend/stores/timer-store";
 import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";
+import { cn } from "@workspace/ui/lib/utils";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export type BgTypes = "color" | "video" | "image";
+
+const cardSurface =
+  "bg-card/75 hover:bg-card md:border-2 md:rounded-4xl md:shadow-xl hover:ring-2";
+
+const cardMotion =
+  "transition-transform duration-500 ease-out will-change-transform";
+
+const cardBase = cn(cardSurface, cardMotion);
+
+// const card3D = {
+//   left: "origin-right rotate-y-30 scale-75 hover:rotate-y-0 hover:scale-100 hover:translate-y-0",
+//   right: "origin-left -rotate-y-30 scale-75 hover:rotate-y-0 hover:scale-100",
+//   center: "origin-center scale-80 hover:scale-100",
+// };
 
 /**
  * Main play page with dynamic background and timer
@@ -23,7 +41,26 @@ export default function PlayPage() {
   const [bgType, setBgType] = useState<BgTypes>("image");
   const [bgLink, setBgLink] = useState<string>("images/cozy-bedroom.jpg");
 
+  const status = useTimerStore((state) => state.timerState.status);
   const isMobile = useIsMobile();
+
+  const isFocusMode = status === "running";
+
+  const card3DByMode = {
+    idle: {
+      left: "origin-right rotate-y-30 scale-75 hover:rotate-y-0 hover:scale-100",
+      right:
+        "origin-left -rotate-y-30 scale-75 hover:rotate-y-0 hover:scale-100",
+      center: "origin-center scale-80 hover:scale-100",
+    },
+    focus: {
+      left: "translate-y-0",
+      right: "translate-y-0",
+      center: "origin-center scale-100",
+    },
+  };
+
+  const card3D = isFocusMode ? card3DByMode.focus : card3DByMode.idle;
 
   // ==========================================================================
   // EFFECTS
@@ -83,25 +120,51 @@ export default function PlayPage() {
 
       {/* Main content */}
       <div className="relative h-dvh md:h-screen transition-all duration-1000">
-        <div className="absolute inset-0 h-full w-full md:p-4 lg:p-8 max-w-[1920px] transition-all duration-1000">
-          <div className="h-full w-full flex flex-col md:border-2 md:rounded-xl bg-background/50">
+        <div
+          className={cn(
+            "absolute inset-0 h-full w-full max-w-[1920px] transition-all duration-1000",
+            status === "running" ? "p-0" : "md:p-4 lg:p-8",
+          )}
+        >
+          <div
+            className={cn(
+              "h-full w-full flex flex-col transition-all duration-1000",
+              status === "running"
+                ? "bg-transparent border-none"
+                : "bg-background/50 md:border-2 md:rounded-xl",
+            )}
+          >
             <Header />
 
-            <main className="flex-1 overflow-auto md:pb-6">
-              <section className="h-full w-full flex items-center justify-evenly gap-4">
+            <main className="flex-1 perspective-[1200px] overflow-visible md:pb-6">
+              <section className="h-full w-full transform-3d flex items-center justify-evenly gap-4 p-1">
                 {!isMobile && (
-                  <div className="w-full h-full flex flex-col max-w-md gap-2">
-                    <div className="flex-3/5 border-2 rounded-2xl bg-background/60 hover:bg-background/80 md:border-2 md:rounded-4xl md:shadow-xl"></div>
-                    <div className="flex-2/5 border-2 rounded-2xl bg-background/60 hover:bg-background/80 md:border-2 md:rounded-4xl md:shadow-xl"></div>
+                  <div className="w-full h-full transform-3d flex flex-col max-w-md gap-2">
+                    <div
+                      className={cn(
+                        "flex-1 rounded-2xl translate-y-1/16",
+                        cardBase,
+                        card3D.left,
+                      )}
+                    />
+                    <MusicCard
+                      className={cn(
+                        "rounded-2xl -translate-y-1/8",
+                        cardBase,
+                        card3D.left,
+                      )}
+                    />
                   </div>
                 )}
 
-                <div className="flex flex-col w-full h-full max-w-md md:pb-6 items-center justify-center">
-                  <TimerCard className="bg-background/60 hover:bg-background/80 md:border-2 md:rounded-4xl md:shadow-xl" />
+                <div className="origin-center flex flex-col w-full h-full max-w-md items-center justify-center">
+                  <TimerCard
+                    className={cn("rounded-2xl", cardBase, card3D.center)}
+                  />
                 </div>
 
                 {!isMobile && (
-                  <div className="w-full h-full max-w-md bg-background/60 hover:bg-background/80 md:border-2 md:rounded-4xl md:shadow-xl"></div>
+                  <ProjectsPanel className={cn(cardBase, card3D.right)} />
                 )}
               </section>
             </main>

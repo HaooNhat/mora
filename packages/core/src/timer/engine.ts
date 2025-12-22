@@ -30,6 +30,12 @@ export function createInitialTimerState(
   mode: TimerMode = "pomodoro",
   config: TimerConfig = DEFAULT_TIMER_CONFIG,
 ): TimerState {
+  const basePomodoro: PomodoroState = {
+    phase: "focus",
+    session: 0,
+    completedSessions: 0,
+  };
+
   const baseState: Omit<TimerState, "currentTime" | "totalTime"> = {
     mode,
     status: "idle",
@@ -37,7 +43,7 @@ export function createInitialTimerState(
     autoBreak: false,
     startTime: 0,
     pausedTime: 0,
-    pomodoro: null,
+    pomodoro: basePomodoro,
   };
 
   switch (mode) {

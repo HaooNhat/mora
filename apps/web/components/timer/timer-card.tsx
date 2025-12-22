@@ -14,7 +14,7 @@ import {
 } from "@workspace/ui/components/dialog";
 
 import { cn } from "@workspace/ui/lib/utils";
-import { Pause, Play, SkipForward, TimerReset } from "lucide-react";
+import { Focus, Pause, SkipForward, TimerReset } from "lucide-react";
 import { motion } from "motion/react";
 
 /** mode definitions outside render → stable */
@@ -125,7 +125,7 @@ export default function TimerCard({ className }: TimerCardProps) {
   return (
     <div
       className={cn(
-        "relative flex flex-col h-full items-center justify-evenly gap-4 w-full max-w-md py-4",
+        "relative flex flex-col h-fit items-center justify-evenly gap-8 w-full max-w-md py-8",
         className,
       )}
     >
@@ -141,9 +141,9 @@ export default function TimerCard({ className }: TimerCardProps) {
 
       {/* Main Timer */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.6 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.5, type: "spring" }}
+        transition={{ duration: 1.5, type: "spring", bounce: 0.4 }}
         className="relative w-full aspect-square flex items-center justify-center"
       >
         <CircleTimer
@@ -165,7 +165,7 @@ export default function TimerCard({ className }: TimerCardProps) {
         className="w-full flex items-center justify-center gap-4"
       >
         <Button
-          variant="secondary"
+          variant="ghost"
           size="sm"
           onClick={handleReset}
           className="rounded-xl"
@@ -177,7 +177,7 @@ export default function TimerCard({ className }: TimerCardProps) {
           variant="default"
           onClick={handleToggle}
           size="lg"
-          className="w-40 flex items-center justify-center gap-2 rounded-xl text-lg font-medium"
+          className="w-fit flex items-center justify-center gap-3 !px-6 rounded-xl text-lg font-medium"
         >
           {isRunning ? (
             <>
@@ -186,14 +186,14 @@ export default function TimerCard({ className }: TimerCardProps) {
             </>
           ) : (
             <>
-              <Play className="w-5 h-5" />
+              <Focus className="w-5 h-5" />
               Focus
             </>
           )}
         </Button>
 
         <Button
-          variant="secondary"
+          variant="ghost"
           size="default"
           onClick={handleSkip}
           className="rounded-xl"

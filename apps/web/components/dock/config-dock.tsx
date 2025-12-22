@@ -65,6 +65,16 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
   const [attribution, setAttribution] = useState<Attribution | null>(null);
   const status = useTimerStore((state) => state.timerState.status);
 
+  const actions = [
+    {
+      label: "Settings",
+      icon: Settings,
+      onClick: () => setOpenBgSetting(true),
+    },
+    { label: "Stats", icon: ChartLine, onclick: () => {} },
+    { label: "Notes", icon: PencilLine, onclick: () => {} },
+    { label: "Profile", icon: UserPen, onclick: () => {} },
+  ];
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
@@ -97,6 +107,8 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
 
   if (!mounted) return <aside className="h-16 bg-background"></aside>;
 
+  const MotionButton = motion(Button);
+
   return (
     <>
       <AnimatePresence>
@@ -107,50 +119,34 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
             exit={{ opacity: 0, scale: 0, y: 40 }}
             transition={{ type: "spring", duration: 1, bounce: 0.4 }}
             className={cn(
-              "h-14 flex w-full max-w-lg items-center justify-evenly bg-background/90 md:rounded-2xl md:border-2 shadow-2xl",
+              "h-14 flex w-full max-w-lg items-center justify-evenly bg-background/75 hover:bg-background md:rounded-2xl md:border-2 shadow-2xl",
               !isMobile && "w-fit absolute bottom-4 right-1/2 translate-x-1/2",
             )}
           >
             <div className="flex items-center justify-start md:gap-2 md:px-4">
-              <Button
-                variant="ghost"
-                size="default"
-                onClick={() => setOpenBgSetting(true)}
-                className="rounded-lg text-accent-foreground/70"
-              >
-                <Settings />
-                <p className="text-sm">Settings</p>
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="default"
-                onClick={() => setOpenBgSetting(true)}
-                className="rounded-lg text-accent-foreground/70"
-              >
-                <ChartLine />
-                Stats
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="default"
-                onClick={() => setOpenBgSetting(true)}
-                className="rounded-lg text-accent-foreground/70"
-              >
-                <PencilLine />
-                Notes
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="default"
-                onClick={() => setOpenBgSetting(true)}
-                className="rounded-lg text-accent-foreground/70"
-              >
-                <UserPen />
-                Profile
-              </Button>
+              {actions.map(({ label, icon: Icon, onClick }) => (
+                <MotionButton
+                  key={label}
+                  variant="ghost"
+                  size="default"
+                  onClick={onClick}
+                  initial={{ scale: 1 }}
+                  animate={{ scale: 1 }}
+                  whileHover={{
+                    scale: [1, 1.15, 1.05],
+                  }}
+                  transition={{
+                    duration: 0.3,
+                    times: [0, 0.5, 1],
+                    ease: "easeOut",
+                  }}
+                  whileTap={{ scale: 0.9 }}
+                  className="rounded-lg text-accent-foreground/70"
+                >
+                  <Icon />
+                  <p className="text-sm">{label}</p>
+                </MotionButton>
+              ))}
             </div>
           </motion.aside>
         )}

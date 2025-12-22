@@ -7,21 +7,27 @@ This document explains how to use the timer system with Zustand for optimal perf
 The timer system is split across three layers:
 
 ### 1. Core (`@workspace/core/timer`)
+
 Pure TypeScript logic with no React dependencies:
+
 - **Types** (`types.ts`): Timer modes, states, and phases
 - **Schema** (`schema.ts`): Zod schemas for configuration validation
 - **Constants** (`constants.ts`): Default configs and presets
 - **Engine** (`engine.ts`): Pure functions for timer operations
 
 ### 2. Store (`frontend/stores/timer-store.ts`)
+
 Zustand store that holds timer state:
+
 - Manages timer state globally
 - Provides actions to control the timer
 - Uses core engine functions for state transitions
 - Optimized for performance (no unnecessary re-renders)
 
 ### 3. Hook (`frontend/hooks/use-timer.ts`)
+
 React hook for easy component integration:
+
 - Manages the interval for ticking
 - Provides formatted values
 - Exposes all timer actions
@@ -29,7 +35,7 @@ React hook for easy component integration:
 ## Basic Usage
 
 ```tsx
-import useTimer from '@/hooks/use-timer';
+import useTimer from "@/hooks/use-timer";
 
 function TimerComponent() {
   const {
@@ -48,8 +54,8 @@ function TimerComponent() {
     <div>
       <h1>{formattedTime}</h1>
       <div>Progress: {progress.toFixed(0)}%</div>
-      
-      {timerState.mode === 'pomodoro' && timerState.pomodoro && (
+
+      {timerState.mode === "pomodoro" && timerState.pomodoro && (
         <div>
           <p>Phase: {timerState.pomodoro.phase}</p>
           <p>Session: {timerState.pomodoro.session}</p>
@@ -63,13 +69,9 @@ function TimerComponent() {
       <button onClick={pause} disabled={!isRunning}>
         Pause
       </button>
-      <button onClick={reset}>
-        Reset
-      </button>
-      {timerState.mode === 'pomodoro' && (
-        <button onClick={skipPhase}>
-          Skip Phase
-        </button>
+      <button onClick={reset}>Reset</button>
+      {timerState.mode === "pomodoro" && (
+        <button onClick={skipPhase}>Skip Phase</button>
       )}
     </div>
   );
@@ -79,11 +81,12 @@ function TimerComponent() {
 ## Advanced Configuration
 
 ```tsx
-import useTimer from '@/hooks/use-timer';
-import { POMODORO_PRESETS } from '../../../core/src/timer/index.js';
+import useTimer from "@/hooks/use-timer";
+import { POMODORO_PRESETS } from "../../../core/src/timer/index.js";
 
 function SettingsComponent() {
-  const { config, updateConfig, setMode, setAutoWork, setAutoBreak } = useTimer();
+  const { config, updateConfig, setMode, setAutoWork, setAutoBreak } =
+    useTimer();
 
   const handlePresetChange = (preset: keyof typeof POMODORO_PRESETS) => {
     updateConfig({
@@ -94,9 +97,11 @@ function SettingsComponent() {
   return (
     <div>
       <h2>Timer Settings</h2>
-      
+
       {/* Mode Selection */}
-      <select onChange={(e) => setMode(e.target.value as 'pomodoro' | 'stopwatch')}>
+      <select
+        onChange={(e) => setMode(e.target.value as "pomodoro" | "stopwatch")}
+      >
         <option value="pomodoro">Pomodoro</option>
         <option value="stopwatch">Stopwatch</option>
       </select>
@@ -134,12 +139,14 @@ function SettingsComponent() {
         <input
           type="number"
           value={config.pomodoro.workDuration}
-          onChange={(e) => updateConfig({
-            pomodoro: {
-              ...config.pomodoro,
-              workDuration: parseInt(e.target.value),
-            },
-          })}
+          onChange={(e) =>
+            updateConfig({
+              pomodoro: {
+                ...config.pomodoro,
+                workDuration: parseInt(e.target.value),
+              },
+            })
+          }
         />
         <label>Work Duration (minutes)</label>
       </div>
@@ -153,7 +160,7 @@ function SettingsComponent() {
 For advanced use cases, you can access the store directly:
 
 ```tsx
-import { useTimerStore } from '../stores/timer-store.js';
+import { useTimerStore } from "../stores/timer-store.js";
 
 function AdvancedComponent() {
   // Select only what you need to avoid unnecessary re-renders
@@ -184,6 +191,7 @@ The timer uses Zustand for optimal performance:
 ## Timer Flow
 
 ### Pomodoro Mode
+
 1. Start with focus phase (default 25 minutes)
 2. Count down each second
 3. When complete:
@@ -195,6 +203,7 @@ The timer uses Zustand for optimal performance:
 5. Every N sessions (default 4): long break instead of short break
 
 ### Stopwatch Mode
+
 1. Start at 0
 2. Count up each second
 3. Optional max duration (stops automatically)
@@ -237,7 +246,7 @@ The timer uses Zustand for optimal performance:
 All timer configurations are validated with Zod:
 
 ```typescript
-import { TimerConfigSchema } from '../../../core/src/timer/index.js';
+import { TimerConfigSchema } from "../../../core/src/timer/index.js";
 
 // This will throw if invalid
 const validatedConfig = TimerConfigSchema.parse({

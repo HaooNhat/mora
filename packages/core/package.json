@@ -16,6 +16,8 @@
   },
   "exports": {
     ".": "./dist/index.js",
+    "./project": "./dist/project/index.js",
+    "./project/*": "./dist/project/*.js",
     "./timer": "./dist/timer/index.js",
     "./timer/*": "./dist/timer/*.js",
     "./util": "./dist/utils/index.js",
