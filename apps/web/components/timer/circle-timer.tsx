@@ -10,7 +10,7 @@ import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";
 import { cn } from "@workspace/ui/lib/utils";
 import { Droplets, SlidersVertical } from "lucide-react";
 import { AnimatePresence, motion, Variants } from "motion/react";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 const drawCircle: Variants = {
   hidden: { pathLength: 0, opacity: 0 },
@@ -25,20 +25,12 @@ const drawCircle: Variants = {
 };
 
 const containerVariants = {
-  initial: {
-    opacity: 0,
-    y: 12,
-    scale: 0.98,
-  },
+  initial: { opacity: 0, y: 12, scale: 0.98 },
   animate: {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: {
-      duration: 0.35,
-      ease: "easeOut",
-      staggerChildren: 0.06,
-    },
+    transition: { duration: 0.35, ease: "easeOut", staggerChildren: 0.06 },
   },
   exit: {
     opacity: 0,
@@ -78,30 +70,69 @@ interface CircleTimerProps {
 /**
  * CircleTimer component - pure presentational
  */
-export function CircleTimer(props: CircleTimerProps) {
+export function CircleTimer({
+  currentTimeFormatted,
+  progress,
+  mode,
+  status,
+  setSettingsOpen,
+  phase,
+  completedSessions,
+  sessionsUntilLongBreak,
+  workDuration,
+  shortBreakDuration,
+  longBreakDuration,
+  onTimerClick,
+  className,
+}: CircleTimerProps) {
   const [hovered, setHovered] = useState(false);
   const isMobile = useIsMobile();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [size, setSize] = useState(0);
 
-  const RADIUS = isMobile ? 150 : 180;
+  // Resize observer to adjust the circle's radius
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      setSize(entry.contentRect.width);
+    });
+
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const MIN_RADIUS = 150;
+  const MAX_RADIUS = 180;
+  const RADIUS = Math.min(MAX_RADIUS, Math.max(MIN_RADIUS, size * 0.95 * 0.5));
   const STROKE = 10;
   const NORMALIZED_RADIUS = RADIUS - STROKE / 2;
   const CIRCUMFERENCE = 2 * Math.PI * NORMALIZED_RADIUS;
 
-  const circleKey = `${props.mode}`;
+  const formatPhase = (phase: PomodoroPhase) =>
+    phase
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+  const circleKey = `${mode}`;
 
   return (
     <div
+      ref={containerRef}
       className={cn(
         "relative flex flex-col items-center justify-center select-none z-10",
-        props.className,
+        className,
       )}
     >
-      <div className="relative cursor-pointer" onClick={props.onTimerClick}>
-        {/* Background circle */}
+      <div className="relative cursor-pointer" onClick={onTimerClick}>
         <AnimatePresence mode="wait">
           <motion.svg
             role="img"
-            key={props.mode}
+            key={circleKey}
             transition={{ type: "tween", duration: 0.3 }}
             width={360}
             height={360}
@@ -109,7 +140,6 @@ export function CircleTimer(props: CircleTimerProps) {
             className="transform -rotate-90"
             aria-hidden="true"
           >
-            {/* Background circle */}
             <motion.circle
               key={`bg-${circleKey}`}
               initial="hidden"
@@ -124,7 +154,6 @@ export function CircleTimer(props: CircleTimerProps) {
               className="stroke-foreground/30"
             />
 
-            {/* Foreground progress circle */}
             <motion.circle
               key={`fg-${circleKey}`}
               cx="180"
@@ -134,11 +163,9 @@ export function CircleTimer(props: CircleTimerProps) {
               strokeLinecap="round"
               fill="transparent"
               strokeDasharray={CIRCUMFERENCE}
-              initial={{
-                strokeDashoffset: CIRCUMFERENCE,
-              }}
+              initial={{ strokeDashoffset: CIRCUMFERENCE }}
               animate={{
-                strokeDashoffset: CIRCUMFERENCE * (1 - props.progress / 100),
+                strokeDashoffset: CIRCUMFERENCE * (1 - progress / 100),
               }}
               transition={{ duration: 0.3, ease: "linear" }}
               className="stroke-foreground/90"
@@ -147,7 +174,7 @@ export function CircleTimer(props: CircleTimerProps) {
         </AnimatePresence>
 
         <AnimatePresence>
-          {props.mode === "pomodoro" && props.status !== "running" && (
+          {mode === "pomodoro" && status !== "running" && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -160,7 +187,7 @@ export function CircleTimer(props: CircleTimerProps) {
             >
               <Button
                 variant="ghost"
-                onClick={() => props.setSettingsOpen(true)}
+                onClick={() => setSettingsOpen(true)}
                 size="lg"
                 className="rounded-xl"
                 aria-label="Open timer settings"
@@ -173,68 +200,49 @@ export function CircleTimer(props: CircleTimerProps) {
 
         {/* Time or hover info */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-2/3 font-mono"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform-3d w-2/3 h-2/3 font-mono"
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
         >
           <AnimatePresence mode="wait">
-            {props.mode === "pomodoro" && hovered ? (
+            {mode === "pomodoro" && hovered ? (
               <motion.div
-                key={`key-${props.mode}`}
-                initial={{
-                  opacity: 0,
-                }}
-                animate={{ opacity: 1, rotateX: 0, rotateZ: 0 }}
-                exit={{
-                  opacity: 0,
-                  rotateX: 90,
-                  rotateZ: 180,
-                }}
+                key={`key-${mode}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, rotateX: 0 }}
+                exit={{ opacity: 0, rotateX: -90 }}
                 transition={{ duration: 0.4 }}
                 className="flex flex-col h-full items-center justify-center text-base md:text-lg text-foreground font-medium space-y-1"
               >
-                <p>Work: {Math.floor(props.workDuration)}m</p>
-                <p>Break: {Math.floor(props.shortBreakDuration)}m</p>
-                <p>Long Break: {Math.floor(props.longBreakDuration)}m</p>
+                <p>Work: {Math.floor(workDuration)}m</p>
+                <p>Break: {Math.floor(shortBreakDuration)}m</p>
+                <p>Long Break: {Math.floor(longBreakDuration)}m</p>
               </motion.div>
             ) : (
               <motion.div
-                key={`time-${props.mode}`}
-                initial={{
-                  opacity: 0,
-                }}
-                animate={{ opacity: 1, rotateX: 0, rotateZ: 0 }}
-                exit={{
-                  opacity: 0,
-                  rotateX: 90,
-                  rotateZ: 180,
-                }}
+                key={`time-${mode}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, rotateX: 0 }}
+                exit={{ opacity: 0, rotateX: 90 }}
                 transition={{ duration: 0.4 }}
                 className="flex flex-col h-full items-center justify-evenly gap-12"
               >
-                {props.mode === "pomodoro" && (
+                {mode === "pomodoro" && (
                   <div className="text-base font-light text-foreground/50">
-                    {props.phase
-                      .split("_")
-                      .map((word) => {
-                        return word[0]?.toLocaleUpperCase() + word.slice(1);
-                      })
-                      .join(" ")}
+                    {formatPhase(phase)}
                   </div>
                 )}
 
                 <div className="text-4xl md:text-5xl font-bold text-foreground">
-                  {props.currentTimeFormatted}
+                  {currentTimeFormatted}
                 </div>
 
-                {/* Session wave indicators */}
-                {props.mode === "pomodoro" && (
+                {mode === "pomodoro" && (
                   <div className="flex gap-1.5">
-                    {Array.from({ length: props.sessionsUntilLongBreak }).map(
+                    {Array.from({ length: sessionsUntilLongBreak }).map(
                       (_, i) => {
                         const currentSession =
-                          (props.completedSessions || 0) %
-                          props.sessionsUntilLongBreak;
+                          (completedSessions || 0) % sessionsUntilLongBreak;
 
                         return (
                           <motion.div key={i}>

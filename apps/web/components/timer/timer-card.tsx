@@ -87,7 +87,7 @@ export default function TimerCard({ className }: TimerCardProps) {
             animate={{}}
             onClick={() => handleSetMode(opt.id)}
             className={cn(
-              "relative list-none px-3 py-1.5 text-sm font-medium rounded-2xl",
+              "relative list-none cursor-pointer px-3 py-1.5 text-sm font-medium rounded-2xl",
               isActive
                 ? "text-primary-foreground"
                 : "bg-transparent text-foreground",
@@ -125,7 +125,7 @@ export default function TimerCard({ className }: TimerCardProps) {
   return (
     <div
       className={cn(
-        "relative flex flex-col h-fit items-center justify-evenly gap-8 w-full max-w-md py-8",
+        "relative flex flex-col items-center justify-evenly gap-8 w-full max-w-md py-8",
         className,
       )}
     >

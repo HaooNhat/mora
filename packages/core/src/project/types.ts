@@ -9,10 +9,11 @@ export interface Subtask {
 export interface Task {
   id: string;
   title: string;
-  icon?: string; // emoji hoặc icon key
-  deadline?: string; // ISO date
-  priority: TaskPriority;
+  icon?: string;
   completed: boolean;
+  deadline?: string;
+  urgent?: boolean;
+  important?: boolean;
   subtasks?: Subtask[];
 }
 
@@ -20,4 +21,14 @@ export interface Project {
   id: string;
   name: string;
   tasks: Task[];
+}
+
+/**
+ * Project Store State
+ */
+export interface ProjectState {
+  projects: Project[];
+  activeProjectId: string | null;
+  loading: boolean;
+  error: string | null;
 }
