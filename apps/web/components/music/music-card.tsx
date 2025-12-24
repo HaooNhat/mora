@@ -7,8 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
+import { AudioLinesIcon } from "@workspace/ui/components/lucide-animated-icons/audio-lines";
 import { cn } from "@workspace/ui/lib/utils";
-import { Headphones, Pause, Play } from "lucide-react";
+import { Pause, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface MusicCardProps {
@@ -51,7 +52,7 @@ export default function MusicCard({ className }: MusicCardProps) {
     <Card className={cn("w-full max-w-md", className)}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Headphones className="h-5 w-5" />
+          <AudioLinesIcon />
           Sample Music Player
         </CardTitle>
       </CardHeader>

@@ -6,13 +6,14 @@ import {
   TimerStatus,
 } from "@workspace/core/timer/types";
 import { Button } from "@workspace/ui/components/button";
+import { SlidersHorizontalIcon } from "@workspace/ui/components/lucide-animated-icons/sliders-horizontal";
 import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";
 import { cn } from "@workspace/ui/lib/utils";
-import { Droplets, SlidersVertical } from "lucide-react";
+import { Droplets } from "lucide-react";
 import { AnimatePresence, motion, Variants } from "motion/react";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
-const drawCircle: Variants = {
+export const drawCircle: Variants = {
   hidden: { pathLength: 0, opacity: 0 },
   visible: {
     pathLength: 1,
@@ -22,33 +23,6 @@ const drawCircle: Variants = {
       opacity: { duration: 0.2 },
     },
   },
-};
-
-const containerVariants = {
-  initial: { opacity: 0, y: 12, scale: 0.98 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.35, ease: "easeOut", staggerChildren: 0.06 },
-  },
-  exit: {
-    opacity: 0,
-    y: -12,
-    scale: 0.98,
-    transition: { duration: 0.25, ease: "easeIn" },
-  },
-};
-
-const itemVariants = {
-  initial: { opacity: 0, y: 6 },
-  animate: { opacity: 1, y: 0 },
-};
-
-const hoverInfoVariants = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: 8 },
 };
 
 interface CircleTimerProps {
@@ -188,11 +162,11 @@ export function CircleTimer({
               <Button
                 variant="ghost"
                 onClick={() => setSettingsOpen(true)}
-                size="lg"
+                size="sm"
                 className="rounded-xl"
                 aria-label="Open timer settings"
               >
-                <SlidersVertical />
+                <SlidersHorizontalIcon />
               </Button>
             </motion.div>
           )}

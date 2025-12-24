@@ -12,6 +12,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import { ArrowLeft, ChevronDown, GripVertical, Plus } from "lucide-react";
 import { CSSProperties, useState } from "react";
 import { SubtasksList } from "./subtask";
+import { FoldersIcon } from "@workspace/ui/components/lucide-animated-icons/folders";
 
 /* ---------------------------------- */
 /* UI State                           */
@@ -33,7 +34,7 @@ export function ProjectsPanel({ className }: ProjectsPanelProps) {
   // Initialize with seed data if empty
   useInitializeProjects();
 
-  const { projects, activeProjectId, setActiveProject } = useProjects();
+  const { projects, setActiveProject } = useProjects();
   const [view, setView] = useState<ProjectsView>({ mode: "projects" });
 
   // Sync view with active project
@@ -91,6 +92,7 @@ function ProjectsList({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
+        <FoldersIcon />
         <h2 className="text-lg font-semibold">Projects</h2>
         <Button
           variant="ghost"

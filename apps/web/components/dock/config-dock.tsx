@@ -15,16 +15,13 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@workspace/ui/components/drawer";
+import { ChartLineIcon } from "@workspace/ui/components/lucide-animated-icons/chart-line";
+import { PencilLineIcon } from "@workspace/ui/components/lucide-animated-icons/pencil-line";
+import { SettingsIcon } from "@workspace/ui/components/lucide-animated-icons/settings";
+import { UserIcon } from "@workspace/ui/components/lucide-animated-icons/user-pencil";
 import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";
 import { cn } from "@workspace/ui/lib/utils";
-import {
-  ChartLine,
-  ImageIcon,
-  PencilLine,
-  Settings,
-  UserPen,
-  Video,
-} from "lucide-react";
+import { ImageIcon, Video } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import {
@@ -62,18 +59,18 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
     videos: string[];
     colors: string;
   }>({ colors: "", images: [], videos: [] });
-  const [attribution, setAttribution] = useState<Attribution | null>(null);
+  // const [attribution, setAttribution] = useState<Attribution | null>(null);
   const status = useTimerStore((state) => state.timerState.status);
 
   const actions = [
     {
       label: "Settings",
-      icon: Settings,
+      icon: SettingsIcon,
       onClick: () => setOpenBgSetting(true),
     },
-    { label: "Stats", icon: ChartLine, onclick: () => {} },
-    { label: "Notes", icon: PencilLine, onclick: () => {} },
-    { label: "Profile", icon: UserPen, onclick: () => {} },
+    { label: "Stats", icon: ChartLineIcon, onclick: () => {} },
+    { label: "Notes", icon: PencilLineIcon, onclick: () => {} },
+    { label: "Profile", icon: UserIcon, onclick: () => {} },
   ];
   useEffect(() => setMounted(true), []);
 
@@ -94,7 +91,7 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
     ) => {
       setBgType(type);
       setBgLink(link);
-      setAttribution(attributionData);
+      // setAttribution(attributionData);
       setOpenBgSetting(false);
 
       localStorage.setItem(
@@ -133,11 +130,12 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
                   initial={{ scale: 1 }}
                   animate={{ scale: 1 }}
                   whileHover={{
-                    scale: [1, 1.15, 1.05],
+                    scale: [1, 1.5, 1.2],
+                    transition: { times: [0, 0.1, 1] },
                   }}
                   transition={{
                     duration: 0.3,
-                    times: [0, 0.5, 1],
+                    times: [0, 0.1, 1],
                     ease: "easeOut",
                   }}
                   whileTap={{ scale: 0.9 }}
@@ -342,18 +340,18 @@ const EmptyState = ({ icon, label }: { icon: JSX.Element; label: string }) => (
   </div>
 );
 
-const ShowAttribution = ({
-  attribution,
-}: {
-  attribution?: { text: string; href: string };
-}) => {
-  if (attribution)
-    return (
-      <div className="border-2 rounded-lg bg-card/50 px-3 py-1">
-        <a href={attribution.href} target="_blank" rel="noreferrer">
-          {attribution.text}
-        </a>
-      </div>
-    );
-  return null;
-};
+// const ShowAttribution = ({
+//   attribution,
+// }: {
+//   attribution?: { text: string; href: string };
+// }) => {
+//   if (attribution)
+//     return (
+//       <div className="border-2 rounded-lg bg-card/50 px-3 py-1">
+//         <a href={attribution.href} target="_blank" rel="noreferrer">
+//           {attribution.text}
+//         </a>
+//       </div>
+//     );
+//   return null;
+// };

@@ -13,14 +13,17 @@ import {
   DialogTitle,
 } from "@workspace/ui/components/dialog";
 
+import { HistoryIcon } from "@workspace/ui/components/lucide-animated-icons/history";
+import { HourglassIcon } from "@workspace/ui/components/lucide-animated-icons/hourglass";
+import { TimerIcon } from "@workspace/ui/components/lucide-animated-icons/timer";
 import { cn } from "@workspace/ui/lib/utils";
-import { Focus, Pause, SkipForward, TimerReset } from "lucide-react";
+import { Focus, Pause, SkipForward } from "lucide-react";
 import { motion } from "motion/react";
 
 /** mode definitions outside render → stable */
 const options = [
-  { id: "pomodoro" as TimerMode, label: "Pomodoro" },
-  { id: "stopwatch" as TimerMode, label: "Stopwatch" },
+  { id: "pomodoro" as TimerMode, label: "Pomodoro", Icon: TimerIcon },
+  { id: "stopwatch" as TimerMode, label: "Stopwatch", Icon: HourglassIcon },
 ];
 
 interface TimerCardProps {
@@ -87,13 +90,14 @@ export default function TimerCard({ className }: TimerCardProps) {
             animate={{}}
             onClick={() => handleSetMode(opt.id)}
             className={cn(
-              "relative list-none cursor-pointer px-3 py-1.5 text-sm font-medium rounded-2xl",
+              "relative flex items-center justify-between gap-2 list-none cursor-pointer px-3 py-1.5 text-sm font-medium rounded-2xl [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0",
               isActive
-                ? "text-primary-foreground"
+                ? "text-primary-foreground stroke-primary-foreground"
                 : "bg-transparent text-foreground",
             )}
             aria-pressed={isActive}
           >
+            <opt.Icon className="z-10" />
             <p className="relative z-10">{opt.label}</p>
             {isActive ? (
               <motion.div
@@ -170,7 +174,7 @@ export default function TimerCard({ className }: TimerCardProps) {
           onClick={handleReset}
           className="rounded-xl"
         >
-          <TimerReset />
+          <HistoryIcon />
         </Button>
 
         <Button
