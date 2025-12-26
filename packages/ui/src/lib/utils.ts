@@ -1,6 +1,12 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+/**
+ * Background gradients - kept for backward compatibility
+ * Consider using theme colors directly instead
+ */
+export const BACKGROUND_GRADIENTS: Record<string, string> = {};
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

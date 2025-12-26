@@ -1,21 +1,27 @@
-import { Button } from "@workspace/ui/components/button";
-import { Bubbles } from "lucide-react";
-import AvatarSetting from "./AvatarSetting";
+import { cn } from "@workspace/ui/lib/utils";
+import { Droplets } from "lucide-react";
+import AvatarSetting from "./avatar-setting";
 
-export default function Header() {
+export default function Header({ className }: { className?: string }) {
+  console.log("test");
   return (
-    <>
-      <header className="absolute top-0 w-full flex items-center justify-between px-4 py-4 z-10">
-        <div className="text-2xl italic">Lagoon</div>
+    <header
+      className={cn(
+        "flex items-center justify-between px-4 py-4 md:py-4",
+        className,
+      )}
+    >
+      <div className="flex items-center gap-2 opacity-80">
+        <Droplets className="size-6 md:size-7 lg:size-8 " />
+        <span className="text-2xl md:text-3xl font-semibold text-shadow-lg ">
+          Mora
+        </span>
+      </div>
 
-        {/* User setting */}
-        <div className="flex gap-4 md:gap-6 items-center">
-          <Button variant={"outline"}>
-            <Bubbles />0 days
-          </Button>
-          <AvatarSetting />
-        </div>
-      </header>
-    </>
+      {/* User setting */}
+      <div className="flex gap-2 md:gap-3 items-center">
+        <AvatarSetting />
+      </div>
+    </header>
   );
 }

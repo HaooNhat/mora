@@ -6,13 +6,22 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch --preserveWatchOutput",
-    "lint": "eslint . --max-warnings 0"
+    "lint": "eslint . --max-warnings 0",
+    "gen-types": "npx supabase gen types typescript --project-id ${PROJECT_ID} > src/supabase/database.types.ts"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@supabase/supabase-js": "^2.89.0",
+    "@workspace/core": "workspace:*",
+    "dotenv": "^17.2.3"
+  },
   "devDependencies": {
+    "@types/node": "^20.19.17",
     "@workspace/typescript-config": "workspace:*"
   },
   "exports": {
-    "./*": "./dist/*.js"
+    "./*": "./dist/*.js",
+    "./supabase/*": "./dist/supabase/*.js",
+    "./repositories/*": "./dist/repositories/*.js",
+    "./services/*": "./dist/services/*.js"
   }
 }

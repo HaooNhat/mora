@@ -1,12 +1,19 @@
 {
   "images": [
-    "images/cozy_workplace_1.jpg",
-    "images/cozy_workplace_2.jpg",
-    "images/cozy_workplace_3.jpg"
+    {
+      "url": "images/cozy-bedroom.jpg",
+      "attribution": {
+        "href": "https://www.freepik.com/free-ai-image/small-juvenile-bedroom-arrangement_114333478.htm#fromView=search&page=1&position=7&uuid=4822cb6e-14dd-44a2-a180-1b3d54d94063&query=lofi+study+room+rainy+window",
+        "text": "Image by freepik"
+      }
+    },
+    {
+      "url": "images/cozy-bedroom-night.jpg",
+      "attribution": {
+        "href": "https://www.freepik.com/free-ai-image/cozy-home-interior-anime-style_133783439.htm#fromView=search&page=1&position=0&uuid=991b7636-aae2-4723-a2ec-34f2c606ea31&query=bedroom+night",
+        "text": "Image by freepik"
+      }
+    }
   ],
-  "videos": [
-    "videos/cozy_workplace_1.mp4",
-    "videos/cozy_workplace_2.mp4",
-    "videos/cozy_workplace_3.mp4"
-  ]
+  "videos": []
 }

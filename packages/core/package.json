@@ -1,0 +1,28 @@
+{
+  "name": "@workspace/core",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch --preserveWatchOutput",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@workspace/typescript-config": "workspace:*"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./mood": "./dist/mood/index.js",
+    "./mood/*": "./dist/mood/*.js",
+    "./project": "./dist/project/index.js",
+    "./project/*": "./dist/project/*.js",
+    "./timer": "./dist/timer/index.js",
+    "./timer/*": "./dist/timer/*.js",
+    "./util": "./dist/utils/index.js",
+    "./util/*": "./dist/utils/*.js"
+  }
+}

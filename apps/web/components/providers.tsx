@@ -1,18 +1,26 @@
+/**
+ * Application providers wrapper
+ * Includes theme and global app context
+ */
+
 "use client";
 
-import * as React from "react";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { ThemeProvider } from "next-themes";
+import type { ReactNode } from "react";
 
-export function Providers({ children }: { children: React.ReactNode }) {
+interface ProvidersProps {
+  children: ReactNode;
+}
+
+export function Providers({ children }: ProvidersProps) {
   return (
-    <NextThemesProvider
+    <ThemeProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme="dark"
       enableSystem
       disableTransitionOnChange
-      enableColorScheme
     >
       {children}
-    </NextThemesProvider>
+    </ThemeProvider>
   );
 }
