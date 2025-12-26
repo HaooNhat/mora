@@ -8,6 +8,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@workspace/core/*": ["../core/src/*"],
+      "@workspace/api-client/*": ["../api-client/src/*"],
       "@workspace/ui/*": ["../ui/src/*"]
     }
   },

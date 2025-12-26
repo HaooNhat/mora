@@ -1,18 +1,22 @@
 "use client";
 
 import { Task } from "@workspace/core/project/types";
-import {
-  useInitializeProjects,
-  useProject,
-  useProjects,
-} from "@workspace/frontend/hooks/use-project";
-import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
 import { cn } from "@workspace/ui/lib/utils";
-import { ArrowLeft, ChevronDown, GripVertical, Plus } from "lucide-react";
+import { ChevronDown, ArrowLeft, Plus, Loader2 } from "lucide-react";
 import { CSSProperties, useState } from "react";
 import { SubtasksList } from "./subtask";
-import { FoldersIcon } from "@workspace/ui/components/lucide-animated-icons/folders";
+import { Button } from "@workspace/ui/components/button";
+import { Input } from "@workspace/ui/components/input";
+import {
+  useProjects,
+  useProject,
+  useCreateProject,
+  useCreateTask,
+  useUpdateTask,
+  useDeleteTask,
+  useToggleTaskComplete,
+} from "@workspace/frontend/hooks/queries/use-project-queries";
+import { toast } from "@workspace/ui/components/sonner";
 
 /* ---------------------------------- */
 /* UI State                           */
@@ -31,20 +35,13 @@ interface ProjectsPanelProps {
 }
 
 export function ProjectsPanel({ className }: ProjectsPanelProps) {
-  // Initialize with seed data if empty
-  useInitializeProjects();
-
-  const { projects, setActiveProject } = useProjects();
   const [view, setView] = useState<ProjectsView>({ mode: "projects" });
 
-  // Sync view with active project
   const handleSelectProject = (projectId: string) => {
-    setActiveProject(projectId);
     setView({ mode: "project", projectId });
   };
 
   const handleBack = () => {
-    setActiveProject(null);
     setView({ mode: "projects" });
   };
 
@@ -54,10 +51,7 @@ export function ProjectsPanel({ className }: ProjectsPanelProps) {
       aria-label="Projects and Tasks"
     >
       {view.mode === "projects" && (
-        <ProjectsList
-          projects={projects}
-          onSelectProject={handleSelectProject}
-        />
+        <ProjectsList onSelectProject={handleSelectProject} />
       )}
 
       {view.mode === "project" && (
@@ -72,27 +66,57 @@ export function ProjectsPanel({ className }: ProjectsPanelProps) {
 /* ---------------------------------- */
 
 function ProjectsList({
-  projects,
   onSelectProject,
 }: {
-  projects: ReturnType<typeof useProjects>["projects"];
   onSelectProject: (projectId: string) => void;
 }) {
-  const { createProject, deleteProject } = useProjects();
+  const { data: projects, isLoading, error } = useProjects();
+  const createProjectMutation = useCreateProject({
+    onSuccess: () => {
+      toast("Project created", {
+        description: "Your new project has been created successfully.",
+      });
+    },
+    onError: (error) => {
+      toast.error("Error", {
+        description: error.message,
+      });
+    },
+  });
+
   const [newProjectName, setNewProjectName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreate = () => {
     if (!newProjectName.trim()) return;
-    createProject(newProjectName.trim());
-    setNewProjectName("");
-    setIsCreating(false);
+
+    createProjectMutation.mutate(newProjectName.trim(), {
+      onSuccess: () => {
+        setNewProjectName("");
+        setIsCreating(false);
+      },
+    });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8 text-sm text-destructive">
+        Failed to load projects: {error.message}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <FoldersIcon />
         <h2 className="text-lg font-semibold">Projects</h2>
         <Button
           variant="ghost"
@@ -121,9 +145,18 @@ function ProjectsList({
             }}
             autoFocus
             className="flex-1"
+            disabled={createProjectMutation.isPending}
           />
-          <Button size="sm" onClick={handleCreate}>
-            Add
+          <Button
+            size="sm"
+            onClick={handleCreate}
+            disabled={createProjectMutation.isPending}
+          >
+            {createProjectMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              "Add"
+            )}
           </Button>
           <Button
             size="sm"
@@ -132,6 +165,7 @@ function ProjectsList({
               setIsCreating(false);
               setNewProjectName("");
             }}
+            disabled={createProjectMutation.isPending}
           >
             Cancel
           </Button>
@@ -139,38 +173,25 @@ function ProjectsList({
       )}
 
       <ul className="space-y-2">
-        {projects.map((project) => (
+        {projects?.map((project) => (
           <li key={project.id}>
-            <div
+            <button
+              onClick={() => onSelectProject(project.id)}
               className={cn(
-                "rounded-lg border p-3",
+                "w-full text-left rounded-lg border p-3",
                 "hover:bg-muted/40 transition-colors",
-                "flex items-center justify-between gap-2",
+                "flex items-center justify-between",
               )}
             >
-              <button
-                onClick={() => onSelectProject(project.id)}
-                className="flex-1 text-left"
-              >
-                <span className="text-sm font-medium">{project.name}</span>
-                <div className="text-xs text-muted-foreground">
-                  {project.tasks.length} tasks
-                </div>
-              </button>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Delete project"
-                onClick={() => deleteProject(project.id)}
-              >
-                ✕
-              </Button>
-            </div>
+              <span className="text-sm font-medium">{project.name}</span>
+              <span className="text-xs text-muted-foreground">
+                {project.tasks.length} tasks
+              </span>
+            </button>
           </li>
         ))}
 
-        {projects.length === 0 && !isCreating && (
+        {projects?.length === 0 && !isCreating && (
           <li className="text-center py-8 text-sm text-muted-foreground">
             No projects yet. Create your first project!
           </li>
@@ -191,38 +212,68 @@ function ProjectDetail({
   projectId: string;
   onBack: () => void;
 }) {
-  const {
-    project,
-    tasks,
-    createTask,
-    updateTask,
-    deleteTask,
-    createSubtask,
-    completedTaskCount,
-    taskCount,
-    progress,
-  } = useProject(projectId);
+  const { data: project, isLoading, error } = useProject(projectId);
+  const createTaskMutation = useCreateTask({
+    onSuccess: () => {
+      toast("Task created", {
+        description: "Your new task has been added.",
+      });
+    },
+    onError: (error) => {
+      toast.error("Error", {
+        description: error.message,
+      });
+    },
+  });
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreateTask = () => {
     if (!newTaskTitle.trim()) return;
-    createTask({
-      title: newTaskTitle.trim(),
-      completed: false,
-    });
-    setNewTaskTitle("");
-    setIsCreating(false);
+
+    createTaskMutation.mutate(
+      {
+        projectId,
+        data: {
+          title: newTaskTitle.trim(),
+          completed: false,
+        },
+      },
+      {
+        onSuccess: () => {
+          setNewTaskTitle("");
+          setIsCreating(false);
+        },
+      },
+    );
   };
 
-  if (!project) {
+  if (isLoading) {
     return (
-      <div className="text-center py-8 text-sm text-muted-foreground">
-        Project not found
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin" />
       </div>
     );
   }
+
+  if (error || !project) {
+    return (
+      <div className="space-y-4">
+        <Button variant="ghost" size="sm" onClick={onBack}>
+          <ArrowLeft size={16} className="mr-2" />
+          Back
+        </Button>
+        <div className="text-center py-8 text-sm text-destructive">
+          {error?.message || "Project not found"}
+        </div>
+      </div>
+    );
+  }
+
+  const tasks = project.tasks || [];
+  const completedCount = tasks.filter((t) => t.completed).length;
+  const progress = tasks.length > 0 ? (completedCount / tasks.length) * 100 : 0;
 
   return (
     <section className="space-y-4">
@@ -249,12 +300,12 @@ function ProjectDetail({
         </div>
 
         {/* Progress bar */}
-        {taskCount > 0 && (
+        {tasks.length > 0 && (
           <div className="space-y-1">
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Progress</span>
               <span>
-                {completedTaskCount} / {taskCount}
+                {completedCount} / {tasks.length}
               </span>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -284,9 +335,18 @@ function ProjectDetail({
             }}
             autoFocus
             className="flex-1"
+            disabled={createTaskMutation.isPending}
           />
-          <Button size="sm" onClick={handleCreateTask}>
-            Add
+          <Button
+            size="sm"
+            onClick={handleCreateTask}
+            disabled={createTaskMutation.isPending}
+          >
+            {createTaskMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              "Add"
+            )}
           </Button>
           <Button
             size="sm"
@@ -295,6 +355,7 @@ function ProjectDetail({
               setIsCreating(false);
               setNewTaskTitle("");
             }}
+            disabled={createTaskMutation.isPending}
           >
             Cancel
           </Button>
@@ -307,10 +368,8 @@ function ProjectDetail({
           <TaskItem
             key={task.id}
             task={task}
+            projectId={projectId}
             style={{ transform: `translateZ(${index * -5}px)` }}
-            onCreateSubtask={(title) => createSubtask(task.id, title)}
-            onUpdate={(updates) => updateTask(task.id, updates)}
-            onDelete={() => deleteTask(task.id)}
           />
         ))}
 
@@ -330,32 +389,54 @@ function ProjectDetail({
 
 interface TaskItemProps {
   task: Task;
+  projectId: string;
   style?: CSSProperties;
   className?: string;
-  onCreateSubtask: (title: string) => void;
-  onUpdate: (updates: Partial<Task>) => void;
-  onDelete: () => void;
 }
 
-function TaskItem({
-  task,
-  style,
-  className,
-  onCreateSubtask,
-  onUpdate,
-  onDelete,
-}: TaskItemProps) {
+function TaskItem({ task, projectId, style, className }: TaskItemProps) {
+  const updateTaskMutation = useUpdateTask();
+  const deleteTaskMutation = useDeleteTask();
+  const toggleCompleteMutation = useToggleTaskComplete();
+
   const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
-  const [newSubtask, setNewSubtask] = useState("");
-  const [addingSubtask, setAddingSubtask] = useState(false);
 
   const handleSaveTitle = () => {
     if (editTitle.trim() && editTitle !== task.title) {
-      onUpdate({ title: editTitle.trim() });
+      updateTaskMutation.mutate(
+        {
+          projectId,
+          taskId: task.id,
+          updates: { title: editTitle.trim() },
+        },
+        {
+          onError: (error) => {
+            toast.error("Error", {
+              description: error.message,
+            });
+          },
+        },
+      );
     }
     setIsEditing(false);
+  };
+
+  const handleToggleComplete = () => {
+    toggleCompleteMutation.mutate({
+      projectId,
+      taskId: task.id,
+      currentStatus: task.completed,
+    });
+  };
+
+  const handleUpdateField = (updates: Partial<Task>) => {
+    updateTaskMutation.mutate({
+      projectId,
+      taskId: task.id,
+      updates,
+    });
   };
 
   return (
@@ -364,21 +445,22 @@ function TaskItem({
       className={cn(
         "rounded-xl border p-3 bg-background/60 space-y-2",
         "transition-all duration-300",
-        "hover:scale-105",
+        "hover:translate-z-[15px] hover:scale-105",
         "hover:bg-background/80",
         task.completed && "opacity-60",
         className,
       )}
     >
       <div className="flex items-start gap-3">
-        {/* Drag handle (future enhancement) */}
+        {/* Drag handle */}
         <DragHandle />
 
         {/* Complete checkbox */}
         <input
           type="checkbox"
           checked={task.completed}
-          onChange={(e) => onUpdate({ completed: e.target.checked })}
+          onChange={handleToggleComplete}
+          disabled={toggleCompleteMutation.isPending}
           aria-label="Mark task completed"
           className="mt-2"
         />
@@ -420,7 +502,9 @@ function TaskItem({
               <input
                 type="checkbox"
                 checked={!!task.important}
-                onChange={(e) => onUpdate({ important: e.target.checked })}
+                onChange={(e) =>
+                  handleUpdateField({ important: e.target.checked })
+                }
               />
               <span className={task.important ? "text-yellow-500" : ""}>
                 Important
@@ -431,7 +515,9 @@ function TaskItem({
               <input
                 type="checkbox"
                 checked={!!task.urgent}
-                onChange={(e) => onUpdate({ urgent: e.target.checked })}
+                onChange={(e) =>
+                  handleUpdateField({ urgent: e.target.checked })
+                }
               />
               <span className={task.urgent ? "text-red-500" : ""}>Urgent</span>
             </label>
@@ -441,90 +527,39 @@ function TaskItem({
           <input
             type="date"
             value={task.deadline || ""}
-            onChange={(e) => onUpdate({ deadline: e.target.value })}
+            onChange={(e) => handleUpdateField({ deadline: e.target.value })}
             className="text-xs bg-transparent border rounded px-2 py-1"
           />
         </div>
 
-        <div className="flex flex-col gap-1">
-          {task.subtasks?.length ? (
-            <button onClick={() => setOpen((v) => !v)}>
-              <ChevronDown
-                size={16}
-                className={cn("transition-transform", open && "rotate-180")}
-              />
-            </button>
-          ) : null}
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onDelete}
-            aria-label="Delete task"
+        {/* Expand subtasks */}
+        {task.subtasks && task.subtasks.length > 0 && (
+          <button
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            className="mt-1"
           >
-            ✕
-          </Button>
-        </div>
+            <ChevronDown
+              size={16}
+              className={cn("transition-transform", open && "rotate-180")}
+            />
+          </button>
+        )}
       </div>
 
       {/* Subtasks */}
       {open && task.subtasks && (
-        <div className="ml-6 space-y-2">
-          <SubtasksList
-            subtasks={task.subtasks}
-            onReorder={(next) => onUpdate({ subtasks: next })}
-            onChangeSubtask={(subtaskId, completed) =>
-              onUpdate({
-                subtasks: task.subtasks?.map((s) =>
-                  s.id === subtaskId ? { ...s, completed } : s,
-                ),
-              })
-            }
-          />
-        </div>
-      )}
-
-      {addingSubtask ? (
-        <div className="flex gap-2">
-          <Input
-            value={newSubtask}
-            onChange={(e) => setNewSubtask(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && newSubtask.trim()) {
-                onCreateSubtask(newSubtask.trim());
-                setNewSubtask("");
-                setAddingSubtask(false);
-              }
-              if (e.key === "Escape") {
-                setAddingSubtask(false);
-                setNewSubtask("");
-              }
-            }}
-            autoFocus
-            placeholder="Subtask title"
-            className="text-sm"
-          />
-          <Button
-            size="sm"
-            onClick={() => {
-              if (!newSubtask.trim()) return;
-              onCreateSubtask(newSubtask.trim());
-              setNewSubtask("");
-              setAddingSubtask(false);
-            }}
-          >
-            Add
-          </Button>
-        </div>
-      ) : (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-xs"
-          onClick={() => setAddingSubtask(true)}
-        >
-          <Plus size={12} /> Add subtask
-        </Button>
+        <SubtasksList
+          subtasks={task.subtasks}
+          onReorder={(next) => handleUpdateField({ subtasks: next })}
+          onChangeSubtask={(subtaskId, completed) =>
+            handleUpdateField({
+              subtasks: task.subtasks?.map((s) =>
+                s.id === subtaskId ? { ...s, completed } : s,
+              ),
+            })
+          }
+        />
       )}
     </li>
   );
@@ -537,7 +572,9 @@ export function DragHandle(props: React.HTMLAttributes<HTMLDivElement>) {
       aria-hidden
       className="flex flex-col gap-[2px] cursor-grab px-1 py-2 text-muted-foreground"
     >
-      <GripVertical />
+      {Array.from({ length: 6 }).map((_, i) => (
+        <span key={i} className="h-1 w-1 rounded-full bg-current" />
+      ))}
     </div>
   );
 }

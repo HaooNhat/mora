@@ -1,6 +1,7 @@
 "use client";
 
 import { BgTypes } from "@/app/(main)/page";
+import { JournalDialog } from "@/components/journal/journal-dialog";
 import { useTimerStore } from "@workspace/frontend/stores/timer-store";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -54,6 +55,8 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
   const isMobile = useIsMobile(767);
   const [mounted, setMounted] = useState(false);
   const [openBgSetting, setOpenBgSetting] = useState(false);
+  const [openJournal, setOpenJournal] = useState<boolean>(false);
+
   const [backgrounds, setBackgrounds] = useState<{
     images: ImageSetting[];
     videos: string[];
@@ -68,9 +71,13 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
       icon: SettingsIcon,
       onClick: () => setOpenBgSetting(true),
     },
-    { label: "Stats", icon: ChartLineIcon, onclick: () => {} },
-    { label: "Notes", icon: PencilLineIcon, onclick: () => {} },
-    { label: "Profile", icon: UserIcon, onclick: () => {} },
+    { label: "Stats", icon: ChartLineIcon, onClick: () => {} },
+    {
+      label: "Journals",
+      icon: PencilLineIcon,
+      onClick: () => setOpenJournal((prev) => !prev),
+    },
+    { label: "Profile", icon: UserIcon, onClick: () => {} },
   ];
   useEffect(() => setMounted(true), []);
 
@@ -146,6 +153,7 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
                 </MotionButton>
               ))}
             </div>
+            <JournalDialog open={openJournal} onOpenChange={setOpenJournal} />
           </motion.aside>
         )}
       </AnimatePresence>

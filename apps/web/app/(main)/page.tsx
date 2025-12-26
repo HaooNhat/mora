@@ -1,9 +1,11 @@
 "use client";
 
+import { ProtectedRoute } from "@/components/auth/protected-route";
 import ConfigDock, {
   LOCAL_STORAGE_BG_KEY,
 } from "@/components/dock/config-dock";
 import Header from "@/components/header/header";
+import MoodCard from "@/components/mood/mood-card";
 import MusicCard from "@/components/music/music-card";
 import { ProjectsPanel } from "@/components/project/project-panel";
 import TimerCard from "@/components/timer/timer-card";
@@ -31,84 +33,28 @@ const cardSurface = cn(
 
 const cardMotion = cn(
   // Smooth transforms
-  "transition-all duration-500 ease-out",
   // GPU layer
+  "transition-[transform,opacity,filter,shadow] duration-700 ease-out",
   "will-change-transform",
   // Preserve 3D for nested elements
   "transform-3d",
 );
 
 const cardLighting = cn(
-  "before:absolute before:inset-0 before:rounded-[inherit]",
-  "before:bg-gradient-to-bl before:from-white/10 before:to-black/5",
-  "before:opacity-0 hover:before:opacity-100",
-  "before:transition-opacity before:pointer-events-none",
-);
-
-const cardBase = cn(
   "relative",
-  cardSurface,
-  cardMotion,
-  cardLighting,
-  "backface-hidden",
-  "transform-3d",
+  "before:absolute before:inset-0 before:rounded-[inherit]",
+  "before:bg-gradient-to-br before:from-white/10 before:via-transparent before:to-black/5",
+  "before:opacity-0 before:transition-opacity before:duration-300",
+  "hover:before:opacity-100 before:pointer-events-none",
 );
 
-const card3DByMode = {
-  idle: {
-    left: cn(
-      // Transform origin
-      "origin-right",
-      // 3D transforms with depth
-      "rotate-y-15 -rotate-x-3 -translate-x-1/4 scale-60",
-      // Hover state
-      "hover:rotate-y-0 hover:rotate-x-0 hover:translate-x-0 hover:scale-100",
-      // Transitions
-      "transition-all duration-700 ease-out",
-      // GPU acceleration
-      "will-change-transform",
-    ),
-    center: cn(
-      "origin-center",
-      // Center card slightly forward
-      "rotate-y-0 rotate-x-0 scale-80",
-      "hover:scale-100",
-      "transition-all duration-500 ease-out",
-      "will-change-transform",
-    ),
-    right: cn(
-      "origin-left",
-      // Mirror left side
-      "-rotate-y-15 -rotate-x-3 translate-x-1/4 scale-60",
-      "hover:rotate-y-0 hover:rotate-x-0 hover:translate-x-0 hover:scale-100",
-      "transition-all duration-700 ease-out",
-      "will-change-transform",
-    ),
-  },
-  focus: {
-    // Flatten all cards when focusing
-    left: cn(
-      "rotate-y-0 rotate-x-0 translate-x-0 scale-100",
-      // "opacity-50 blur-sm",
-      "transition-all duration-500",
-    ),
-    center: cn(
-      "rotate-y-0 rotate-x-0 scale-105",
-      "opacity-100 blur-0",
-      "transition-all duration-500",
-    ),
-    right: cn(
-      "rotate-y-0 rotate-x-0 scale-100",
-      // "opacity-50 blur-sm",
-      "transition-all duration-500",
-    ),
-  },
-};
+const cardBase = cn(cardSurface, cardMotion, cardLighting);
 
 /**
  * Main play page with dynamic background and timer
+ * Protected - requires authentication
  */
-export default function PlayPage() {
+function PlayPageContent() {
   // ==========================================================================
   // HOOKS
   // ==========================================================================
@@ -120,10 +66,60 @@ export default function PlayPage() {
   const status = useTimerStore((state) => state.timerState.status);
   const isMobile = useIsMobile();
 
-  // const prefersReducedMotion =
-  //   typeof window !== 'undefined' &&
-  //   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isFocusMode = status === "running";
+
+  const card3DByMode = {
+    idle: {
+      left: cn(
+        // Transform origin
+        "origin-right",
+        // 3D transforms with depth
+        "rotate-y-15 -rotate-x-3 -translate-x-1/4 scale-60",
+        // Transitions
+        "transition-transform duration-500 ease-out",
+        // GPU acceleration
+        "will-change-transform",
+        "hover:rotate-y-0 hover:rotate-x-0 hover:translate-x-0 hover:scale-100",
+      ),
+      center: cn(
+        "origin-center",
+        "rotate-y-0 rotate-x-0 scale-85",
+        "hover:scale-100",
+        "transition-transform duration-500 ease-out",
+        "will-change-transform",
+      ),
+      right: cn(
+        "origin-left",
+        "-rotate-y-15 -rotate-x-3 translate-x-1/4 scale-60",
+        "hover:rotate-y-0 hover:rotate-x-0 hover:translate-x-0 hover:scale-100",
+        "transition-transform duration-500 ease-out",
+        "will-change-transform",
+      ),
+    },
+    focus: {
+      left: cn(
+        "rotate-y-0 rotate-x-0 translate-x-0 scale-100",
+        // Reduce opacity
+        // "opacity-40 blur-md brightness-75",
+        "transition-transform duration-300 ease-out",
+        "will-change-transform",
+      ),
+      center: cn(
+        "rotate-y-0 rotate-x-0 scale-100",
+        // "opacity-100 blur-0 brightness-100",
+        "drop-shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)]",
+        "transition-transform duration-300 ease-out",
+        "will-change-transform",
+      ),
+      right: cn(
+        "rotate-y-0 rotate-x-0 translate-x-0 scale-100",
+        // "opacity-40 blur-md brightness-75",
+        "transition-transform duration-300 ease-out",
+        "will-change-transform",
+      ),
+    },
+  };
+
   const card3D = isFocusMode ? card3DByMode.focus : card3DByMode.idle;
 
   // ==========================================================================
@@ -187,13 +183,13 @@ export default function PlayPage() {
         <div
           className={cn(
             "absolute inset-0 h-full w-full max-w-[1920px] transition-all duration-1000",
-            status === "running" ? "p-0" : "md:p-4 lg:p-8",
+            isFocusMode ? "p-0" : "md:p-4 lg:p-8",
           )}
         >
           <div
             className={cn(
               "h-full w-full flex flex-col transition-all duration-1000",
-              status === "running"
+              isFocusMode
                 ? "bg-transparent border-none"
                 : "bg-background/50 md:border-2 md:rounded-xl",
             )}
@@ -203,42 +199,53 @@ export default function PlayPage() {
             <main
               className={cn(
                 "flex-1 overflow-visible md:pb-6",
-                // 3D perspective context
                 "perspective-[1200px]",
-                // Perspective origin (eye position)
                 "perspective-origin-center",
               )}
             >
               <section
                 className={cn(
                   "h-full w-full",
-                  // Preserve 3D space for children
                   "transform-3d",
-                  // Layout
-                  "flex items-center justify-evenly gap-4 md:p-1",
+                  "flex items-center justify-evenly gap-4 p-1",
                 )}
               >
                 {!isMobile && (
-                  <div className="w-full h-full transform-3d flex flex-col max-w-md gap-2">
-                    <div
+                  <div
+                    className={cn(
+                      "w-full h-full flex flex-col max-w-md gap-2",
+                      "transform-3d",
+                    )}
+                  >
+                    {/* Mood & Journal Card */}
+                    <MoodCard
                       className={cn(
-                        "flex-1 rounded-2xl",
+                        "rounded-2xl flex-1",
                         cardBase,
                         card3D.left,
                       )}
                     />
+
                     <MusicCard
                       className={cn("rounded-2xl", cardBase, card3D.left)}
                     />
                   </div>
                 )}
 
-                <div className="origin-center flex flex-col w-full h-full max-w-md items-center justify-center">
+                <div
+                  className={cn(
+                    "flex flex-col w-full h-full max-w-md",
+                    "items-center justify-center",
+                    "transform-3d",
+                  )}
+                >
                   <TimerCard
                     className={cn(
-                      "h-full md:h-fit md:rounded-2xl",
+                      "rounded-2xl",
                       cardBase,
-                      !isMobile && card3D.center,
+                      card3D.center,
+                      isFocusMode &&
+                        "shadow-[0_0_60px_-15px_rgba(var(--primary-rgb),0.8)]",
                     )}
                   />
                 </div>
@@ -254,5 +261,16 @@ export default function PlayPage() {
         </div>
       </div>
     </>
+  );
+}
+
+/**
+ * Wrap content with ProtectedRoute
+ */
+export default function PlayPage() {
+  return (
+    <ProtectedRoute>
+      <PlayPageContent />
+    </ProtectedRoute>
   );
 }

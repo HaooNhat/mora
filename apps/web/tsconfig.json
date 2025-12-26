@@ -6,6 +6,7 @@
       "@/*": ["./*"],
       "@workspace/ui/*": ["../../packages/ui/src/*"],
       "@workspace/core/*": ["../../packages/core/src/*"],
+      "@workspace/api-client/*": ["../../packages/api-client/src/*"],
       "@workspace/frontend/*": ["../../packages/frontend/src/*"]
     },
     "plugins": [

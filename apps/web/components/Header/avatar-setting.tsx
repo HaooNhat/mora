@@ -5,15 +5,13 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar";
-import { Button } from "@workspace/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuPortal,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuSub,
@@ -21,30 +19,75 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu";
-import { Sun, Moon, Monitor } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useMemo } from "react";
+import { useAuth } from "@/providers/auth-provider";
+import { LogOut, User as UserIcon, Settings } from "lucide-react";
 
 export default function AvatarSetting() {
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
+  // Get user initials for fallback
+  const getInitials = () => {
+    if (user?.name) {
+      return user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    if (user?.email) {
+      return user.email[0]!.toUpperCase();
+    }
+    return "U";
+  };
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Avatar className="size-9">
-            <AvatarImage
-              src={"https://github.com/shadcn.png"}
-              alt={"@shadcn"}
-            />
-            <AvatarFallback></AvatarFallback>
-          </Avatar>
+          <button className="focus:outline-none focus:ring-2 focus:ring-primary rounded-full">
+            <Avatar className="size-9 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+              <AvatarImage
+                src={user?.avatar || "https://github.com/shadcn.png"}
+                alt={user?.name || user?.email || "User"}
+              />
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+          </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="start">
+        <DropdownMenuContent className="w-56" align="end">
+          {/* User Info */}
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none">
+                {user?.name || "User"}
+              </p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {user?.email}
+              </p>
+            </div>
+          </DropdownMenuLabel>
+
+          <DropdownMenuSeparator />
+
           <DropdownMenuGroup>
             <DropdownMenuItem>
+              <UserIcon className="mr-2 h-4 w-4" />
               Profile
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
             </DropdownMenuItem>
           </DropdownMenuGroup>
 
@@ -55,20 +98,15 @@ export default function AvatarSetting() {
               <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
-                  <DropdownMenuRadioGroup
-                    value={theme}
-                    onValueChange={setTheme}
-                  >
-                    <DropdownMenuRadioItem value="light">
-                      Light
-                    </DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="dark">
-                      Dark
-                    </DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem value="system">
-                      System
-                    </DropdownMenuRadioItem>
-                  </DropdownMenuRadioGroup>
+                  <DropdownMenuItem onClick={() => setTheme("light")}>
+                    Light
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("dark")}>
+                    Dark
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("system")}>
+                    System
+                  </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
@@ -76,7 +114,11 @@ export default function AvatarSetting() {
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handleSignOut}
+            className="text-red-600 focus:text-red-600 dark:text-red-400"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
             Log out
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
@@ -85,26 +127,3 @@ export default function AvatarSetting() {
     </>
   );
 }
-
-export const ThemeTabs = () => {
-  const { theme, setTheme } = useTheme();
-  const themeButtons = useMemo(() => ["light", "dark", "system"] as const, []);
-
-  return (
-    <div className="flex-1 flex items-center justify-end gap-1 pr-2 md:pr-8 lg:pr-10 rounded-xl">
-      <div className="flex items-center gap-0.5 border rounded-xl bg-card">
-        {themeButtons.map((t) => (
-          <Button
-            key={t}
-            variant={theme === t ? "outline" : "ghost"}
-            size="default"
-            onClick={() => setTheme(t)}
-            className="rounded-xl"
-          >
-            {t === "light" ? <Sun /> : t === "dark" ? <Moon /> : <Monitor />}
-          </Button>
-        ))}
-      </div>
-    </div>
-  );
-};

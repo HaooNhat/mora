@@ -9,6 +9,9 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.12",
+    "@tanstack/react-query-devtools": "^5.91.1",
+    "@workspace/api-client": "workspace:*",
     "@workspace/core": "workspace:*",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
