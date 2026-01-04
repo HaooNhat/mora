@@ -4,7 +4,7 @@
 
 import { supabase } from "@workspace/api-client/supabase/client";
 import { RepositoryError } from "@workspace/api-client/repositories/project.repository";
-import type { JournalEntry, MoodType } from "@workspace/domain/mood/types";
+import type { JournalEntry, MoodType } from "@workspace/core/mood/types";
 
 type DbJournalEntry = {
   id: string;

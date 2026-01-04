@@ -10,7 +10,7 @@
 
 import { supabase } from "@workspace/api-client/supabase/client";
 import type { Database } from "@workspace/api-client/supabase/database.types";
-import type { Project, Task, Subtask } from "@workspace/domain/project/types";
+import type { Project, Task, Subtask } from "@workspace/core/project/types";
 
 type DbProject = Database["public"]["Tables"]["projects"]["Row"];
 type DbTask = Database["public"]["Tables"]["tasks"]["Row"];
