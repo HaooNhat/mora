@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@workspace/api-client/supabase/client";
 import { Loader2 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Auth Callback Page
  *
