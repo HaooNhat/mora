@@ -4,14 +4,14 @@
 
 import { supabase } from "@workspace/api-client/supabase/client";
 import { RepositoryError } from "@workspace/api-client/repositories/project.repository";
-import type { JournalEntry, MoodType } from "@workspace/core/mood/types";
+import type { JournalEntry, MoodType } from "@workspace/domain/mood/types";
 
 type DbJournalEntry = {
   id: string;
   user_id: string;
   title: string | null;
   content: string;
-  mood: MoodType | null;
+  mood: string | null;
   tags: string[] | null;
   created_at: string;
   updated_at: string;
@@ -32,6 +32,24 @@ type UpdateJournalEntry = {
   tags?: string[];
 };
 
+function parseMood(mood: string | null): MoodType | undefined {
+  if (!mood) return undefined;
+
+  // Runtime guard because DBs lie
+  const allowedMoods: readonly MoodType[] = [
+    "energized",
+    "focused",
+    "creative",
+    "tired",
+    "stressed",
+    "neutral",
+  ];
+
+  return allowedMoods.includes(mood as MoodType)
+    ? (mood as MoodType)
+    : undefined;
+}
+
 /**
  * Transform database journal entry to domain model
  */
@@ -41,7 +59,7 @@ function mapDbJournalToDomain(dbEntry: DbJournalEntry): JournalEntry {
     userId: dbEntry.user_id,
     title: dbEntry.title ?? undefined,
     content: dbEntry.content,
-    mood: dbEntry.mood ?? undefined,
+    mood: parseMood(dbEntry.mood),
     tags: dbEntry.tags ?? undefined,
     createdAt: new Date(dbEntry.created_at),
     updatedAt: new Date(dbEntry.updated_at),
