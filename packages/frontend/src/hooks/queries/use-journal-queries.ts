@@ -9,11 +9,13 @@ import {
   type UseQueryOptions,
   type UseMutationOptions,
 } from "@tanstack/react-query";
-import {
-  journalService,
-  ServiceError,
-} from "@workspace/api-client/services/journal.service";
+import { journalService } from "@workspace/api-client/services/journal.service";
+import { ServiceError } from "@workspace/api-client/services/project.service";
 import type { JournalEntry, MoodType } from "@workspace/core/mood/types";
+
+type JournalMutationContext = {
+  previousEntries?: JournalEntry[];
+};
 
 /**
  * Query Keys Factory
@@ -163,24 +165,36 @@ export function useUpdateJournalEntry(
         mood?: MoodType;
         tags?: string[];
       };
-    }
+    },
+    JournalMutationContext
   >,
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<
+    JournalEntry,
+    ServiceError,
+    {
+      entryId: string;
+      updates: {
+        title?: string;
+        content?: string;
+        mood?: MoodType;
+        tags?: string[];
+      };
+    },
+    JournalMutationContext
+  >({
     mutationFn: ({ entryId, updates }) =>
       journalService.updateEntry(entryId, updates),
+
     onMutate: async ({ entryId, updates }) => {
-      // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: journalKeys.list() });
 
-      // Snapshot previous value
       const previousEntries = queryClient.getQueryData<JournalEntry[]>(
         journalKeys.list(),
       );
 
-      // Optimistically update
       if (previousEntries) {
         queryClient.setQueryData<JournalEntry[]>(
           journalKeys.list(),
@@ -194,16 +208,17 @@ export function useUpdateJournalEntry(
 
       return { previousEntries };
     },
-    onError: (err, variables, context) => {
-      // Rollback on error
+
+    onError: (_err, _variables, context) => {
       if (context?.previousEntries) {
         queryClient.setQueryData(journalKeys.list(), context.previousEntries);
       }
     },
+
     onSettled: () => {
-      // Always refetch after error or success
       queryClient.invalidateQueries({ queryKey: journalKeys.list() });
     },
+
     ...options,
   });
 }
@@ -212,22 +227,25 @@ export function useUpdateJournalEntry(
  * Delete journal entry mutation
  */
 export function useDeleteJournalEntry(
-  options?: UseMutationOptions<void, ServiceError, string>,
+  options?: UseMutationOptions<
+    void,
+    ServiceError,
+    string,
+    JournalMutationContext
+  >,
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (entryId: string) => journalService.deleteEntry(entryId),
+  return useMutation<void, ServiceError, string, JournalMutationContext>({
+    mutationFn: (entryId) => journalService.deleteEntry(entryId),
+
     onMutate: async (entryId) => {
-      // Cancel queries
       await queryClient.cancelQueries({ queryKey: journalKeys.list() });
 
-      // Snapshot
       const previousEntries = queryClient.getQueryData<JournalEntry[]>(
         journalKeys.list(),
       );
 
-      // Optimistically remove
       if (previousEntries) {
         queryClient.setQueryData<JournalEntry[]>(
           journalKeys.list(),
@@ -237,15 +255,17 @@ export function useDeleteJournalEntry(
 
       return { previousEntries };
     },
-    onError: (err, entryId, context) => {
-      // Rollback
+
+    onError: (_err, _entryId, context) => {
       if (context?.previousEntries) {
         queryClient.setQueryData(journalKeys.list(), context.previousEntries);
       }
     },
+
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: journalKeys.list() });
     },
+
     ...options,
   });
 }
