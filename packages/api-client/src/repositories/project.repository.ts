@@ -396,13 +396,13 @@ export const projectRepository = {
    * Reorder tasks
    */
   async reorderTasks(taskIds: string[]): Promise<void> {
-    const updates = taskIds.map((id, index) => ({
-      id,
-      position: index,
-    }));
+    const updates = taskIds.map((id, index) =>
+      supabase.from("tasks").update({ position: index }).eq("id", id),
+    );
 
-    const { error } = await supabase.from("tasks").upsert(updates);
+    const results = await Promise.all(updates);
 
+    const error = results.find((r) => r.error)?.error;
     if (error) {
       throw new RepositoryError(
         "Failed to reorder tasks",
@@ -506,13 +506,18 @@ export const projectRepository = {
    * Reorder subtasks
    */
   async reorderSubtasks(subtaskIds: string[]): Promise<void> {
-    const updates = subtaskIds.map((id, index) => ({
-      id,
-      position: index,
-    }));
+    const updates = subtaskIds.map((id, index) =>
+      supabase
+        .from("subtasks")
+        .update({
+          position: index,
+        })
+        .eq("id", id),
+    );
 
-    const { error } = await supabase.from("subtasks").upsert(updates);
+    const results = await Promise.all(updates);
 
+    const error = results.find((r) => r.error)?.error;
     if (error) {
       throw new RepositoryError(
         "Failed to reorder subtasks",
