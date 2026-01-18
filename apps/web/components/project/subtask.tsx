@@ -6,7 +6,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Task } from "@workspace/core/project/types";
+import { Task } from "@workspace/domain/project/types";
 import { DragHandle } from "./project-panel";
 
 interface SubtasksListProps {

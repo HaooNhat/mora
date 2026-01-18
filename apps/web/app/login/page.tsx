@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/providers/auth-provider";
+import { useAuthOld } from "@/hooks/use-auth";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { Loader2, Mail, Waves } from "lucide-react";
@@ -27,7 +27,7 @@ export default function LoginPage() {
     signInWithGithub,
     signInWithEmail,
     clearError,
-  } = useAuth();
+  } = useAuthOld();
 
   const [email, setEmail] = useState("");
   const [showEmailForm, setShowEmailForm] = useState(false);

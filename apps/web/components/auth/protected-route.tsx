@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/providers/auth-provider";
+import { useAuthOld } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
@@ -17,7 +17,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuthOld();
   const router = useRouter();
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
  * Hook version for use inside components
  */
 export function useProtectedRoute() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuthOld();
   const router = useRouter();
 
   useEffect(() => {

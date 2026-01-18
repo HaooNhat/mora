@@ -2,13 +2,14 @@
 
 ## Product Vision
 
-**Mora** is an intelligent productivity companion that adapts to your mental and emotional state. Unlike traditional productivity apps that force rigid workflows, Mora works *with* you, understanding that productivity isn't just about time management—it's about energy, mood, and context.
+**Mora** is an intelligent productivity companion that adapts to your mental and emotional state. Unlike traditional productivity apps that force rigid workflows, Mora works _with_ you, understanding that productivity isn't just about time management—it's about energy, mood, and context.
 
 ## Core Identity
 
 > "A productivity app that understands you're human, not a machine."
 
 Mora combines:
+
 - **Timer-based productivity tracking** (Pomodoro, Stopwatch)
 - **Smart project/task management** (Projects → Tasks → Subtasks)
 - **Mood-aware intelligence** (Energy, Mood, Context-aware suggestions)
@@ -81,20 +82,24 @@ The key differentiator: **Adaptive Intelligence** that suggests what to work on 
 **Purpose**: Measure productive time, track sessions, predict peak performance
 
 **Aggregates**:
+
 - **Timer** (Root)
   - Properties: mode, status, currentTime, phase, completedSessions
   - Methods: start(), pause(), reset(), tick(), skipPhase()
   - Emits: TimerStarted, TimerCompleted, PhaseTransitioned
 
 **Value Objects**:
+
 - TimerDuration
 - PomodoroPhase (focus, short_break, long_break)
 
 **Domain Services**:
+
 - TimerFormatter
 - ProductivityAnalyzer (predict peak work times based on history)
 
 **Use Cases**:
+
 - StartTimerSession
 - CompleteTimerSession
 - AnalyzeProductivityPatterns
@@ -106,6 +111,7 @@ The key differentiator: **Adaptive Intelligence** that suggests what to work on 
 **Purpose**: Organize work into hierarchical structure with context
 
 **Aggregates**:
+
 - **Project** (Root)
   - Properties: id, name, tasks[], notes, color, archived
   - Methods: addTask(), removeTask(), updateNotes()
@@ -119,15 +125,18 @@ The key differentiator: **Adaptive Intelligence** that suggests what to work on 
           - Methods: complete()
 
 **Value Objects**:
+
 - TaskPriority (urgent/important matrix)
 - Deadline
 - TaskNote (rich text content)
 
 **Domain Services**:
+
 - TaskPrioritizer (calculate task priority based on deadlines, flags)
 - TaskRecommender (suggest next task based on mood/energy)
 
 **Use Cases**:
+
 - CreateProject
 - CreateTask
 - CompleteTask
@@ -140,6 +149,7 @@ The key differentiator: **Adaptive Intelligence** that suggests what to work on 
 **Purpose**: Track user state and provide adaptive recommendations
 
 **Aggregates**:
+
 - **MoodCompanion** (Root)
   - Properties: currentMood, energyLevel, fatigueLevel, preferences
   - Methods: recordMood(), recordEnergy(), getSuggestions(), trackProductivity()
@@ -149,12 +159,14 @@ The key differentiator: **Adaptive Intelligence** that suggests what to work on 
   - Methods: validate()
 
 **Value Objects**:
+
 - MoodState (very_low, low, neutral, high)
 - EnergyLevel (low, medium, high)
 - FatigueLevel (fresh, tired, overworked)
 - MoodContext (time of day, recent productivity, task type)
 
 **Domain Services**:
+
 - **MoodAnalyzer**
   - analyzeMoodPattern()
   - predictOptimalWorkTime()
@@ -165,13 +177,13 @@ The key differentiator: **Adaptive Intelligence** that suggests what to work on 
   - suggestTimerConfig(mood, energy, fatigue)
   - suggestBreak(fatigueLevel, timeWorked)
   - generateMotivationalMessage(mood, context)
-  
 - **AdaptiveScheduler**
   - matchTaskToMood(task, moodContext)
   - handleMandatoryTask(task, moodContext) // When user MUST do task despite mood
   - adjustWorkload(moodTrend, tasks)
 
 **Domain Events**:
+
 - MoodRecorded
 - EnergyChanged
 - SuggestionGenerated
@@ -179,6 +191,7 @@ The key differentiator: **Adaptive Intelligence** that suggests what to work on 
 - BurnoutRiskDetected
 
 **Use Cases**:
+
 - RecordMoodAndEnergy
 - GetAdaptiveSuggestions
 - HandleMandatoryTaskScenario
@@ -208,7 +221,7 @@ User leverages adaptive intelligence:
 
 ```
 User → Record Mood/Energy
-     → Mora suggests: 
+     → Mora suggests:
         • Which task to work on (matches mood)
         • Timer configuration (25min vs 15min based on energy)
         • Motivational message
@@ -243,7 +256,7 @@ Mora suggests:
   ✓ "Timer: 50 min focus / 10 min break"
   ✓ "Your creative peak time is 9-11 AM"
 
-Context: User feeling tired, low energy, late afternoon  
+Context: User feeling tired, low energy, late afternoon
 Mora suggests:
   ✓ "Work on: Code review (low-effort task)"
   ✓ "Timer: 15 min focus / 10 min break"
@@ -255,28 +268,33 @@ Mora suggests:
 ## Domain Boundaries & Contexts
 
 ### Bounded Context 1: Time Tracking
+
 - Timer Aggregate
 - Session History
 - Productivity Metrics
 
 ### Bounded Context 2: Work Organization
+
 - Project Aggregate
 - Task/Subtask Entities
 - Notes, Deadlines
 
 ### Bounded Context 3: Mood Intelligence (Core)
+
 - MoodCompanion Aggregate
 - Mood/Energy/Fatigue tracking
 - Suggestion Engine
 - Pattern Analysis
 
 ### Bounded Context 4: Analytics & Insights
+
 - Productivity Reports
 - Mood-Productivity Correlation
 - Peak Performance Times
 - Weekly/Monthly Trends
 
 **Context Integration**:
+
 - MoodCompanion reads from Timer (completed sessions)
 - MoodCompanion reads from Project (available tasks)
 - SuggestionEngine combines all contexts
@@ -295,7 +313,7 @@ Mora suggests:
 - timer_sessions (id, user_id, mode, duration, completed_at, phase)
 - pomodoro_cycles (session_id, cycle_number, completed)
 
--- Project Domain  
+-- Project Domain
 - projects (id, user_id, name, notes, color, created_at)
 - tasks (id, project_id, title, notes, completed, deadline, urgent, important)
 - subtasks (id, task_id, title, completed)
@@ -311,8 +329,9 @@ Mora suggests:
 ```
 
 **Repositories**:
+
 - TimerRepository
-- ProjectRepository  
+- ProjectRepository
 - TaskRepository
 - MoodRepository
 - SuggestionRepository
@@ -323,6 +342,7 @@ Mora suggests:
 ## Technical Implementation Strategy
 
 ### Layer 1: Domain Layer (Pure TypeScript)
+
 - No framework dependencies
 - Pure business logic
 - Aggregate roots with methods
@@ -330,18 +350,21 @@ Mora suggests:
 - Value objects validation
 
 ### Layer 2: Application Layer
+
 - Use cases orchestrate domain operations
 - Application services coordinate multiple aggregates
 - Handle transactions
 - Emit integration events
 
-### Layer 3: Infrastructure Layer  
+### Layer 3: Infrastructure Layer
+
 - Supabase client implementation
 - Repository implementations
 - Event handlers (analytics, notifications)
 - External service integrations
 
 ### Layer 4: Presentation Layer
+
 - React components (UI/UX)
 - Zustand stores (thin state management)
 - React hooks (component integration)
@@ -354,11 +377,13 @@ Mora suggests:
 ### Mood Tracking Inputs
 
 **Explicit** (User provides):
+
 - Mood selection (energized, focused, creative, tired, stressed, neutral)
 - Energy level (1-5 scale)
 - Optional note
 
 **Implicit** (System infers):
+
 - Time of day
 - Recent productivity (completed sessions)
 - Task completion rate
@@ -370,27 +395,31 @@ Mora suggests:
 ```typescript
 function getSuggestions(context: MoodContext, tasks: Task[]): Suggestion {
   // 1. Assess capacity
-  const capacity = assessCapacity(context.mood, context.energy, context.fatigue);
-  
+  const capacity = assessCapacity(
+    context.mood,
+    context.energy,
+    context.fatigue,
+  );
+
   // 2. Match tasks to current state
   const matchedTasks = tasks
-    .map(task => ({
+    .map((task) => ({
       task,
-      score: calculateMoodTaskMatch(task, context)
+      score: calculateMoodTaskMatch(task, context),
     }))
     .sort((a, b) => b.score - a.score);
-  
+
   // 3. Suggest timer configuration
   const timerConfig = suggestTimerDuration(capacity);
-  
+
   // 4. Generate motivational message
   const message = generateMessage(context.mood, capacity);
-  
+
   return {
     recommendedTask: matchedTasks[0],
     timerConfig,
     message,
-    rationale: explainWhy(context, matchedTasks[0])
+    rationale: explainWhy(context, matchedTasks[0]),
   };
 }
 ```
@@ -398,18 +427,21 @@ function getSuggestions(context: MoodContext, tasks: Task[]): Suggestion {
 ### Task-Mood Matching Rules
 
 **Creative mood + High energy** → Suggest:
+
 - Design tasks
 - Brainstorming
 - Writing/content creation
 - Complex problem solving
 
 **Focused mood + Medium energy** → Suggest:
+
 - Coding/development
 - Analysis work
 - Reading/research
 - Planning
 
 **Tired/Low energy** → Suggest:
+
 - Code review
 - Simple bug fixes
 - Organizing notes
@@ -417,6 +449,7 @@ function getSuggestions(context: MoodContext, tasks: Task[]): Suggestion {
 - Or: Take a break!
 
 **Stressed/Anxious** → Suggest:
+
 - Small, achievable tasks
 - Repetitive/mechanical work
 - Short sessions (15 min)
@@ -465,16 +498,19 @@ function getSuggestions(context: MoodContext, tasks: Task[]): Suggestion {
 ### Edge Cases
 
 **Case 1: Urgent task, bad mood**
+
 - User: "I must finish X but I'm exhausted"
 - Mora: Break it down, adjust expectations, suggest coping strategies
 - Track as special scenario
 
 **Case 2: User ignores suggestions**
+
 - Learn from it
 - Don't be pushy
 - Analyze: Did user make better choice?
 
 **Case 3: Burnout detection**
+
 - Pattern: Multiple low energy days
 - Proactive: "You seem tired lately. Consider lighter workload?"
 - Suggest: Rest day, delegation
@@ -484,17 +520,20 @@ function getSuggestions(context: MoodContext, tasks: Task[]): Suggestion {
 ## Success Metrics
 
 **Productivity Metrics**:
+
 - Completed pomodoro sessions
 - Task completion rate
 - Productive time vs. available time
 
 **Mood Intelligence Metrics**:
+
 - Suggestion acceptance rate
 - Mood-productivity correlation strength
 - User satisfaction with recommendations
 - Pattern detection accuracy
 
 **Engagement Metrics**:
+
 - Daily active usage
 - Mood tracking consistency
 - Task completion velocity
@@ -515,21 +554,25 @@ function getSuggestions(context: MoodContext, tasks: Task[]): Suggestion {
 ## Technical Considerations
 
 ### Scalability
+
 - Separate read/write models (CQRS) for analytics
 - Event sourcing for mood/productivity history
 - Caching for suggestions
 
 ### Privacy
+
 - All mood data encrypted
 - User controls data retention
 - Optional anonymous analytics
 
-### Performance  
+### Performance
+
 - Offline-first for timer
 - Sync mood data when online
 - Precompute suggestions
 
 ### Testing
+
 - Domain logic: Unit tests (pure functions)
 - Use cases: Integration tests
 - UI: E2E tests (Playwright/Cypress)
@@ -543,10 +586,11 @@ Mora is not just another productivity app—it's a companion that understands pr
 The DDD architecture ensures the core business logic (especially mood intelligence) remains clean, testable, and maintainable as the product evolves.
 
 **Core Principles**:
+
 1. **Adaptive over Prescriptive**: Suggest, don't dictate
 2. **Human-centered**: Acknowledge energy, mood, fatigue
 3. **Flexible**: Support both normal and mood-assisted workflows
 4. **Intelligent**: Learn patterns, predict optimal work times
 5. **Respectful**: Handle mandatory tasks with empathy
 
-This is productivity that works *with* you, not against you.
+This is productivity that works _with_ you, not against you.

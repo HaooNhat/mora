@@ -17,17 +17,20 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@tanstack/react-query": "^5.90.12",
     "@tanstack/react-query-devtools": "^5.91.1",
-    "@workspace/api-client": "workspace:*",
-    "@workspace/core": "workspace:*",
-    "@workspace/frontend": "workspace:*",
+    "@workspace/application": "workspace:*",
+    "@workspace/domain": "workspace:*",
+    "@workspace/infrastructure": "workspace:*",
     "@workspace/ui": "workspace:*",
+    "@workspace/shared": "workspace:*",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.548.0",
     "motion": "^12.23.24",
     "next": "15.5.9",
     "next-themes": "^0.4.6",
     "react": "19.1.1",
-    "react-dom": "19.1.1"
+    "react-dom": "19.1.1",
+    "zod": "^3.25.76",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@types/node": "^20.19.9",
@@ -36,11 +39,5 @@
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
     "typescript": "^5.9.2"
-  },
-  "pnpm": {
-    "overrides": {
-      "@types/react": "19.1.13",
-      "@types/react-dom": "19.1.9"
-    }
   }
 }

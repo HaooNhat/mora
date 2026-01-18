@@ -4,7 +4,7 @@ import {
   PomodoroPhase,
   TimerMode,
   TimerStatus,
-} from "@workspace/core/timer/types";
+} from "../../../../packages/shared/src/timer/types";
 import { Button } from "@workspace/ui/components/button";
 import { SlidersHorizontalIcon } from "@workspace/ui/components/lucide-animated-icons/sliders-horizontal";
 import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";

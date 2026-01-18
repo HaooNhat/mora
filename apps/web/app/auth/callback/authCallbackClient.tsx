@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { supabase } from "@workspace/api-client/supabase/client";
+import { supabase } from "@workspace/infrastructure/database/supabase-client";
 import { Loader2 } from "lucide-react";
 
 export default function AuthCallbackClient() {

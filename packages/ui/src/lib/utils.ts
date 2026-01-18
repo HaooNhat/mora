@@ -5,11 +5,13 @@ import { twMerge } from "tailwind-merge";
  * Background gradients - kept for backward compatibility
  * Consider using theme colors directly instead
  */
-export const BACKGROUND_GRADIENTS: Record<string, string> = {};
+// export const BACKGROUND_GRADIENTS: Record<string, string> = {};
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const tw = (strings: TemplateStringsArray) => strings.join("");
 
 export const splitSeconds = (totalSeconds: number) => {
   const s = Math.max(0, Math.floor(totalSeconds)); // ensure non-negative integer

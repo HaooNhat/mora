@@ -1,25 +1,19 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
-import { authService } from "@workspace/api-client/auth/auth.service";
+import { useAuthOld } from "@/hooks/use-auth";
+import { authService } from "@workspace/infrastructure/auth/auth.service";
 import type {
-  User,
-  AuthSession,
   AuthError,
-  AuthProvider,
-} from "@workspace/api-client/auth/auth.types";
+  AuthSession,
+  User,
+} from "@workspace/infrastructure/auth/auth.types";
 import { useRouter } from "next/navigation";
+import { createContext, useEffect, useState, type ReactNode } from "react";
 
 /**
  * Auth Context Type
  */
-interface AuthContextType {
+export interface AuthContextType {
   // State
   user: User | null;
   session: AuthSession | null;
@@ -35,7 +29,9 @@ interface AuthContextType {
   clearError: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 
 /**
  * Auth Provider Props
@@ -197,24 +193,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 }
 
 /**
- * Hook to use auth context
- */
-export function useAuth() {
-  const context = useContext(AuthContext);
-
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-
-  return context;
-}
-
-/**
  * Hook to require authentication
  * Redirects to login if not authenticated
  */
 export function useRequireAuth() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuthOld();
   const router = useRouter();
 
   useEffect(() => {

@@ -1,13 +1,13 @@
 "use client";
 
+import { useTimerStore } from "@/stores/timer-store";
 import {
   MOOD_CONFIGS,
   getSmartSuggestions,
   type EnergyLevel,
   type MoodType,
   type SmartSuggestion,
-} from "@workspace/core/mood/types";
-import { useTimerStore } from "@workspace/frontend/stores/timer-store";
+} from "@workspace/domain/mood/types";
 import { Button } from "@workspace/ui/components/button";
 import {
   Card,

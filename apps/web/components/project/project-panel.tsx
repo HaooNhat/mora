@@ -1,22 +1,23 @@
 "use client";
 
-import { Task } from "@workspace/core/project/types";
-import { cn } from "@workspace/ui/lib/utils";
-import { ChevronDown, ArrowLeft, Plus, Loader2 } from "lucide-react";
-import { CSSProperties, useState } from "react";
-import { SubtasksList } from "./subtask";
-import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
 import {
-  useProjects,
-  useProject,
   useCreateProject,
   useCreateTask,
-  useUpdateTask,
   useDeleteTask,
+  useProject,
+  useProjects,
   useToggleTaskComplete,
-} from "@workspace/frontend/hooks/queries/use-project-queries";
+  useUpdateTask,
+} from "@/hooks/queries/use-project-queries";
+import { Task } from "@workspace/domain/project/types";
+import { Button } from "@workspace/ui/components/button";
+import { Input } from "@workspace/ui/components/input";
+import { FoldersIcon } from "@workspace/ui/components/lucide-animated-icons/folders";
 import { toast } from "@workspace/ui/components/sonner";
+import { cn } from "@workspace/ui/lib/utils";
+import { ArrowLeft, ChevronDown, Loader2, Plus } from "lucide-react";
+import { CSSProperties, useState } from "react";
+import { SubtasksList } from "./subtask";
 
 /* ---------------------------------- */
 /* UI State                           */
@@ -84,6 +85,7 @@ function ProjectsList({
     },
   });
 
+  const [isHovered, setIsHovered] = useState<boolean>(false);
   const [newProjectName, setNewProjectName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
@@ -115,9 +117,20 @@ function ProjectsList({
   }
 
   return (
-    <div className="space-y-4">
+    <div
+      onMouseEnter={() => {
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}
+      className="space-y-4"
+    >
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Projects</h2>
+        <div className="flex items-center justify-between gap-2">
+          <FoldersIcon isHovered={isHovered} />
+          <h2 className="text-lg font-semibold">Projects</h2>
+        </div>
         <Button
           variant="ghost"
           size="sm"

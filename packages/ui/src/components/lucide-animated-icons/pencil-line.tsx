@@ -2,7 +2,13 @@
 
 import type { Variants } from "motion/react";
 import type { HTMLAttributes } from "react";
-import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
 import { motion, useAnimation } from "motion/react";
 import { cn } from "@workspace/ui/lib/utils";
 
@@ -12,6 +18,7 @@ export interface PencilLineIconHandle {
 }
 
 interface PencilLineIconProps extends HTMLAttributes<HTMLDivElement> {
+  isHovered: boolean;
   size?: number;
 }
 
@@ -25,7 +32,10 @@ const PATH_VARIANT: Variants = {
 };
 
 const PencilLineIcon = forwardRef<PencilLineIconHandle, PencilLineIconProps>(
-  ({ onMouseEnter, onMouseLeave, className, size = 28, ...props }, ref) => {
+  (
+    { onMouseEnter, onMouseLeave, isHovered, className, size = 28, ...props },
+    ref,
+  ) => {
     const controls = useAnimation();
     const isControlledRef = useRef(false);
 
@@ -59,6 +69,16 @@ const PencilLineIcon = forwardRef<PencilLineIconHandle, PencilLineIconProps>(
       },
       [controls, onMouseLeave],
     );
+
+    useEffect(() => {
+      if (isHovered && !isControlledRef.current) {
+        controls.start("animate");
+      }
+      if (!isHovered && !isControlledRef.current) {
+        controls.start("normal");
+      }
+    }, [controls, isHovered]);
+
     return (
       <div
         className={cn(className)}

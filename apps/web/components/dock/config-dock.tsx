@@ -1,8 +1,6 @@
 "use client";
 
 import { BgTypes } from "@/app/(main)/page";
-import { JournalDialog } from "@/components/journal/journal-dialog";
-import { useTimerStore } from "@workspace/frontend/stores/timer-store";
 import { Button } from "@workspace/ui/components/button";
 import {
   Dialog,
@@ -25,16 +23,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import { ImageIcon, Video } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
-import {
-  Dispatch,
-  JSX,
-  memo,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { JSX, memo, useCallback, useEffect, useMemo, useState } from "react";
 
 export const LOCAL_STORAGE_BG_KEY = "app-selected-background";
 
@@ -46,13 +35,11 @@ type TabType = "images" | "videos";
 type Attribution = { href: string; text: string };
 type ImageSetting = { url: string; attribution: Attribution };
 
-interface ConfigDockProps {
-  setBgType: Dispatch<SetStateAction<BgTypes>>;
-  setBgLink: Dispatch<SetStateAction<string>>;
-}
-
-export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
+export default function ConfigDock() {
   const isMobile = useIsMobile(767);
+  const [curHover, setCurHover] = useState<
+    "Settings" | "Stats" | "Journals" | "Profile" | null
+  >(null);
   const [mounted, setMounted] = useState(false);
   const [openBgSetting, setOpenBgSetting] = useState(false);
   const [openJournal, setOpenJournal] = useState<boolean>(false);
@@ -63,7 +50,7 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
     colors: string;
   }>({ colors: "", images: [], videos: [] });
   // const [attribution, setAttribution] = useState<Attribution | null>(null);
-  const status = useTimerStore((state) => state.timerState.status);
+  // const status = useTimerStore((state) => state.timerState.status);
 
   const actions = [
     {
@@ -96,8 +83,6 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
       link: string,
       attributionData: Attribution | null = null,
     ) => {
-      setBgType(type);
-      setBgLink(link);
       // setAttribution(attributionData);
       setOpenBgSetting(false);
 
@@ -106,7 +91,7 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
         JSON.stringify({ type, link, attribution: attributionData }),
       );
     },
-    [setBgType, setBgLink],
+    [],
   );
 
   if (!mounted) return <aside className="h-16 bg-background"></aside>;
@@ -116,46 +101,49 @@ export default function ConfigDock({ setBgType, setBgLink }: ConfigDockProps) {
   return (
     <>
       <AnimatePresence>
-        {status !== "running" && (
-          <motion.aside
-            initial={{ opacity: 0, scale: 0, y: 40 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0, y: 40 }}
-            transition={{ type: "spring", duration: 1, bounce: 0.4 }}
-            className={cn(
-              "h-14 flex w-full max-w-lg items-center justify-evenly bg-background/75 hover:bg-background md:rounded-2xl md:border-2 shadow-2xl",
-              !isMobile && "w-fit absolute bottom-4 right-1/2 translate-x-1/2",
-            )}
-          >
-            <div className="flex items-center justify-start md:gap-2 md:px-4">
-              {actions.map(({ label, icon: Icon, onClick }) => (
-                <MotionButton
-                  key={label}
-                  variant="ghost"
-                  size="default"
-                  onClick={onClick}
-                  initial={{ scale: 1 }}
-                  animate={{ scale: 1 }}
-                  whileHover={{
-                    scale: [1, 1.5, 1.2],
-                    transition: { times: [0, 0.1, 1] },
-                  }}
-                  transition={{
-                    duration: 0.3,
-                    times: [0, 0.1, 1],
-                    ease: "easeOut",
-                  }}
-                  whileTap={{ scale: 0.9 }}
-                  className="rounded-lg text-accent-foreground/70"
-                >
-                  <Icon />
-                  <p className="text-sm">{label}</p>
-                </MotionButton>
-              ))}
-            </div>
-            <JournalDialog open={openJournal} onOpenChange={setOpenJournal} />
-          </motion.aside>
-        )}
+        <motion.aside
+          initial={{ opacity: 0, scale: 0, y: 40 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0, y: 40 }}
+          transition={{ type: "spring", duration: 1, bounce: 0.4 }}
+          className={cn(
+            "h-14 flex w-full max-w-lg items-center justify-evenly bg-background/75 hover:bg-background md:rounded-2xl md:border-2 shadow-2xl",
+            !isMobile && "w-fit absolute bottom-4 right-1/2 translate-x-1/2",
+          )}
+        >
+          <div className="flex items-center justify-start md:gap-2 md:px-4">
+            {actions.map(({ label, icon: Icon, onClick }) => (
+              <MotionButton
+                key={label}
+                variant="ghost"
+                size="default"
+                onClick={onClick}
+                initial={{ scale: 1 }}
+                animate={{ scale: 1 }}
+                whileHover={{
+                  scale: [1.2],
+                }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeOut",
+                }}
+                whileTap={{ scale: 0.9 }}
+                onMouseEnter={() => {
+                  setCurHover(
+                    label as "Settings" | "Stats" | "Journals" | "Profile",
+                  );
+                }}
+                onMouseLeave={() => {
+                  setCurHover(null);
+                }}
+                className="rounded-lg text-accent-foreground/70"
+              >
+                <Icon isHovered={curHover === label} />
+                <p className="text-sm">{label}</p>
+              </MotionButton>
+            ))}
+          </div>
+        </motion.aside>
       </AnimatePresence>
       {isMobile ? (
         <Drawer open={openBgSetting} onOpenChange={setOpenBgSetting}>

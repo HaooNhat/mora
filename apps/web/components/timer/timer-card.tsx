@@ -1,10 +1,8 @@
 "use client";
 
 import { CircleTimer } from "@/components/timer/circle-timer";
-import { TimerMode } from "@workspace/core/timer/types";
-import useTimer from "@workspace/frontend/hooks/use-timer";
-import { useCallback, useMemo, useState } from "react";
-
+import useTimer from "@/hooks/use-timer";
+import { TimerMode } from "../../../../packages/shared/src/timer/types";
 import { Button } from "@workspace/ui/components/button";
 import {
   Dialog,
@@ -12,13 +10,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workspace/ui/components/dialog";
-
 import { HistoryIcon } from "@workspace/ui/components/lucide-animated-icons/history";
 import { HourglassIcon } from "@workspace/ui/components/lucide-animated-icons/hourglass";
 import { TimerIcon } from "@workspace/ui/components/lucide-animated-icons/timer";
 import { cn } from "@workspace/ui/lib/utils";
-import { Focus, Pause, SkipForward } from "lucide-react";
+import { AlarmClockCheck, AlarmClockMinus, SkipForward } from "lucide-react";
 import { motion } from "motion/react";
+import { useCallback, useMemo, useState } from "react";
 
 /** mode definitions outside render → stable */
 const options = [
@@ -45,6 +43,7 @@ export default function TimerCard({ className }: TimerCardProps) {
   } = useTimer();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [hoveredMode, setHoveredMode] = useState<TimerMode | null>(null);
 
   /** stable handlers */
   const handleToggle = useCallback(() => {
@@ -86,18 +85,20 @@ export default function TimerCard({ className }: TimerCardProps) {
         return (
           <motion.li
             key={opt.id}
+            data-active={isActive}
+            onMouseEnter={() => setHoveredMode(opt.id)}
+            onMouseLeave={() => setHoveredMode(null)}
             initial={false}
             animate={{}}
             onClick={() => handleSetMode(opt.id)}
             className={cn(
               "relative flex items-center justify-between gap-2 list-none cursor-pointer px-3 py-1.5 text-sm font-medium rounded-2xl [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0",
-              isActive
-                ? "text-primary-foreground stroke-primary-foreground"
-                : "bg-transparent text-foreground",
+              "data-[active=true]:text-primary-foreground data-[active=true]:stroke-primary-foreground",
+              "bg-transparent text-foreground",
             )}
             aria-pressed={isActive}
           >
-            <opt.Icon className="z-10" />
+            <opt.Icon isHovered={hoveredMode === opt.id} className="z-10" />
             <p className="relative z-10">{opt.label}</p>
             {isActive ? (
               <motion.div
@@ -123,7 +124,7 @@ export default function TimerCard({ className }: TimerCardProps) {
           </motion.li>
         );
       }),
-    [timerState.mode, handleSetMode],
+    [timerState.mode, hoveredMode, handleSetMode],
   );
 
   return (
@@ -170,9 +171,9 @@ export default function TimerCard({ className }: TimerCardProps) {
       >
         <Button
           variant="ghost"
-          size="sm"
+          size="icon"
           onClick={handleReset}
-          className="rounded-xl"
+          className="rounded-4xl"
         >
           <HistoryIcon />
         </Button>
@@ -181,26 +182,28 @@ export default function TimerCard({ className }: TimerCardProps) {
           variant="default"
           onClick={handleToggle}
           size="lg"
-          className="w-fit flex items-center justify-center gap-3 !px-6 rounded-xl text-lg font-medium"
+          className="size-12 group hover:w-fit hover:h-12 rounded-4xl flex items-center justify-center gap-0 hover:gap-3 text-lg font-medium transition-transform duration-300"
         >
           {isRunning ? (
             <>
-              <Pause className="w-5 h-5" />
-              Pause
+              <AlarmClockMinus className="w-5 h-5" />
             </>
           ) : (
             <>
-              <Focus className="w-5 h-5" />
-              Focus
+              <AlarmClockCheck className="w-5 h-5 " />
             </>
           )}
+          {/* <p */}
+          {/*   data-annotation={!isRunning ? "Let's start!" : "Pause"} */}
+          {/*   className={`group-hover:after:content-[attr(data-annotation)]`} */}
+          {/* ></p> */}
         </Button>
 
         <Button
           variant="ghost"
-          size="default"
+          size="icon"
           onClick={handleSkip}
-          className="rounded-xl"
+          className="rounded-4xl"
         >
           <SkipForward />
         </Button>

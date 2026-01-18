@@ -20,12 +20,12 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu";
 import { useTheme } from "next-themes";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuthOld } from "@/hooks/use-auth";
 import { LogOut, User as UserIcon, Settings } from "lucide-react";
 
 export default function AvatarSetting() {
   const { setTheme } = useTheme();
-  const { user, signOut } = useAuth();
+  const { user, signOut } = useAuthOld();
 
   const handleSignOut = async () => {
     await signOut();

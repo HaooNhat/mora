@@ -1,25 +1,28 @@
 "use client";
 
 import { ProtectedRoute } from "@/components/auth/protected-route";
-import ConfigDock, {
-  LOCAL_STORAGE_BG_KEY,
-} from "@/components/dock/config-dock";
+import ConfigDock from "@/components/dock/config-dock";
 import Header from "@/components/header/header";
-import MoodCard from "@/components/mood/mood-card";
-import MusicCard from "@/components/music/music-card";
-import { ProjectsPanel } from "@/components/project/project-panel";
-import TimerCard from "@/components/timer/timer-card";
-import { useTimerStore } from "@workspace/frontend/stores/timer-store";
 import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";
 import { cn } from "@workspace/ui/lib/utils";
-import Image from "next/image";
-import { useEffect, useState } from "react";
 
 export type BgTypes = "color" | "video" | "image";
 
+/**
+ * Wrap content with ProtectedRoute
+ */
+export default function PlayPage() {
+  return (
+    <ProtectedRoute>
+      <PlayPageContent />
+    </ProtectedRoute>
+  );
+}
+
 const cardSurface = cn(
   "bg-card/75 hover:bg-card/90",
-  "md:border-2 md:rounded-4xl",
+  "md:border-2",
+  // "md:rounded-4xl",
   // 3D depth shadows
   "shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)]",
   "hover:shadow-[0_35px_70px_-15px_rgba(0,0,0,0.6)]",
@@ -36,8 +39,6 @@ const cardMotion = cn(
   // GPU layer
   "transition-[transform,opacity,filter,shadow] duration-700 ease-out",
   "will-change-transform",
-  // Preserve 3D for nested elements
-  "transform-3d",
 );
 
 const cardLighting = cn(
@@ -59,117 +60,16 @@ function PlayPageContent() {
   // HOOKS
   // ==========================================================================
 
-  // Background state (kept local as it's UI-specific)
-  const [bgType, setBgType] = useState<BgTypes>("image");
-  const [bgLink, setBgLink] = useState<string>("images/cozy-bedroom.jpg");
-
-  const status = useTimerStore((state) => state.timerState.status);
+  // const status = useTimerStore((state) => state.timerState.status);
   const isMobile = useIsMobile();
 
   const isFocusMode = status === "running";
-
-  const card3DByMode = {
-    idle: {
-      left: cn(
-        // Transform origin
-        "origin-right",
-        // 3D transforms with depth
-        "rotate-y-15 -rotate-x-3 -translate-x-1/4 scale-60",
-        // Transitions
-        "transition-transform duration-500 ease-out",
-        // GPU acceleration
-        "will-change-transform",
-        "hover:rotate-y-0 hover:rotate-x-0 hover:translate-x-0 hover:scale-100",
-      ),
-      center: cn(
-        "origin-center",
-        "rotate-y-0 rotate-x-0 scale-85",
-        "hover:scale-100",
-        "transition-transform duration-500 ease-out",
-        "will-change-transform",
-      ),
-      right: cn(
-        "origin-left",
-        "-rotate-y-15 -rotate-x-3 translate-x-1/4 scale-60",
-        "hover:rotate-y-0 hover:rotate-x-0 hover:translate-x-0 hover:scale-100",
-        "transition-transform duration-500 ease-out",
-        "will-change-transform",
-      ),
-    },
-    focus: {
-      left: cn(
-        "rotate-y-0 rotate-x-0 translate-x-0 scale-100",
-        // Reduce opacity
-        // "opacity-40 blur-md brightness-75",
-        "transition-transform duration-300 ease-out",
-        "will-change-transform",
-      ),
-      center: cn(
-        "rotate-y-0 rotate-x-0 scale-100",
-        // "opacity-100 blur-0 brightness-100",
-        "drop-shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)]",
-        "transition-transform duration-300 ease-out",
-        "will-change-transform",
-      ),
-      right: cn(
-        "rotate-y-0 rotate-x-0 translate-x-0 scale-100",
-        // "opacity-40 blur-md brightness-75",
-        "transition-transform duration-300 ease-out",
-        "will-change-transform",
-      ),
-    },
-  };
-
-  const card3D = isFocusMode ? card3DByMode.focus : card3DByMode.idle;
-
-  // ==========================================================================
-  // EFFECTS
-  // ==========================================================================
-  // Load saved background from localStorage
-  useEffect(() => {
-    try {
-      const savedBg = localStorage.getItem(LOCAL_STORAGE_BG_KEY);
-      if (savedBg) {
-        const { type, link } = JSON.parse(savedBg);
-        setBgType(type);
-        setBgLink(link);
-      }
-    } catch (err) {
-      console.error("Failed to load background from localStorage:", err);
-    }
-  }, []);
 
   // ==========================================================================
   // RENDER LOGICS
   // ==========================================================================
   const BackgroundImage = () => {
-    return (
-      <div className="absolute inset-0 w-full h-full">
-        {bgType === "image" && (
-          <Image
-            src={`/${bgLink}`}
-            alt="Background Image"
-            fill
-            sizes="100vw"
-            style={{ objectFit: "cover" }}
-            priority
-          />
-        )}
-        {bgType === "video" && (
-          <video
-            src={`/${bgLink}`}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            className="absolute inset-0 w-full h-full object-cover"
-          >
-            Your browser does not support the video tag.
-          </video>
-        )}
-      </div>
-    );
+    return <div className="absolute inset-0 w-full h-full"></div>;
   };
 
   return (
@@ -199,7 +99,7 @@ function PlayPageContent() {
             <main
               className={cn(
                 "flex-1 overflow-visible md:pb-6",
-                "perspective-[1200px]",
+                "perspective-distant",
                 "perspective-origin-center",
               )}
             >
@@ -218,17 +118,10 @@ function PlayPageContent() {
                     )}
                   >
                     {/* Mood & Journal Card */}
-                    <MoodCard
-                      className={cn(
-                        "rounded-2xl flex-1",
-                        cardBase,
-                        card3D.left,
-                      )}
-                    />
 
-                    <MusicCard
-                      className={cn("rounded-2xl", cardBase, card3D.left)}
-                    />
+                    {/* <MusicCard */}
+                    {/*   className={cn("rounded-2xl", cardBase, card3D.left)} */}
+                    {/* /> */}
                   </div>
                 )}
 
@@ -238,39 +131,14 @@ function PlayPageContent() {
                     "items-center justify-center",
                     "transform-3d",
                   )}
-                >
-                  <TimerCard
-                    className={cn(
-                      "rounded-2xl",
-                      cardBase,
-                      card3D.center,
-                      isFocusMode &&
-                        "shadow-[0_0_60px_-15px_rgba(var(--primary-rgb),0.8)]",
-                    )}
-                  />
-                </div>
-
-                {!isMobile && (
-                  <ProjectsPanel className={cn(cardBase, card3D.right)} />
-                )}
+                ></div>
               </section>
             </main>
 
-            <ConfigDock setBgType={setBgType} setBgLink={setBgLink} />
+            <ConfigDock />
           </div>
         </div>
       </div>
     </>
-  );
-}
-
-/**
- * Wrap content with ProtectedRoute
- */
-export default function PlayPage() {
-  return (
-    <ProtectedRoute>
-      <PlayPageContent />
-    </ProtectedRoute>
   );
 }
