@@ -7,6 +7,7 @@ export * from "@workspace/ui/components/lucide-animated-icons/folders";
 export * from "@workspace/ui/components/lucide-animated-icons/history";
 export * from "@workspace/ui/components/lucide-animated-icons/hourglass";
 export * from "@workspace/ui/components/lucide-animated-icons/pencil-line";
+export * from "@workspace/ui/components/lucide-animated-icons/rabbit";
 export * from "@workspace/ui/components/lucide-animated-icons/rotate-ccw";
 export * from "@workspace/ui/components/lucide-animated-icons/settings";
 export * from "@workspace/ui/components/lucide-animated-icons/sliders-horizontal";
