@@ -17,17 +17,11 @@ export class StartTimerSessionUseCase {
     const validated = StartTimerSessionDtoSchema.parse(dto);
 
     const session = TimerSessionEntity.create({
-      user_id: validated.userId,
-      task_id: validated.taskId,
-      mode: validated.mode,
-      phase: validated.phase,
-      started_at: new Date(),
-      planned_duration: validated.plannedDuration,
-      paused_duration: 0,
-      interruptions: 0,
-      // These will be undefined if user doesn't track mood
-      mood_before: validated.moodBefore,
-      energy_before: validated.energyBefore,
+      userId: validated.userId,
+      taskId: validated.taskId,
+      timerType: validated.timerType,
+      startedAtt: new Date(),
+      arousalStart: validated.arousalStart,
     });
 
     await this.sessionRepository.save(session.toJSON());
@@ -36,9 +30,8 @@ export class StartTimerSessionUseCase {
       new TimerSessionStartedEvent(
         session.id,
         session.userId,
-        validated.mode,
+        validated.timerType,
         validated.taskId,
-        session.hasMoodTracking,
       ),
     );
 

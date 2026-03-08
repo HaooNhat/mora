@@ -1,23 +1,17 @@
 "use client";
 
-import { useAuthOld } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
-/**
- * Protected Route Component
- *
- * Wraps pages that require authentication
- * Redirects to /login if not authenticated
- */
 interface ProtectedRouteProps {
   children: ReactNode;
   fallback?: ReactNode;
 }
 
 export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuthOld();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -26,7 +20,6 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  // Show loading state
   if (isLoading) {
     return (
       fallback || (
@@ -37,27 +30,10 @@ export function ProtectedRoute({ children, fallback }: ProtectedRouteProps) {
     );
   }
 
-  // Show nothing while redirecting
   if (!isAuthenticated) {
     return null;
   }
 
   // Render protected content
   return <>{children}</>;
-}
-
-/**
- * Hook version for use inside components
- */
-export function useProtectedRoute() {
-  const { isAuthenticated, isLoading } = useAuthOld();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [isAuthenticated, isLoading, router]);
-
-  return { isAuthenticated, isLoading };
 }

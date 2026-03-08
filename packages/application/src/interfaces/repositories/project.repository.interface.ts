@@ -1,6 +1,5 @@
 import { Project } from "@workspace/domain/entities/project.entity";
 import { Task } from "@workspace/domain/entities/task.entity";
-import { Subtask } from "@workspace/domain/entities/subtask.entity";
 
 export interface IProjectRepository {
   findById(id: string): Promise<Project | null>;
@@ -17,12 +16,10 @@ export interface ITaskRepository {
   save(task: Task): Promise<void>;
   update(task: Task): Promise<void>;
   delete(id: string): Promise<void>;
-}
 
-export interface ISubtaskRepository {
-  findById(id: string): Promise<Subtask | null>;
-  findByTaskId(taskId: string): Promise<Subtask[]>;
-  save(subtask: Subtask): Promise<void>;
-  update(subtask: Subtask): Promise<void>;
-  delete(id: string): Promise<void>;
+  /**
+   * Clear project_id for all tasks in a project
+   * Used when deleting a project
+   */
+  clearProjectId(projectId: string): Promise<void>;
 }

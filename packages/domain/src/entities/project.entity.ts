@@ -4,9 +4,11 @@ import { z } from "zod";
 const ProjectBaseSchema = z.object({
   id: z.string().uuid(),
   userId: z.string().uuid(),
+
   name: z.string().min(1),
   description: z.string().optional(),
   color: z.string().optional(),
+
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -31,6 +33,7 @@ export const CreateProjectSchema = ProjectBaseSchema.omit({
   createdAt: true,
   updatedAt: true,
 });
+export type CreateProject = z.infer<typeof CreateProjectSchema>;
 
 export class ProjectEntity {
   private props: Project;
@@ -55,8 +58,11 @@ export class ProjectEntity {
     const data = CreateProjectSchema.parse(input);
 
     return new ProjectEntity({
-      ...data,
       id: crypto.randomUUID(),
+      userId: data.userId,
+      name: data.name,
+      description: data.description ?? "",
+      color: data.color ?? "",
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -104,6 +110,11 @@ export class ProjectEntity {
    */
   updateDescription(description: string): void {
     this.props.description = description;
+    this.props.updatedAt = new Date();
+  }
+
+  updateColor(color: string): void {
+    this.props.color = color;
     this.props.updatedAt = new Date();
   }
 

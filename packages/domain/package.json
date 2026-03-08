@@ -20,18 +20,6 @@
     "./domain-services/*": "./dist/domain-services/*.js",
     "./domain-events/*": "./dist/domain-events/*.js",
     "./value-objects/*": "./dist/value-objects/*.js",
-    "./aggregate/*": "./dist/aggregate/*.js",
-    "./focus": "./dist/focus/index.js",
-    "./focus/*": "./dist/focus/*.js",
-    "./analytic": "./dist/analytic/index.js",
-    "./analytic/*": "./dist/analytic/*.js",
-    "./mood": "./dist/mood/index.js",
-    "./mood/*": "./dist/mood/*.js",
-    "./project": "./dist/project/index.js",
-    "./project/*": "./dist/project/*.js",
-    "./timer": "./dist/timer/index.js",
-    "./timer/*": "./dist/timer/*.js",
-    "./util": "./dist/utils/index.js",
-    "./util/*": "./dist/utils/*.js"
+    "./aggregate/*": "./dist/aggregate/*.js"
   }
 }

@@ -1,353 +1,149 @@
 "use client";
 
-import { BgTypes } from "@/app/(main)/page";
 import { Button } from "@workspace/ui/components/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@workspace/ui/components/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@workspace/ui/components/drawer";
-import { ChartLineIcon } from "@workspace/ui/components/lucide-animated-icons/chart-line";
-import { PencilLineIcon } from "@workspace/ui/components/lucide-animated-icons/pencil-line";
-import { SettingsIcon } from "@workspace/ui/components/lucide-animated-icons/settings";
-import { UserIcon } from "@workspace/ui/components/lucide-animated-icons/user-pencil";
+  ChartLineIcon,
+  FoldersIcon,
+  RabbitIcon,
+  UserIcon,
+} from "@workspace/ui/components/lucide-animated-icons";
 import { useIsMobile } from "@workspace/ui/hooks/useIsMobile";
 import { cn } from "@workspace/ui/lib/utils";
-import { ImageIcon, Video } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import Image from "next/image";
-import { JSX, memo, useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { LayoutState } from "../features/main-page-container";
 
 export const LOCAL_STORAGE_BG_KEY = "app-selected-background";
 
-const SETTINGS_DISPLAY = {
-  background: { title: "Choose your background" },
-};
+interface ConfigDockProps {
+  handleSelect: (button: string, state: LayoutState) => void;
+  layoutState: {
+    mora: LayoutState;
+    timer: LayoutState;
+    tasks: LayoutState;
+  };
+}
 
-type TabType = "images" | "videos";
-type Attribution = { href: string; text: string };
-type ImageSetting = { url: string; attribution: Attribution };
+const MotionButton = motion.create(Button);
 
-export default function ConfigDock() {
+export default function ConfigDock({
+  handleSelect,
+  layoutState,
+}: ConfigDockProps) {
+  const [isOpened, setIsOpened] = useState<boolean>(false);
   const isMobile = useIsMobile(767);
   const [curHover, setCurHover] = useState<
-    "Settings" | "Stats" | "Journals" | "Profile" | null
+    "Stats" | "Timer" | "Tasks" | "Profile" | null
   >(null);
   const [mounted, setMounted] = useState(false);
-  const [openBgSetting, setOpenBgSetting] = useState(false);
-  const [openJournal, setOpenJournal] = useState<boolean>(false);
-
-  const [backgrounds, setBackgrounds] = useState<{
-    images: ImageSetting[];
-    videos: string[];
-    colors: string;
-  }>({ colors: "", images: [], videos: [] });
-  // const [attribution, setAttribution] = useState<Attribution | null>(null);
-  // const status = useTimerStore((state) => state.timerState.status);
 
   const actions = [
     {
-      label: "Settings",
-      icon: SettingsIcon,
-      onClick: () => setOpenBgSetting(true),
+      label: "Mora",
+      icon: RabbitIcon,
+      onClick: () => {
+        handleSelect(
+          "mora",
+          layoutState.mora === "minimized" ? "opened" : "minimized",
+        );
+      },
+      layoutId: "mora-component",
+      key: "mora",
+      isActive: layoutState.mora !== "minimized",
     },
-    { label: "Stats", icon: ChartLineIcon, onClick: () => {} },
     {
-      label: "Journals",
-      icon: PencilLineIcon,
-      onClick: () => setOpenJournal((prev) => !prev),
+      label: "Stats",
+      icon: ChartLineIcon,
+      onClick: () => {},
+      key: "stats",
     },
-    { label: "Profile", icon: UserIcon, onClick: () => {} },
+    {
+      label: "Profile",
+      icon: UserIcon,
+      onClick: () => {},
+      key: "profile",
+    },
+    {
+      label: "Tasks",
+      icon: FoldersIcon,
+      onClick: () => {
+        handleSelect(
+          "tasks",
+          layoutState.tasks === "minimized" ? "opened" : "minimized",
+        );
+      },
+      layoutId: "project-task-management",
+      key: "tasks",
+      isActive: layoutState.tasks !== "minimized",
+    },
   ];
+
   useEffect(() => setMounted(true), []);
-
-  useEffect(() => {
-    fetch("/backgrounds.json")
-      .then((res) => res.json())
-      .then((data) =>
-        setBackgrounds((prev) => ({ ...data, colors: prev.colors })),
-      )
-      .catch((err) => console.error("Failed to fetch backgrounds:", err));
-  }, []);
-
-  const handleBgSelect = useCallback(
-    (
-      type: BgTypes,
-      link: string,
-      attributionData: Attribution | null = null,
-    ) => {
-      // setAttribution(attributionData);
-      setOpenBgSetting(false);
-
-      localStorage.setItem(
-        LOCAL_STORAGE_BG_KEY,
-        JSON.stringify({ type, link, attribution: attributionData }),
-      );
-    },
-    [],
-  );
 
   if (!mounted) return <aside className="h-16 bg-background"></aside>;
 
-  const MotionButton = motion(Button);
-
   return (
     <>
-      <AnimatePresence>
-        <motion.aside
-          initial={{ opacity: 0, scale: 0, y: 40 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0, y: 40 }}
-          transition={{ type: "spring", duration: 1, bounce: 0.4 }}
-          className={cn(
-            "h-14 flex w-full max-w-lg items-center justify-evenly bg-background/75 hover:bg-background md:rounded-2xl md:border-2 shadow-2xl",
-            !isMobile && "w-fit absolute bottom-4 right-1/2 translate-x-1/2",
-          )}
-        >
-          <div className="flex items-center justify-start md:gap-2 md:px-4">
-            {actions.map(({ label, icon: Icon, onClick }) => (
-              <MotionButton
-                key={label}
-                variant="ghost"
-                size="default"
-                onClick={onClick}
-                initial={{ scale: 1 }}
-                animate={{ scale: 1 }}
-                whileHover={{
-                  scale: [1.2],
-                }}
-                transition={{
-                  duration: 0.3,
-                  ease: "easeOut",
-                }}
-                whileTap={{ scale: 0.9 }}
-                onMouseEnter={() => {
-                  setCurHover(
-                    label as "Settings" | "Stats" | "Journals" | "Profile",
-                  );
-                }}
-                onMouseLeave={() => {
-                  setCurHover(null);
-                }}
-                className="rounded-lg text-accent-foreground/70"
-              >
-                <Icon isHovered={curHover === label} />
-                <p className="text-sm">{label}</p>
-              </MotionButton>
-            ))}
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: !isMobile ? 0.75 : 1, scale: 1 }}
+        whileHover={{ opacity: 0.8 }}
+        transition={{ type: "spring", duration: 1, bounce: 0.4 }}
+        className={cn(
+          "h-12 flex w-full items-center justify-evenly bg-background/75 hover:bg-background shadow-2xl z-50",
+          "md:rounded-4xl md:border-2",
+          !isMobile && "w-fit absolute bottom-4 left-1/2 -translate-x-1/2",
+        )}
+      >
+        {!isOpened ? (
+          <div className="w-12 selfce">/</div>
+        ) : (
+          <div className="flex items-center justify-start md:gap-2 md:px-2">
+            {actions.map(
+              ({ label, icon: Icon, onClick, layoutId, key, isActive }) => {
+                // Hide the button if it's active (expanded)
+                const shouldHide = isActive;
+
+                return (
+                  <AnimatePresence key={key} mode="wait">
+                    {!shouldHide && (
+                      <MotionButton
+                        layoutId={layoutId}
+                        variant="ghost"
+                        size="default"
+                        onClick={onClick}
+                        initial={{ scale: 1, opacity: 1 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.8, opacity: 0 }}
+                        whileHover={{
+                          scale: 1.05,
+                        }}
+                        transition={{
+                          duration: 0.3,
+                          ease: "easeOut",
+                        }}
+                        whileTap={{ scale: 0.9 }}
+                        onMouseEnter={() => {
+                          setCurHover(
+                            label as "Stats" | "Timer" | "Tasks" | "Profile",
+                          );
+                        }}
+                        onMouseLeave={() => {
+                          setCurHover(null);
+                        }}
+                        className="rounded-4xl text-accent-foreground/70"
+                      >
+                        <Icon isHovered={curHover === label} />
+                        <p className="text-sm">{label}</p>
+                      </MotionButton>
+                    )}
+                  </AnimatePresence>
+                );
+              },
+            )}
           </div>
-        </motion.aside>
-      </AnimatePresence>
-      {isMobile ? (
-        <Drawer open={openBgSetting} onOpenChange={setOpenBgSetting}>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>{SETTINGS_DISPLAY.background.title}</DrawerTitle>
-            </DrawerHeader>
-
-            <MemoBackgroundContent
-              backgrounds={backgrounds}
-              handleSelect={handleBgSelect}
-              className="p-4 pb-8"
-            />
-          </DrawerContent>
-        </Drawer>
-      ) : (
-        <Dialog open={openBgSetting} onOpenChange={setOpenBgSetting}>
-          <DialogContent className="max-w-3xl max-h-[80vh]">
-            <DialogHeader>
-              <DialogTitle>{SETTINGS_DISPLAY.background.title}</DialogTitle>
-            </DialogHeader>
-
-            <MemoBackgroundContent
-              backgrounds={backgrounds}
-              handleSelect={handleBgSelect}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
+        )}
+      </motion.div>
     </>
   );
 }
-
-function formatFileName(filename: string) {
-  return (
-    filename
-      .split("/")
-      .pop()
-      ?.replace(/\.(jpg|jpeg|png|gif|mp4|webm)$/i, "")
-      .replace(/[_-]/g, " ")
-      .replace(/\b\w/g, (l) => l.toUpperCase()) || filename
-  );
-}
-
-interface BackgroundContentProps {
-  backgrounds: {
-    images: ImageSetting[];
-    videos: string[];
-    colors: string;
-  };
-  handleSelect: (
-    type: BgTypes,
-    link: string,
-    attribution?: Attribution,
-  ) => void;
-  className?: string;
-}
-
-const BackgroundContent = ({
-  backgrounds,
-  handleSelect,
-  className,
-}: BackgroundContentProps) => {
-  const [activeTab, setActiveTab] = useState<TabType>("images");
-
-  const tabs = useMemo(
-    () => [
-      {
-        key: "images" as const,
-        icon: <ImageIcon className="h-4 w-4" />,
-        label: "Images",
-        count: backgrounds.images.length,
-      },
-      {
-        key: "videos" as const,
-        icon: <Video className="h-4 w-4" />,
-        label: "Videos",
-        count: backgrounds.videos.length,
-      },
-    ],
-    [backgrounds.images.length, backgrounds.videos.length],
-  );
-
-  return (
-    <div className={cn("space-y-4", className)}>
-      <div className="flex items-center justify-evenly gap-2 border-b">
-        {tabs.map(({ key, icon, label, count }) => (
-          <button
-            key={key}
-            onClick={() => setActiveTab(key)}
-            className={cn(
-              "flex items-center gap-2 px-4 py-2 font-medium transition-all relative",
-              activeTab === key
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {icon} {label}
-            {count > 0 && (
-              <span className="text-xs bg-muted px-1.5 py-0.5 rounded">
-                {count}
-              </span>
-            )}
-            {activeTab === key && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-            )}
-          </button>
-        ))}
-      </div>
-
-      <div className="overflow-y-auto max-h-[50vh]">
-        {activeTab === "images" &&
-          (backgrounds.images.length ? (
-            <>
-              <div className="p-1 grid grid-cols-2 gap-3">
-                {backgrounds.images.map(({ url, attribution }) => (
-                  <div
-                    key={url}
-                    className="group cursor-pointer border rounded-lg overflow-hidden hover:ring-2 hover:ring-primary transition-all hover:shadow-lg"
-                    onClick={() => handleSelect("image", url, attribution)}
-                  >
-                    <div className="relative aspect-video bg-muted">
-                      <Image
-                        src={`/${url}`}
-                        alt={formatFileName(url)}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-200"
-                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                      />
-                    </div>
-                    <div className="p-2 bg-card">
-                      <p className="text-xs font-medium truncate">
-                        {formatFileName(url)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <EmptyState
-              icon={<ImageIcon className="h-12 w-12 mb-2 opacity-50" />}
-              label="No images available"
-            />
-          ))}
-
-        {activeTab === "videos" &&
-          (backgrounds.videos.length ? (
-            <div className="p-1 grid grid-cols-2 gap-3">
-              {backgrounds.videos.map((vid) => (
-                <div
-                  key={vid}
-                  className="group cursor-pointer border rounded-lg overflow-hidden hover:ring-2 hover:ring-primary transition-all hover:shadow-lg"
-                  onClick={() => handleSelect("video", vid)}
-                >
-                  <div className="relative aspect-video bg-muted">
-                    <video
-                      src={`/${vid}`}
-                      muted
-                      loop
-                      playsInline
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200"
-                    />
-                  </div>
-                  <div className="p-2 bg-card">
-                    <p className="text-xs font-medium truncate">
-                      {formatFileName(vid)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              icon={<Video className="h-12 w-12 mb-2 opacity-50" />}
-              label="No videos available"
-            />
-          ))}
-      </div>
-    </div>
-  );
-};
-
-const MemoBackgroundContent = memo(BackgroundContent);
-
-const EmptyState = ({ icon, label }: { icon: JSX.Element; label: string }) => (
-  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-    {icon}
-    <p>{label}</p>
-  </div>
-);
-
-// const ShowAttribution = ({
-//   attribution,
-// }: {
-//   attribution?: { text: string; href: string };
-// }) => {
-//   if (attribution)
-//     return (
-//       <div className="border-2 rounded-lg bg-card/50 px-3 py-1">
-//         <a href={attribution.href} target="_blank" rel="noreferrer">
-//           {attribution.text}
-//         </a>
-//       </div>
-//     );
-//   return null;
-// };

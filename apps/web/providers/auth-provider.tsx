@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthOld } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/use-auth";
 import { authService } from "@workspace/infrastructure/auth/auth.service";
 import type {
   AuthError,
@@ -197,7 +197,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
  * Redirects to login if not authenticated
  */
 export function useRequireAuth() {
-  const { isAuthenticated, isLoading } = useAuthOld();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

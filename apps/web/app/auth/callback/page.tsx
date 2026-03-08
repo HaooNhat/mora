@@ -3,8 +3,6 @@
 import { Suspense } from "react";
 import AuthCallbackClient from "./authCallbackClient";
 
-export const dynamic = "force-dynamic";
-
 /**
  * Auth Callback Page
  *

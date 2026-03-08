@@ -1,5 +1,5 @@
-import { Project } from "@workspace/domain/entities/project.entity";
 import { IProjectRepository } from "@workspace/application/interfaces/repositories/project.repository.interface";
+import { Project } from "@workspace/domain/entities/project.entity";
 
 export class GetUserProjectsUseCase {
   constructor(private projectRepository: IProjectRepository) {}

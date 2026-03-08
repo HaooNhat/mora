@@ -9,7 +9,8 @@
  */
 
 //TODO: find a place to move this files to
-import { supabase } from "@workspace/infrastructure/database/supabase-client";
+import { supabase } from "@workspace/infrastructure/database/supabase.client";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type {
   User,
   AuthSession,
@@ -19,7 +20,7 @@ import type {
 /**
  * Transform Supabase user to our User type
  */
-function mapSupabaseUser(supabaseUser: any): User {
+function mapSupabaseUser(supabaseUser: SupabaseUser): User {
   return {
     id: supabaseUser.id,
     email: supabaseUser.email!,

@@ -23,13 +23,11 @@ export class CompleteTimerSessionUseCase {
 
     const entity = TimerSessionEntity.fromPersistence(session);
 
-    if (validated.pausedDuration > 0) {
-      entity.addPausedTime(validated.pausedDuration);
-    }
-
     entity.complete({
-      focus: validated.perceivedFocus,
-      productivity: validated.perceivedProductivity,
+      endedReason: validated.endedReason,
+      actualDuration: validated.actualDuration,
+      arousalEnd: validated.arousalEnd,
+      effectiveness: validated.effectiveness,
     });
 
     await this.sessionRepository.update(entity.toJSON());
@@ -38,11 +36,8 @@ export class CompleteTimerSessionUseCase {
       new TimerSessionCompletedEvent(
         entity.id,
         entity.userId,
-        entity.duration,
+        entity.actualDuration ?? 0,
         session.taskId,
-        validated.perceivedFocus !== undefined &&
-          validated.perceivedProductivity !== undefined,
-        entity.hasMoodTracking,
       ),
     );
   }

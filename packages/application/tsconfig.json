@@ -7,10 +7,9 @@
 
     "paths": {
       "@/*": ["./src/*"],
-      "@workspace/domain/*": ["../domain/src/*"],
-      "@workspace/infrastructure/*": ["../infrastructure/src/*"]
+      "@workspace/domain/*": ["../domain/src/*"]
     }
   },
-  "include": ["src", "queries"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

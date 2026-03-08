@@ -12,7 +12,7 @@ export class GetTimerRecommendationUseCase {
     const currentArousal =
       await this.arousalRepository.findLatestByUserId(userId);
 
-    const arousal = currentArousal?.arousal ?? "optimal";
+    const arousal = currentArousal?.arousal ?? 0.5;
     // const currentHour = new Date().getHours();
 
     return this.timerRecommender.recommendConfiguration({ arousal });

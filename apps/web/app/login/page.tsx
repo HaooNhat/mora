@@ -1,22 +1,19 @@
 "use client";
 
-import { useAuthOld } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@workspace/ui/components/field";
 import { Loader2, Mail, Waves } from "lucide-react";
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-/**
- * Login Page
- *
- * Features:
- * - Google OAuth
- * - GitHub OAuth (optional)
- * - Magic Link Email (optional)
- * - Auto-redirect if authenticated
- */
 export default function LoginPage() {
   const router = useRouter();
   const {
@@ -27,10 +24,9 @@ export default function LoginPage() {
     signInWithGithub,
     signInWithEmail,
     clearError,
-  } = useAuthOld();
+  } = useAuth();
 
   const [email, setEmail] = useState("");
-  const [showEmailForm, setShowEmailForm] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -57,7 +53,6 @@ export default function LoginPage() {
     await signInWithEmail(email.trim());
   };
 
-  // Show loading spinner while checking auth
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -67,30 +62,33 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-black from-5% dark:via-gray-700 to-95% dark:to-black">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
         className="w-full max-w-md"
       >
         {/* Card */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 p-8">
+        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-600/50 p-8">
           {/* Logo & Title */}
           <div className="text-center mb-8">
             <motion.div
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, type: "spring", bounce: 0.5 }}
+              transition={{ delay: 0.4, type: "spring", bounce: 0.5 }}
               className="flex items-center justify-center mb-4"
             >
-              <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-2xl">
+              <div className="bg-gradient-to-br from-blue-600 to-pink-600 p-3 rounded-2xl">
                 <Waves className="h-8 w-8 text-white" />
               </div>
             </motion.div>
 
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-              Welcome to Mora
+            <h1 className="text-3xl font-semibold text-background-foreground mb-2">
+              Welcome to{" "}
+              <span className="font-bold bg-gradient-to-br from-blue-600 from-30% via-white to-70% to-pink-600 bg-clip-text text-transparent">
+                Mora
+              </span>
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
               Sign in to start your focused journey
@@ -123,8 +121,45 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          {/* Sign In Buttons */}
+          {/* Sign In Informations */}
           <div className="space-y-3">
+            {/* Sign in with Email and Password */}
+            <div className="flex flex-col gap-1">
+              <FieldSet>
+                <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="email-login-input">
+                      <Mail />
+                      Email:
+                    </FieldLabel>
+                    <Input id="input-email-login" className="h-12" />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="input-password-login">
+                      Password
+                    </FieldLabel>
+                    <Input
+                      id="input-password-login"
+                      type="password"
+                      className="h-12"
+                    />
+                  </Field>
+                </FieldGroup>
+              </FieldSet>
+            </div>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white dark:bg-gray-800 text-gray-500">
+                  or
+                </span>
+              </div>
+            </div>
+
             {/* Google Sign In */}
             <Button
               onClick={handleGoogleSignIn}
@@ -142,86 +177,6 @@ export default function LoginPage() {
                 </>
               )}
             </Button>
-
-            {/* GitHub Sign In (Optional) */}
-            {/* <Button
-              onClick={handleGithubSignIn}
-              disabled={isLoading}
-              className="w-full h-12 text-base font-medium"
-              variant="outline"
-            >
-              {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <>
-                  <Github className="h-5 w-5 mr-2" />
-                  Continue with GitHub
-                </>
-              )}
-            </Button> */}
-
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white dark:bg-gray-800 text-gray-500">
-                  or
-                </span>
-              </div>
-            </div>
-
-            {/* Email Sign In Toggle */}
-            {!showEmailForm ? (
-              <Button
-                onClick={() => setShowEmailForm(true)}
-                variant="ghost"
-                className="w-full h-12 text-base font-medium"
-              >
-                <Mail className="h-5 w-5 mr-2" />
-                Continue with Email
-              </Button>
-            ) : (
-              <motion.form
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                onSubmit={handleEmailSignIn}
-                className="space-y-3"
-              >
-                <Input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
-                  className="h-12"
-                  autoFocus
-                />
-                <div className="flex gap-2">
-                  <Button
-                    type="submit"
-                    disabled={isLoading || !email.trim()}
-                    className="flex-1 h-12"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                      "Send Magic Link"
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setShowEmailForm(false)}
-                    disabled={isLoading}
-                    className="h-12"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </motion.form>
-            )}
           </div>
 
           {/* Footer */}

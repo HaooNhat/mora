@@ -20,12 +20,12 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu";
 import { useTheme } from "next-themes";
-import { useAuthOld } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/use-auth";
 import { LogOut, User as UserIcon, Settings } from "lucide-react";
 
 export default function AvatarSetting() {
   const { setTheme } = useTheme();
-  const { user, signOut } = useAuthOld();
+  const { user, signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
@@ -52,7 +52,7 @@ export default function AvatarSetting() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="focus:outline-none focus:ring-2 focus:ring-primary rounded-full">
-            <Avatar className="size-9 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+            <Avatar className="size-8 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
               <AvatarImage
                 src={user?.avatar || "https://github.com/shadcn.png"}
                 alt={user?.name || user?.email || "User"}

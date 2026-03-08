@@ -1,4 +1,7 @@
-import { ArousalLevel } from "@workspace/domain/entities/arousal-entry.entity";
+import {
+  ArousalLevel,
+  categorizeArousal,
+} from "@workspace/domain/entities/arousal-entry.entity";
 import { TimerConfiguration } from "@workspace/domain/value-objects/timer-configuration.vo";
 
 /**
@@ -18,8 +21,10 @@ export class TimerRecommenderService {
     let longBreakDuration = 15;
     let sessionsUntilLongBreak = 4;
 
+    const convertedArousal = categorizeArousal(arousal ?? 0.5);
+
     /** Arousal-based adjustment */
-    switch (arousal) {
+    switch (convertedArousal) {
       case "very_low":
         workDuration = 10;
         shortBreakDuration = 10;
@@ -57,10 +62,7 @@ export class TimerRecommenderService {
 
       default:
         // Unknown arousal → conservative default
-        workDuration = 25;
-        shortBreakDuration = 5;
-        longBreakDuration = 15;
-        sessionsUntilLongBreak = 4;
+        break;
     }
 
     /** Time-of-day safety adjustments */

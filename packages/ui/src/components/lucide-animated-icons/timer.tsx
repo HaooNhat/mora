@@ -78,28 +78,29 @@ const TimerIcon = forwardRef<TimerIconHandle, TimerIconProps>(
 
     const handleMouseEnter = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
+        if (isHovered) return;
         if (!isControlledRef.current) {
           controls.start("animate");
         } else {
           onMouseEnter?.(e);
         }
       },
-      [controls, onMouseEnter],
+      [controls, isHovered, onMouseEnter],
     );
 
     const handleMouseLeave = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
+        if (isHovered) return;
         if (!isControlledRef.current) {
           controls.start("normal");
         } else {
           onMouseLeave?.(e);
         }
       },
-      [controls, onMouseLeave],
+      [controls, isHovered, onMouseLeave],
     );
 
     useEffect(() => {
-      console.log(isHovered);
       if (isHovered && !isControlledRef.current) {
         controls.start("animate");
       }

@@ -1,5 +1,9 @@
 // import { ProductivityMetrics } from "@workspace/domain/domain-services/productivity-calculator.service";
 
+import { UpdateProjectDto } from "@workspace/application/dto/project.dto";
+import { Project } from "@workspace/domain/entities/project.entity";
+import { Task } from "@workspace/domain/entities/task.entity";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 class ApiClient {
@@ -34,7 +38,9 @@ class ApiClient {
 
   // Projects
   async getProjects(userId: string) {
-    return this.request(`/projects?userId=${encodeURIComponent(userId)}`);
+    return this.request<{ projects: Project[] }>(
+      `/projects?userId=${encodeURIComponent(userId)}`,
+    );
   }
 
   async createProject(data: {
@@ -49,10 +55,7 @@ class ApiClient {
     });
   }
 
-  async updateProject(
-    id: string,
-    data: { name?: string; description?: string; color?: string },
-  ) {
+  async updateProject(id: string, data: Omit<UpdateProjectDto, "id">) {
     return this.request(`/projects/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),
@@ -66,6 +69,12 @@ class ApiClient {
   }
 
   // Tasks
+  async getTasks(userId: string) {
+    return this.request<{ tasks: Task[] }>(
+      `/tasks?userId=${encodeURIComponent(userId)}`,
+    );
+  }
+
   async createTask(data: {
     projectId: string;
     title: string;
@@ -84,8 +93,14 @@ class ApiClient {
   }
 
   async completeTask(taskId: string) {
-    return this.request(`/tasks/${taskId}/complete`, {
+    return this.request(`/tasks/${encodeURIComponent(taskId)}/complete`, {
       method: "POST",
+    });
+  }
+
+  async deleteTask(taskId: string) {
+    return this.request(`/tasks/${encodeURIComponent(taskId)}`, {
+      method: "DELETE",
     });
   }
 

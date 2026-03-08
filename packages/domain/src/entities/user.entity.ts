@@ -3,9 +3,10 @@ import { z } from "zod";
 // Base schema: all fields
 const UserBaseSchema = z.object({
   id: z.string().uuid(),
-  email: z.string().email(),
   name: z.string().min(1).optional(),
-  preferredSessionDuration: z.number().min(1).max(180).default(25),
+
+  defaultSessionDuration: z.number().min(1).max(180).default(25),
+
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -32,6 +33,8 @@ export const CreateUserSchema = UserBaseSchema.omit({
 });
 
 export class UserEntity {
+  private props: User;
+
   /**
    * Private constructor ensures that all Users are created
    * through controlled factory methods.
@@ -43,15 +46,8 @@ export class UserEntity {
     this.props = UserSchema.parse(props);
   }
 
-  private props: User;
-
   /**
    * Creates a brand-new User.
-   *
-   * This method:
-   * - validates external input
-   * - generates identity and timestamps
-   * - guarantees domain invariants for new Users
    */
   static create(input: unknown): UserEntity {
     const data = CreateUserSchema.parse(input);
@@ -78,14 +74,11 @@ export class UserEntity {
   get id(): string {
     return this.props.id;
   }
-  get email(): string {
-    return this.props.email;
-  }
   get name(): string | undefined {
     return this.props.name;
   }
-  get preferredSessionDuration(): number {
-    return this.props.preferredSessionDuration;
+  get defaultSessionDuration(): number {
+    return this.props.defaultSessionDuration;
   }
 
   /**
@@ -97,11 +90,11 @@ export class UserEntity {
     this.props.updatedAt = new Date();
   }
 
-  updatePreferredSessionDuration(duration: number): void {
+  updateDefaultSessionDuration(duration: number): void {
     if (duration < 1 || duration > 180) {
       throw new Error("Session duration must be between 1 and 180 minutes");
     }
-    this.props.preferredSessionDuration = duration;
+    this.props.defaultSessionDuration = duration;
     this.props.updatedAt = new Date();
   }
 

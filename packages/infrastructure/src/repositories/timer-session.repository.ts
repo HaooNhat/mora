@@ -1,7 +1,7 @@
 import { ITimerSessionRepository } from "@workspace/application/interfaces/repositories/timer-session.repository.interface";
 import { TimerSession } from "@workspace/domain/entities/timer-session.entity";
-import { supabase } from "@workspace/infrastructure/database/supabase-client";
-import { TimerSessionRow } from "@workspace/infrastructure/database/supabase-types";
+import { TimerSessionRow } from "@workspace/infrastructure/database/index.types";
+import { supabase } from "@workspace/infrastructure/database/supabase.client";
 
 export class TimerSessionRepository implements ITimerSessionRepository {
   private mapRowToEntity(row: TimerSessionRow): TimerSession {
@@ -9,15 +9,12 @@ export class TimerSessionRepository implements ITimerSessionRepository {
       id: row.id,
       userId: row.user_id,
       taskId: row.task_id ?? undefined,
-      mode: row.mode,
+      timerType: row.timer_type,
       startedAt: new Date(row.started_at),
       endedAt: row.ended_at ? new Date(row.ended_at) : undefined,
-      pausedDuration: row.paused_duration,
-      interruptions: row.interruptions,
-      plannedDuration: row.planned_duration,
       actualDuration: row.actual_duration ?? undefined,
-      completed: row.completed,
-      createdAt: new Date(row.created_at),
+      endedReason: row.ended_reason ?? undefined,
+      createdAt: row.created_at ? new Date(row.created_at) : new Date(),
     };
   }
 
@@ -65,13 +62,15 @@ export class TimerSessionRepository implements ITimerSessionRepository {
       id: session.id,
       user_id: session.userId,
       task_id: session.taskId ?? null,
-      mode: session.mode,
+      timer_type: session.timerType,
       started_at: session.startedAt.toISOString(),
       ended_at: session.endedAt?.toISOString() ?? null,
-      paused_duration: session.pausedDuration,
-      planned_duration: session.plannedDuration,
+      ended_reason: session.endedReason,
+      arousal_start: session.arousalStart,
+      arousal_end: session.arousalEnd,
       actual_duration: session.actualDuration ?? null,
-      completed: session.completed,
+      effectiveness: session.effectiveness,
+      created_at: session.createdAt.toISOString(),
     });
 
     if (error) {
@@ -84,9 +83,8 @@ export class TimerSessionRepository implements ITimerSessionRepository {
       .from("timer_sessions")
       .update({
         ended_at: session.endedAt?.toISOString() ?? null,
-        paused_duration: session.pausedDuration,
         actual_duration: session.actualDuration ?? null,
-        completed: session.completed,
+        ended_reason: session.endedReason,
       })
       .eq("id", session.id);
 

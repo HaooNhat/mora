@@ -30,9 +30,6 @@
     "./error/*": "./dist/error/*.js",
     "./interfaces/*": "./dist/interfaces/*.js",
     "./interfaces/repositories/*": "./dist/interfaces/repositories/*.js",
-    "./use-cases/*": "./dist/use-cases/*.js",
-    "./timer/*": "./dist/timer/*.js",
-    "./hooks/*": "./dist/hooks/*.js",
-    "./stores/*": "./dist/stores/*.js"
+    "./use-cases/*": "./dist/use-cases/*.js"
   }
 }

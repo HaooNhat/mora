@@ -1,27 +1,29 @@
 import { ArousalLevelSchema } from "@workspace/domain/entities/arousal-entry.entity";
-import { TimerModeSchema } from "@workspace/domain/entities/timer-session.entity";
+import {
+  EndedReasonSchema,
+  TimerTypeSchema,
+} from "@workspace/domain/entities/timer-session.entity";
 import { z } from "zod";
 
 export const StartTimerSessionDtoSchema = z.object({
   userId: z.string().uuid(),
   taskId: z.string().uuid().optional(), // ambient focus support
-  mode: TimerModeSchema,
-  plannedDuration: z.number().min(1), // seconds
+  timerType: TimerTypeSchema,
+  startedAt: z.date(),
 
   // OPTIONAL: User can skip mood tracking entirely
-  arousalBefore: ArousalLevelSchema.optional(),
+  arousalStart: ArousalLevelSchema.optional(),
 });
 
 export type StartTimerSessionDto = z.infer<typeof StartTimerSessionDtoSchema>;
 
 export const CompleteTimerSessionDtoSchema = z.object({
   sessionId: z.string().uuid(),
-  pausedDuration: z.number().min(0).default(0),
-  interruptions: z.number().min(0).default(0),
 
-  // OPTIONAL: User can skip effectiveness ratings
-  perceivedFocus: z.number().min(1).max(5).optional(),
-  perceivedProductivity: z.number().min(1).max(5).optional(),
+  endedReason: EndedReasonSchema,
+  actualDuration: z.number().positive().optional(),
+  arousalEnd: ArousalLevelSchema.optional(),
+  effectiveness: z.number().min(0).max(1).optional(), // 0-1 scale
 });
 
 export type CompleteTimerSessionDto = z.infer<

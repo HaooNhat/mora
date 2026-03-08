@@ -1,16 +1,16 @@
 import { IUserRepository } from "@workspace/application/interfaces/repositories/user.repository.interface";
 import { User } from "@workspace/domain/entities/user.entity";
-import { supabase } from "@workspace/infrastructure/database/supabase-client";
-import { UserRow } from "@workspace/infrastructure/database/supabase-types";
+import { UserRow } from "@workspace/infrastructure/database/index.types";
+import { supabase } from "@workspace/infrastructure/database/supabase.client";
 
 export class UserRepository implements IUserRepository {
   private mapRowToEntity(row: UserRow): User {
     return {
       id: row.id,
-      email: row.email,
       name: row.name ?? undefined,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at),
+      defaultSessionDuration: row.default_focus_duration ?? 25,
+      createdAt: row.created_at ? new Date(row.created_at) : new Date(),
+      updatedAt: row.updated_at ? new Date(row.updated_at) : new Date(),
     };
   }
 
@@ -39,7 +39,6 @@ export class UserRepository implements IUserRepository {
   async save(user: User): Promise<void> {
     const { error } = await supabase.from("users").insert({
       id: user.id,
-      email: user.email,
       name: user.name ?? null,
     });
 
@@ -52,7 +51,6 @@ export class UserRepository implements IUserRepository {
     const { error } = await supabase
       .from("users")
       .update({
-        email: user.email,
         name: user.name ?? null,
       })
       .eq("id", user.id);

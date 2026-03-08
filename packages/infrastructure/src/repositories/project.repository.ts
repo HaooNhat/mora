@@ -1,7 +1,7 @@
 import { IProjectRepository } from "@workspace/application/interfaces/repositories/project.repository.interface";
 import { Project } from "@workspace/domain/entities/project.entity";
-import { supabase } from "@workspace/infrastructure/database/supabase-client";
-import { ProjectRow } from "@workspace/infrastructure/database/supabase-types";
+import { ProjectRow } from "@workspace/infrastructure/database/index.types";
+import { supabase } from "@workspace/infrastructure/database/supabase.client";
 
 export class ProjectRepository implements IProjectRepository {
   private mapRowToEntity(row: ProjectRow): Project {
@@ -11,8 +11,8 @@ export class ProjectRepository implements IProjectRepository {
       name: row.name,
       description: row.description ?? undefined,
       color: row.color ?? undefined,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at),
+      createdAt: row.created_at ? new Date(row.created_at) : new Date(),
+      updatedAt: row.updated_at ? new Date(row.updated_at) : new Date(),
     };
   }
 

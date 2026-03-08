@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "dotenv": "^17.2.3",
-    "@workspace/domain": "workspace:*"
+    "@workspace/domain": "workspace:*",
+    "@workspace/application": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.19.17",

@@ -19,11 +19,9 @@ export class UpdateTaskUseCase {
     const entity = TaskEntity.fromPersistence(task);
 
     if (validated.title) entity.updateTitle(validated.title);
-    if (validated.isImportant || validated.isUrgent)
-      entity.setPriority(
-        validated.isImportant ?? false,
-        validated.isUrgent ?? false,
-      );
+    if (validated.isImportant !== undefined)
+      entity.setImportant(validated.isImportant);
+    if (validated.isUrgent !== undefined) entity.setUrgent(validated.isUrgent);
     if (validated.workType !== undefined) {
       entity.updateWorkType(validated.workType ?? task.workType);
     }
@@ -35,7 +33,7 @@ export class UpdateTaskUseCase {
       deadline: validated.deadline
         ? new Date(validated.deadline)
         : task.deadline,
-      notes: validated.notes ?? task.notes,
+      notes: validated.note ?? task.note,
       estimatedDuration: validated.estimatedDuration ?? task.estimatedDuration,
     };
 
