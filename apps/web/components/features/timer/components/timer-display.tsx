@@ -5,7 +5,7 @@ import {
   useTimerMode,
   useTimerPhase,
   useTimerStatus,
-} from "../store/timer-store";
+} from "../store/timer.selectors";
 
 interface TimerViewProps {
   isExpanded: boolean;

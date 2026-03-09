@@ -10,19 +10,22 @@ import {
   useTimerStatus,
   useTimerUIActions,
   useTimerUIState,
-} from "./store/timer-store";
+} from "./store/timer.selectors";
 
 interface TimerContainerProps {
   className?: string;
 }
 
-const baseClasses =
-  "flex flex-row w-[300px] h-[48px] items-center border px-3 gap-2 justify-between transition-colors duration-300 bg-background/80 border-border text-foreground/80 hover:border-2 hover:border-foreground";
+const baseClasses = cn(
+  "flex flex-row w-[300px] h-[48px] items-center border px-3 gap-2 justify-between transition-colors duration-300 bg-background/80 border-border text-foreground/80 hover:border-2 hover:border-foreground",
+);
 
 const expandedClasses =
   "flex-col justify-evenly w-[480px] h-[320px] bg-background/90 ring-2";
 
 const runningClasses = "bg-background border-foreground text-foreground";
+
+const TIMER_BASE_RADIUS = 24;
 
 export default function TimerContainer({ className }: TimerContainerProps) {
   const uiState = useTimerUIState();
@@ -107,7 +110,7 @@ export default function TimerContainer({ className }: TimerContainerProps) {
           setLayoutDone(true);
         }}
         style={{
-          borderRadius: 16,
+          borderRadius: isExpanded ? TIMER_BASE_RADIUS * 5 : TIMER_BASE_RADIUS,
         }}
         className={containerClasses}
       >

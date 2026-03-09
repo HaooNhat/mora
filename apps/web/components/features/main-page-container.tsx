@@ -2,10 +2,10 @@
 
 import Header from "@/components/header/header";
 import { cn } from "@workspace/ui/lib/utils";
-import { useEffect } from "react";
 import { ProjectTaskContainer } from "./tasks/project-task-container";
-import { useTickTimer, useTimerUIState } from "./timer/store/timer-store";
+import { useTimerUIState } from "./timer/store/timer.selectors";
 import TimerContainer from "./timer/timer-container";
+import TimerTick from "./timer/hooks/timer.tick";
 
 interface MainPageContainerProps {
   className?: string;
@@ -15,17 +15,8 @@ export default function MainPageContainer({
   className,
 }: MainPageContainerProps) {
   const uiState = useTimerUIState();
-  const tick = useTickTimer();
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      tick();
-    }, 1000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [tick]);
+  TimerTick();
 
   return (
     <div className={cn(className)}>

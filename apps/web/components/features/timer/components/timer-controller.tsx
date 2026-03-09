@@ -15,7 +15,7 @@ import {
   useTimerMode,
   useTimerPhase,
   useTimerProgress,
-} from "../store/timer-store";
+} from "../store/timer.selectors";
 
 const RADIUS = 16;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;

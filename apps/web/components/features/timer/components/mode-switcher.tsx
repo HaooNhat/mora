@@ -6,7 +6,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import { motion, Variants } from "motion/react";
 import { useState } from "react";
 import { TimerMode } from "../domain/timer";
-import { useTimerActions, useTimerMode } from "../store/timer-store";
+import { useTimerActions, useTimerMode } from "../store/timer.selectors";
 
 interface ModeSwitcherProps {
   isExpanded: boolean;

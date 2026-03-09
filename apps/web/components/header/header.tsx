@@ -3,7 +3,7 @@
 import { cn } from "@workspace/ui/lib/utils";
 import { Droplets } from "lucide-react";
 import { motion } from "motion/react";
-import { useTimerUIState } from "../features/timer/store/timer-store";
+import { useTimerUIState } from "../features/timer/store/timer.selectors";
 import TimerContainer from "../features/timer/timer-container";
 import AvatarSetting from "./avatar-setting";
 
