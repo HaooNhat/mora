@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState, type ReactNode } from "react";
 
+const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
+
 /**
  * React Query Provider Configuration
  *
@@ -21,10 +23,10 @@ export function QueryProvider({ children }: { children: ReactNode }) {
         defaultOptions: {
           queries: {
             // Stale time: How long data is considered fresh
-            staleTime: 60 * 1000, // 1 minute
+            staleTime: 1000 * 60 * 1, // 1 minute
 
             // Cache time: How long unused data stays in cache
-            gcTime: 5 * 60 * 1000, // 5 minutes (previously cacheTime)
+            gcTime: 60 * 1000 * 5, // 5 minutes
 
             // Retry configuration
             retry: (failureCount, error) => {
@@ -67,7 +69,12 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       {children}
       {/* Dev tools - only shows in development */}
-      <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />
+      {IS_DEVELOPMENT && (
+        <ReactQueryDevtools
+          initialIsOpen={false}
+          buttonPosition="bottom-right"
+        />
+      )}
     </QueryClientProvider>
   );
 }

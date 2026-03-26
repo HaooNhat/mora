@@ -6,8 +6,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@workspace/domain/*": ["../domain/src/*"],
-      "@workspace/application/*": ["../application/src/*"]
+      "@workspace/domain/*": ["../domain/src/*"]
     }
   },
   "include": ["src"],

@@ -6,9 +6,7 @@
       "@/*": ["./*"],
       "@workspace/ui/*": ["../../packages/ui/src/*"],
       "@workspace/domain/*": ["../../packages/domain/src/*"],
-      "@workspace/infrastructure/*": ["../../packages/infrastructure/src/*"],
-      "@workspace/application/*": ["../../packages/application/src/*"],
-      "@workspace/shared/*": ["../../packages/shared/src/*"]
+      "@workspace/infrastructure/*": ["../../packages/infrastructure/src/*"]
     },
     "plugins": [
       {

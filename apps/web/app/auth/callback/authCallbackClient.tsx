@@ -1,47 +1,46 @@
 "use client";
 
+import router from "next/router";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { supabase } from "@workspace/infrastructure/database/supabase-client";
-import { Loader2 } from "lucide-react";
+
+type User = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  picture?: string;
+};
 
 export default function AuthCallbackClient() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        const errorParam = searchParams.get("error");
-        const errorDescription = searchParams.get("error_description");
+        const initAuth = async () => {
+          try {
+            const res = await fetch("http://localhost:3001/auth/me", {
+              credentials: "include",
+            });
 
-        if (errorParam) {
-          setError(errorDescription || errorParam);
-          setTimeout(() => router.push("/login"), 3000);
-          return;
-        }
+            console.log(res);
 
-        const code = searchParams.get("code");
+            if (!res.ok) {
+              throw new Error("Failed to fetch user");
+            }
 
-        if (code) {
-          const { data, error } =
-            await supabase.auth.exchangeCodeForSession(code);
-
-          if (error || !data.session) {
-            setError(error?.message ?? "No session received");
-            setTimeout(() => router.push("/login"), 3000);
-            return;
+            const data = await res.json();
+            setUser(data);
+          } catch (err: unknown) {
+            if (err instanceof Error) {
+              setError(err.message);
+            } else {
+              setError("Unknown error");
+            }
           }
+        };
 
-          router.push("/");
-        } else {
-          const {
-            data: { session },
-          } = await supabase.auth.getSession();
-
-          router.push(session ? "/" : "/login");
-        }
+        void initAuth();
       } catch {
         setError("Authentication failed");
         setTimeout(() => router.push("/login"), 3000);
@@ -49,18 +48,10 @@ export default function AuthCallbackClient() {
     };
 
     handleCallback();
-  }, [router, searchParams]);
+  }, []);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      {error ? (
-        <div className="text-center space-y-2">
-          <p className="text-red-500 font-semibold">Authentication Error</p>
-          <p className="text-gray-500">{error}</p>
-        </div>
-      ) : (
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      )}
-    </div>
-  );
+  if (error) return <div>{error}</div>;
+  if (!user) return <div>Loading...</div>;
+
+  return <div>Welcome {user.firstName}</div>;
 }

@@ -13,20 +13,14 @@
     "db:gen-seed": "supabase db dump --local --data-only > supabase/seed.sql"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.89.0",
-    "@workspace/application": "workspace:*",
     "@workspace/domain": "workspace:*",
     "dotenv": "^17.2.3"
   },
   "devDependencies": {
     "@types/node": "^20.19.17",
-    "@workspace/typescript-config": "workspace:*",
-    "supabase": "^2.72.8"
+    "@workspace/typescript-config": "workspace:*"
   },
   "exports": {
-    "./*": "./dist/*.js",
-    "./supabase/*": "./dist/supabase/*.js",
-    "./repositories/*": "./dist/repositories/*.js",
-    "./services/*": "./dist/services/*.js"
+    "./*": "./dist/*.js"
   }
 }

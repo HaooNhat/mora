@@ -27,7 +27,7 @@ export default function MainPage() {
 
       {/* Main page content */}
       <div className="h-dvh md:h-screen p-0 md:p-4">
-        <MainPageContainer className="h-full flex flex-col max-w-[1920px] max-h-[1080px] border-2 rounded-3xl backdrop-blur-xs bg-gradient-to-br from-white via-gray-700 to-white dark:from-black from-5% dark:via-gray-700 to-95% dark:to-black" />
+        <MainPageContainer className="h-full flex flex-col max-w-[1920px] max-h-[1080px] border-2 rounded-3xl backdrop-blur-xs bg-linear-to-br from-white via-gray-700 to-white dark:from-black from-5% dark:via-gray-700 to-95% dark:to-black" />
       </div>
     </>
   );
