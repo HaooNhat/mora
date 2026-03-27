@@ -12,8 +12,10 @@ import crypto from 'crypto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import jwtConfig from './configs/jwt.config';
-import { LoginDto } from './dto/auth.dto';
-import { GoogleLoginInput } from './types/user.google';
+import { LoginWithPasswordDto } from './dto/login.dto';
+import { GoogleLoginInput } from './interfaces/user.google.type';
+import { Response } from 'express';
+import { Tokens } from './interfaces/jwt.types';
 
 @Injectable()
 export class AuthService {
@@ -36,6 +38,22 @@ export class AuthService {
   //   return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
   // }
 
+  setAuthCookies(res: Response, tokens: Tokens) {
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.cookie('accessToken', tokens.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+  }
+
   async getUserProfile(email: string): Promise<User | null> {
     const user = await this.userService.getUserByEmail(email);
     if (!user) {
@@ -45,7 +63,7 @@ export class AuthService {
     return user;
   }
 
-  async loginWithPassword(dto: LoginDto) {
+  async loginWithPassword(dto: LoginWithPasswordDto) {
     const user = await this.userService.getUserByEmail(dto.email);
     if (
       !user ||

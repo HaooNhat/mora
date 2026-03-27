@@ -6,26 +6,24 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { UserModule } from 'src/user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import googleOauthConfig from './configs/google-oauth.config';
-import { GoogleStrategy } from './strategies/google.strategy';
-import { JwtStrategy } from './strategies/jwt.strategy';
 import jwtConfig from './configs/jwt.config';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
     PrismaModule,
-    UserModule,
     OidcModule,
+    UserModule,
 
     JwtModule.register({
       secret: process.env.JWT_SECRET!,
       signOptions: { expiresIn: '15m' },
     }),
 
-    ConfigModule.forFeature(googleOauthConfig),
+    // ConfigModule.forFeature(googleOauthConfig),
     ConfigModule.forFeature(jwtConfig),
   ],
-  providers: [AuthService, GoogleStrategy, JwtStrategy],
+  providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

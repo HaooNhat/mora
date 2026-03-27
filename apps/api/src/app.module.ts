@@ -5,7 +5,6 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
-import { OidcModule } from './oidc/oidc.module';
 
 @Module({
   imports: [
@@ -20,7 +19,6 @@ import { OidcModule } from './oidc/oidc.module';
     // Feature modules
     UserModule,
     AuthModule,
-    OidcModule,
   ],
   controllers: [AppController],
   providers: [AppService],

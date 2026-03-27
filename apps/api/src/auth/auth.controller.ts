@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Post,
@@ -10,12 +11,16 @@ import {
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import type { Request, Response } from 'express';
-import type { SessionData } from 'express-session';
 import { OidcService } from 'src/oidc/oidc.service';
 import { Public } from '../common/decorators/public.decorator';
 import { AuthService } from './auth.service';
+import { LoginWithPasswordDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt.guard';
-import { UserProfile } from './types/userProfile';
+import type { AuthSession } from './interfaces/auth-session.interface';
+import type {
+  RequestWithCookies,
+  RequestWithUser,
+} from './interfaces/request.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -24,18 +29,21 @@ export class AuthController {
     private readonly oidcService: OidcService,
   ) {}
 
-  // @HttpCode(HttpStatus.OK)
-  // @Post('login')
-  // login() {
-  //   throw new NotImplementedException('This method is not implemented');
-  // }
+  @Post('login')
+  async login(@Body() loginWithPasswordDto: LoginWithPasswordDto) {
+    return this.authService.loginWithPassword(loginWithPasswordDto);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getUserProfile(
     @Req()
-    req: Request & UserProfile,
+    req: RequestWithUser,
   ): Promise<User | null> {
+    if (!req.user.email) {
+      throw new UnauthorizedException();
+    }
+
     const user = await this.authService.getUserProfile(req.user.email);
 
     return user;
@@ -43,37 +51,26 @@ export class AuthController {
 
   @Public()
   @Post('refresh')
-  async refreshTokens(@Req() req: Request, @Res() res: Response) {
-    const refreshToken = req.cookies?.refreshToken as string;
-    try {
-      if (!refreshToken) {
-        throw new UnauthorizedException('Missing refresh token!');
-      }
+  async refreshTokens(
+    @Req() req: RequestWithCookies,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies?.refreshToken;
 
-      const tokens = await this.authService.refreshTokens(refreshToken);
-
-      res.cookie('refreshToken', tokens.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-
-      res.cookie('accessToken', tokens.accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 15 * 60 * 1000, // 15 minutes
-      });
-    } catch (error: unknown) {
-      console.error('Refresh Route Error: ', error);
-      throw new Error('Error refreshing token');
+    if (!refreshToken) {
+      throw new UnauthorizedException('Missing refresh token!');
     }
+
+    const tokens = await this.authService.refreshTokens(refreshToken);
+
+    this.authService.setAuthCookies(res, tokens);
+
+    return { success: true };
   }
 
   @Public()
   @Get('google/login')
-  async googleLogin(@Session() session: SessionData, @Res() res: Response) {
+  async googleLogin(@Session() session: AuthSession, @Res() res: Response) {
     const state = crypto.randomUUID();
 
     session.state = state;
@@ -91,29 +88,22 @@ export class AuthController {
   @Get('google/callback')
   async googleCallback(
     @Req() req: Request,
-    @Session() session: SessionData,
+    @Session() session: AuthSession,
     @Res() res: Response,
   ) {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const redirectUrl = `${frontendUrl}/auth/callback`;
+    const backendUrl = process.env.BACKEND_URL ?? 'http://localhost:3001';
+
     try {
-      const currentUrl = new URL(
-        req.originalUrl,
-        process.env.BACKEND_URL ?? 'http://localhost:3001',
-      );
+      const currentUrl = new URL(req.originalUrl, backendUrl);
 
       if (req.query.state !== session.state) {
         throw new UnauthorizedException('Invalid state');
       }
 
-      if (!session.state) {
-        throw new Error('state not found');
-      }
-
-      if (!session.code_verifier) {
-        throw new Error('code vierifier not found');
-      }
-
-      if (!session.nonce) {
-        throw new Error('nonce not found');
+      if (!session.code_verifier || !session.state || !session.nonce) {
+        throw new UnauthorizedException('Invalid session');
       }
 
       const claims = await this.oidcService.callback(
@@ -122,19 +112,12 @@ export class AuthController {
         session.state,
         session.nonce,
       );
-      console.log('Claims', claims);
 
       if (!claims) {
         throw new UnauthorizedException('Missing ID token claims');
       }
 
       const { sub, email, given_name, family_name, picture } = claims;
-
-      console.log('sub', sub);
-      console.log('email', email);
-      console.log('firstName', given_name);
-      console.log('lastName', family_name);
-      console.log('picture', picture);
 
       const { accessToken, refreshToken } =
         await this.authService.loginWithGoogle({
@@ -145,23 +128,9 @@ export class AuthController {
           picture: picture as string,
         });
 
-      console.log('asdfadsf', accessToken, refreshToken);
-
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      const redirectUrl = `${frontendUrl}/auth/callback`;
-
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-
-      res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 15 * 60 * 1000, // 15 minutes
+      this.authService.setAuthCookies(res, {
+        accessToken,
+        refreshToken,
       });
 
       delete session.code_verifier;
@@ -172,37 +141,34 @@ export class AuthController {
     } catch (error: unknown) {
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
 
-      let errorMessage = 'Internal server error';
-
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
+      const safeMessage =
+        error instanceof UnauthorizedException
+          ? 'Unauthorized'
+          : 'Authentication failed';
 
       res.redirect(
-        `${frontendUrl}/auth/callback?error=${encodeURIComponent(errorMessage)}`,
+        `${frontendUrl}/auth/callback?error=${encodeURIComponent(safeMessage)}`,
       );
     }
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Req() req: Request, @Res() res: Response) {
-    try {
-      const refreshToken = req.cookies?.refreshToken as string;
+  async logout(
+    @Req() req: RequestWithCookies,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies?.refreshToken;
 
-      if (refreshToken) {
-        await this.authService.logout(refreshToken);
-      }
-
-      res.clearCookie('refreshToken');
-      res.clearCookie('accessToken');
-
-      res
-        .status(200)
-        .json({ success: true, message: 'Logged out successfully' });
-    } catch (error: unknown) {
-      res.status(500).json({ success: false, message: 'Logout failed' });
-      console.error('Error: ', error);
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh Token not found!');
     }
+
+    await this.authService.logout(refreshToken);
+
+    res.clearCookie('refreshToken');
+    res.clearCookie('accessToken');
+
+    return { success: true, message: 'Logged out successfully!' };
   }
 }
