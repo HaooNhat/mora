@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState, type ReactNode } from "react";
 
+const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
+
 /**
  * React Query Provider Configuration
  *
@@ -20,44 +22,26 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Stale time: How long data is considered fresh
-            staleTime: 60 * 1000, // 1 minute
+            // Procurement data changes via user actions, not time — keep fresh for 5 min
+            staleTime: 1000 * 60 * 5,
+            gcTime: 1000 * 60 * 10,
 
-            // Cache time: How long unused data stays in cache
-            gcTime: 5 * 60 * 1000, // 5 minutes (previously cacheTime)
-
-            // Retry configuration
             retry: (failureCount, error) => {
-              // Don't retry on auth errors
-              if (
-                error instanceof Error &&
-                error.message.includes("UNAUTHENTICATED")
-              ) {
+              if (error instanceof Error && error.message.includes("UNAUTHENTICATED")) {
                 return false;
               }
-              // Retry up to 3 times for other errors
-              return failureCount < 3;
+              return failureCount < 2;
             },
 
-            // Refetch configuration
-            refetchOnWindowFocus: true,
+            // Explicit user refresh is preferred over automatic background refetches
+            refetchOnWindowFocus: false,
             refetchOnMount: true,
             refetchOnReconnect: true,
-
-            // Network mode
             networkMode: "online",
           },
           mutations: {
-            // Retry mutations once
-            retry: 1,
-
-            // Network mode
+            retry: 0,
             networkMode: "online",
-
-            // Global error handler
-            onError: (error) => {
-              console.error("Mutation error:", error);
-            },
           },
         },
       }),
@@ -67,7 +51,12 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       {children}
       {/* Dev tools - only shows in development */}
-      <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />
+      {IS_DEVELOPMENT && (
+        <ReactQueryDevtools
+          initialIsOpen={false}
+          buttonPosition="bottom-right"
+        />
+      )}
     </QueryClientProvider>
   );
 }

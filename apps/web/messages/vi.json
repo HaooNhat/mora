@@ -1,0 +1,130 @@
+{
+  "common": {
+    "loading": "Đang tải...",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "confirm": "Xác nhận",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "submit": "Gửi",
+    "create": "Tạo mới",
+    "search": "Tìm kiếm",
+    "error": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "noData": "Không có dữ liệu."
+  },
+  "auth": {
+    "loginTitle": "Chào mừng trở lại Mora",
+    "loginSubtitle": "Đăng nhập để tiếp tục",
+    "signupTitle": "Tạo tài khoản",
+    "signupSubtitle": "Tham gia Mora để tối ưu hóa quy trình mua sắm",
+    "email": "Email",
+    "emailPlaceholder": "ban@example.com",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "firstName": "Tên",
+    "firstNamePlaceholder": "Nguyễn",
+    "lastName": "Họ",
+    "lastNamePlaceholder": "Văn A",
+    "signIn": "Đăng nhập",
+    "signUp": "Đăng ký",
+    "forgotPassword": "Quên mật khẩu?",
+    "or": "hoặc",
+    "continueWithGoogle": "Tiếp tục với Google",
+    "alreadyHaveAccount": "Đã có tài khoản?",
+    "noAccount": "Chưa có tài khoản?",
+    "termsNotice": "Bằng cách tiếp tục, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của chúng tôi.",
+    "completeSignIn": "Đang hoàn tất đăng nhập...",
+    "errors": {
+      "emailRequired": "Email là bắt buộc.",
+      "emailInvalid": "Vui lòng nhập địa chỉ email hợp lệ.",
+      "passwordRequired": "Mật khẩu là bắt buộc.",
+      "passwordWeak": "Mật khẩu phải có ít nhất 8 ký tự gồm chữ hoa, chữ thường, số và ký tự đặc biệt.",
+      "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu.",
+      "passwordMismatch": "Mật khẩu không khớp.",
+      "firstNameRequired": "Tên là bắt buộc.",
+      "lastNameRequired": "Họ là bắt buộc."
+    }
+  },
+  "organizations": {
+    "title": "Tổ chức",
+    "noOrgs": "Bạn chưa thuộc tổ chức nào.",
+    "createOrg": "Tạo tổ chức",
+    "createOrgSubtitle": "Thiết lập tổ chức mới để bắt đầu quản lý mua sắm.",
+    "name": "Tên tổ chức",
+    "namePlaceholder": "Công ty TNHH ABC",
+    "legalName": "Tên pháp lý",
+    "legalNamePlaceholder": "Công ty TNHH ABC Việt Nam",
+    "type": "Loại tổ chức",
+    "typeBuyer": "Người mua",
+    "typeSupplier": "Nhà cung cấp",
+    "typeBoth": "Người mua & Nhà cung cấp",
+    "roleOwner": "Chủ sở hữu",
+    "roleAdmin": "Quản trị viên",
+    "roleProcurementManager": "Trưởng phòng mua sắm",
+    "roleBuyer": "Nhân viên mua sắm",
+    "roleApprover": "Người phê duyệt",
+    "roleFinanceManager": "Trưởng phòng tài chính",
+    "roleSupplierManager": "Quản lý nhà cung cấp",
+    "roleViewer": "Người xem",
+    "createSuccess": "Tạo tổ chức thành công.",
+    "switchOrg": "Chuyển tổ chức",
+    "errors": {
+      "nameRequired": "Tên tổ chức là bắt buộc.",
+      "typeRequired": "Loại tổ chức là bắt buộc."
+    }
+  },
+  "requisitions": {
+    "title": "Yêu cầu mua sắm",
+    "newRequisition": "Tạo yêu cầu mới",
+    "noRequisitions": "Không có yêu cầu mua sắm nào.",
+    "noRequisitionsHint": "Tạo yêu cầu đầu tiên để bắt đầu.",
+    "totalAmount": "Tổng tiền",
+    "status": {
+      "DRAFT": "Nháp",
+      "SUBMITTED": "Đã gửi",
+      "APPROVED": "Đã phê duyệt",
+      "REJECTED": "Từ chối",
+      "ORDERED": "Đã đặt hàng"
+    },
+    "fields": {
+      "title": "Tiêu đề",
+      "titlePlaceholder": "Mua thiết bị Q2",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Mô tả mục đích của yêu cầu này",
+      "currency": "Đơn vị tiền tệ",
+      "items": "Danh sách hàng hóa",
+      "itemDescription": "Mô tả",
+      "itemDescriptionPlaceholder": "MacBook Pro 14\"",
+      "itemQuantity": "SL",
+      "itemUnitPrice": "Đơn giá",
+      "itemTotal": "Thành tiền",
+      "itemNotes": "Ghi chú",
+      "itemNotesPlaceholder": "Ghi chú tùy chọn",
+      "addItem": "Thêm hàng",
+      "removeItem": "Xóa"
+    },
+    "actions": {
+      "submitForApproval": "Gửi phê duyệt",
+      "approve": "Phê duyệt",
+      "reject": "Từ chối",
+      "delete": "Xóa yêu cầu"
+    },
+    "errors": {
+      "titleRequired": "Tiêu đề là bắt buộc.",
+      "itemsRequired": "Cần ít nhất một mặt hàng.",
+      "itemDescriptionRequired": "Mô tả hàng hóa là bắt buộc.",
+      "itemQuantityPositive": "Số lượng phải ít nhất là 1.",
+      "itemPricePositive": "Đơn giá phải lớn hơn 0."
+    }
+  },
+  "nav": {
+    "requisitions": "Yêu cầu mua sắm",
+    "orders": "Đơn mua hàng",
+    "invoices": "Hóa đơn",
+    "settings": "Cài đặt",
+    "signOut": "Đăng xuất",
+    "myAccount": "Tài khoản"
+  }
+}

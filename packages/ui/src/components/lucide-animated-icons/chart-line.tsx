@@ -2,9 +2,15 @@
 
 import type { Variants } from "motion/react";
 import type { HTMLAttributes } from "react";
-import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
 import { motion, useAnimation } from "motion/react";
-import { cn } from "@workspace/ui/lib/utils";
+import { cn } from "@mora/ui/lib/utils";
 
 export interface ChartLineIconHandle {
   startAnimation: () => void;
@@ -12,6 +18,7 @@ export interface ChartLineIconHandle {
 }
 
 interface ChartLineIconProps extends HTMLAttributes<HTMLDivElement> {
+  isHovered: boolean;
   size?: number;
 }
 
@@ -32,7 +39,10 @@ const VARIANTS: Variants = {
 };
 
 const ChartLineIcon = forwardRef<ChartLineIconHandle, ChartLineIconProps>(
-  ({ onMouseEnter, onMouseLeave, className, size = 28, ...props }, ref) => {
+  (
+    { onMouseEnter, onMouseLeave, isHovered, className, size = 28, ...props },
+    ref,
+  ) => {
     const controls = useAnimation();
     const isControlledRef = useRef(false);
 
@@ -66,6 +76,15 @@ const ChartLineIcon = forwardRef<ChartLineIconHandle, ChartLineIconProps>(
       },
       [controls, onMouseLeave],
     );
+
+    useEffect(() => {
+      if (isHovered && !isControlledRef.current) {
+        controls.start("animate");
+      }
+      if (!isHovered && !isControlledRef.current) {
+        controls.start("normal");
+      }
+    }, [controls, isHovered]);
 
     return (
       <div

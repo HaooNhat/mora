@@ -1,0 +1,14 @@
+import { Module } from '@nestjs/common';
+import { PrismaModule } from '../../services/prisma/prisma.module';
+import { OrganizationModule } from '../organization/organization.module';
+import { RequisitionsController } from './requisitions.controller';
+import { RequisitionsRepository } from './requisitions.repository';
+import { RequisitionsService } from './requisitions.service';
+
+@Module({
+  imports: [PrismaModule, OrganizationModule],
+  controllers: [RequisitionsController],
+  providers: [RequisitionsRepository, RequisitionsService],
+  exports: [RequisitionsService],
+})
+export class RequisitionsModule {}

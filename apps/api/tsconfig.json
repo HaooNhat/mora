@@ -1,0 +1,11 @@
+{
+  "extends": "../../packages/typescript-config/nest.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@mora/api/*": ["src/*"]
+    },
+    "outDir": "./dist",
+    "strictNullChecks": true
+  }
+}
