@@ -1,293 +1,200 @@
-# 🌱 Mora
+# Mora
 
-**Mora is a human-centered productivity workspace that adapts to your mood, energy, and mental state.**
+**Mora is a simple procure-to-pay platform for small and medium businesses.**
 
-Instead of forcing rigid systems, Mora adjusts how you work — focus time, breaks, atmosphere, and tools — based on how you _actually_ feel.
+It covers the full procurement lifecycle — from purchase requests through to supplier payments.
 
-> Productivity shouldn’t fight your humanity.  
-> Mora works _with_ it.
-
----
-
-## ✨ What Mora Solves
-
-Most productivity tools assume:
-
-- consistent energy
-- stable focus
-- emotion-free workdays
-
-Real life is different.
-
-Mora exists for days when:
-
-- energy fluctuates
-- stress is real
-- creativity comes in waves
-- forcing focus does more harm than good
-
-Rather than asking you to “push harder”, Mora asks:
-
-> **“How are you feeling right now?”**
-
-Then it adapts everything around that answer.
+> Built by a solo dev. A personal project to explore what a lightweight P2P tool might look like for teams that need real procurement workflow.
 
 ---
 
-## 🎯 Who Mora Is For
+## What Mora Does
 
-Mora is built for people who want structure **without pressure**:
+Mora enforces a structured procurement chain:
 
-- Developers & designers
-- Founders & solo builders
-- Students doing deep work
-- Creatives who work in bursts
-- Anyone burned out by rigid productivity systems
+```
+Request → Approve → Order → Receive → Invoice → Pay
+```
 
-If traditional productivity apps make you feel guilty — Mora is for you.
+Every step is tracked. Every document is linked.
 
 ---
 
-## 🧠 Core Philosophy
+## Core Flow
 
-### 1. Adapt to the Human, Not the Schedule
+### 1. Purchase Requisition (PR)
 
-Energy and emotions change daily. Mora adapts sessions, pacing, and suggestions accordingly.
+An employee requests to buy something. The request goes through an approval workflow based on amount thresholds and roles.
 
-### 2. No Mood Is a “Bad Mood”
+- Under $500 → auto-approved
+- $500–$5,000 → requires manager approval
+- Over $5,000 → requires manager + finance approval
 
-Tired, stressed, or unfocused isn’t failure — it’s context.
+### 2. Purchase Order (PO)
 
-Every state gets:
+An approved PR generates a PO that is sent to the supplier. The PO tracks confirmation and shipment status.
 
-- validation
-- realistic expectations
-- a workable strategy
+### 3. Goods Receipt
 
-### 3. Action Over Tracking
+When goods arrive, the receiving team logs what was actually received — quantity, condition, notes. This feeds into 3-way matching.
 
-Mora doesn’t collect data just to show charts.
-Every input leads to **clear, immediate action**.
+### 4. Invoice
 
-### 4. Calm, Not Control
+The supplier submits an invoice. The system runs a **3-way match**:
 
-No alarms yelling at you.
-No guilt-driven streaks.
-No forced habits.
+| Check    | Rule                                             |
+| -------- | ------------------------------------------------ |
+| Price    | Invoice unit price ≈ PO unit price (within 2%)   |
+| Quantity | Invoice quantity ≈ received quantity (within 5%) |
 
-You stay in control.
+- All checks pass → invoice auto-approved
+- Any check fails → flagged as an exception for manual review
 
----
+### 5. Payment
 
-## 🌈 Core Experience
-
-### 🎭 Mood & Energy Check-in
-
-A lightweight check-in that drives everything else.
-
-- 6 moods
-- Energy scale (1–5)
-- Optional, fast, non-intrusive
+Approved invoices are marked for payment. Payment records are tracked against invoices.
 
 ---
 
-### ⏱ Mood-Driven Focus Timer
+## Document Status Lifecycles
 
-Work and break cycles automatically adapt based on mood.
+**Purchase Requisition**
+`DRAFT → SUBMITTED → APPROVED / REJECTED → ORDERED`
 
-| Mood         | Work   | Break  | Rationale                  |
-| ------------ | ------ | ------ | -------------------------- |
-| ⚡ Energized | 50 min | 10 min | High energy → longer focus |
-| 🎯 Focused   | 45 min | 15 min | Deep work needs recovery   |
-| 🎨 Creative  | 60 min | 20 min | Flow > interruption        |
-| 😴 Tired     | 25 min | 10 min | Prevent burnout            |
-| 😰 Stressed  | 20 min | 10 min | Reduce overwhelm           |
-| 😊 Neutral   | 25 min | 5 min  | Classic Pomodoro           |
+**Purchase Order**
+`DRAFT → SENT → CONFIRMED → PARTIALLY_RECEIVED → RECEIVED → INVOICED → CLOSED`
 
----
+**Invoice**
+`DRAFT → SUBMITTED → PENDING_MATCH → MATCHED / EXCEPTION → APPROVED / REJECTED → PAID`
 
-### 🌫 Dynamic App Aura
-
-The workspace subtly shifts based on mood:
-
-- soft color glow
-- gentle transitions
-- supportive microcopy
-
-Mood affects _ambience_, not usability.
+**Payment**
+`PENDING → SUCCESS / FAILED`
 
 ---
 
-### 🤖 Smart Contextual Suggestions
+## Data Model
 
-Short, respectful nudges based on:
-
-- mood
-- energy
-- time of day
-
-Examples:
-
-- “Post-lunch dip detected — consider a short break.”
-- “High energy right now — extend focus session?”
-- “Late night work — resting may help tomorrow.”
-
-Suggestions are optional. Always.
+```
+Organization       (buyer or supplier)
+User               (org member with a role)
+PurchaseRequisition + items
+PurchaseOrder      + items
+GoodsReceipt       + items
+Invoice            + items
+Payment
+```
 
 ---
 
-### ✍️ Mood-Aware Journaling
+## Roles
 
-A calm space to reflect, not perform.
-
-- daily wins
-- focus blockers
-- emotional context
-
-Each entry is tagged with a mood emoji, creating an emotional timeline over time.
-
-No forced writing. No judgment.
-
----
-
-## 🧩 Supporting Workspace Tools
-
-Mora is not _just_ a timer — it’s a **focused workspace**.
-
-These tools exist to _support_ work, not distract from it.
+| Role                  | Can Do                                    |
+| --------------------- | ----------------------------------------- |
+| `OWNER` / `ADMIN`     | Everything                                |
+| `PROCUREMENT_MANAGER` | Manage POs, suppliers, approvals          |
+| `BUYER`               | Create and manage POs                     |
+| `APPROVER`            | Approve requisitions and invoices         |
+| `FINANCE_MANAGER`     | Approve high-value items, manage payments |
+| `SUPPLIER_MANAGER`    | Manage supplier org profiles              |
+| `VIEWER`              | Read-only                                 |
 
 ---
 
-### 📁 Projects & Tasks
+## Tech Stack
 
-Lightweight task and project management designed to:
-
-- stay out of the way
-- integrate with focus sessions
-- reduce cognitive load
-
-Tasks can be:
-
-- tied to focus sessions
-- reflected on in journal entries
-- reviewed with emotional context
+- **Backend:** NestJS + TypeScript, PostgreSQL via Prisma ORM
+- **Auth:** JWT (httpOnly cookies) + Google OAuth (OpenID Connect)
+- **Cache / rate limiting:** Redis
+- **Frontend:** Next.js 15 (App Router) + TypeScript, TanStack Query, Zustand
+- **Monorepo:** Turborepo + pnpm
 
 ---
 
-### 📝 Notes
+## Project Structure
 
-Quick notes for:
+```
+mora/
+├── apps/
+│   ├── api/          # NestJS backend (port 3001)
+│   └── web/          # Next.js frontend (port 3000)
+├── packages/
+│   ├── ui/           # Shared React components (Radix UI + Tailwind)
+│   ├── eslint-config/
+│   └── typescript-config/
+└── docker-compose.yml
+```
 
-- ideas
-- reflections
-- context you don’t want to forget
+Backend modules live under `apps/api/src/modules/` — one folder per domain (auth, requisitions, purchase-orders, etc.). Shared utilities (guards, interceptors, decorators) are in `apps/api/src/common/`.
 
-Notes are designed to:
-
-- be fast
-- be local to your work
-- complement journaling, not replace it
-
----
-
-### 🎵 Music & Sound (Optional)
-
-Mood-aware background support.
-
-- Focus music
-- Creative flow soundscapes
-- Calm / nature sounds for stress
-
-Music adapts to mood, but never auto-plays without consent.
+Frontend features live under `apps/web/features/` — each feature has its own components, hooks, and service layer.
 
 ---
 
-## 🛠 Tech Stack
+## Getting Started
 
-- **Frontend:** React + TypeScript (strict)
-- **State Management:** Zustand
-- **Styling:** Tailwind CSS
-- **Animations:** Framer Motion
-- **Backend:** Supabase (PostgreSQL)
-- **Auth:** Supabase Auth (Google)
-- **Architecture:** Component-driven, hook-based
+### Prerequisites
 
-Built to be:
+- Node.js 20+
+- pnpm 10+
+- Docker (for PostgreSQL and Redis)
 
-- readable
-- extensible
-- contributor-friendly
+### 1. Clone and install
 
----
+```bash
+git clone https://github.com/HaooNhat/mora.git
+cd mora
+pnpm install
+```
 
-## 🔮 Roadmap
+### 2. Start infrastructure
 
-### Phase 1 — Adaptive Core
+```bash
+docker-compose up -d
+```
 
-- Mood & energy check-in
-- Adaptive focus timer
-- App aura & microcopy
-- Journaling
+This starts PostgreSQL on port 5432 and Redis on port 6379.
 
-### Phase 2 — Personal Insight
+### 3. Set up environment variables
 
-- Mood analytics
-- Productivity patterns
-- Focus trends by mood & time
+```bash
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env.local
+```
 
-### Phase 3 — Workspace Expansion
+Fill in the values in `apps/api/.env`. At minimum you need:
 
-- Projects & tasks
-- Notes linked to sessions
-- Mood-based music integration
+- A Resend API key for email verification (<https://resend.com>)
+- Google OAuth credentials (<https://console.cloud.google.com/apis/credentials>)
+- Random strings for `JWT_SECRET`, `JWT_REFRESH_SECRET`, `SESSION_SECRET`
 
-### Phase 4 — Wellbeing & Sustainability
+### 4. Run database migrations
 
-- Burnout detection
-- Mood calendar & heatmaps
-- Rest suggestions
-- Gentle achievements (optional)
+```bash
+cd apps/api
+pnpm prisma migrate dev
+```
 
-### Phase 5 — Integrations
+### 5. Start the dev servers
 
-- Mobile sync
-- Wearables
-- Data export
-- Privacy-first backups
+From the repo root:
 
----
+```bash
+pnpm dev
+```
 
-## 🔒 Privacy & Trust
-
-- Mood data is private by default
-- Journal entries are encrypted
-- No selling user data
-- Full delete & export options
-- Optional anonymous insights only
-
-Your emotional data belongs to you.
+This starts both the API (port 3001) and the web app (port 3000) via Turborepo.
 
 ---
 
-## 🌱 Why Mora Is Different
+## What's Not Here (By Design)
 
-Most productivity apps try to control behavior.
+Mora deliberately skips enterprise features that SMBs don't need:
 
-Mora creates conditions for good work.
+- Supplier catalogs / punchout
+- UNSPSC commodity codes
+- EDI / cXML integrations
+- Contract lifecycle management
+- Supplier risk scoring
+- ERP integration
 
-It doesn’t ask:
-
-> “Why didn’t you focus?”
-
-It asks:
-
-> “What do you need right now?”
-
----
-
-## ✨ Final Thought
-
-> **Productivity is not about doing more.  
-> It’s about doing what fits — today.**
-
-Welcome to **Mora**.
+The focus is on getting the core P2P chain working cleanly first.

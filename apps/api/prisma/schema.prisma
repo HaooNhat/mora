@@ -1,10 +1,14 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
+
+generator client {
+  provider = "prisma-client-js"
+  // previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+// USER MANAGEMENT
 
 model User {
   id              String    @id @default(uuid())
@@ -20,10 +24,20 @@ model User {
   isEmailVerified Boolean   @default(false)
   isActive        Boolean   @default(true)
 
-  refreshTokens RefreshToken[]
+  refreshTokens           RefreshToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  organizationMembers     OrganizationMember[]
+  createdOrders           PurchaseOrder[]          @relation("OrderCreator")
+  approvedOrders          PurchaseOrder[]          @relation("OrderApprover")
+  createdRequisitions     PurchaseRequisition[]    @relation("RequisitionCreator")
+  approvedRequisitions    PurchaseRequisition[]    @relation("RequisitionApprover")
+  createdInvoices         Invoice[]                @relation("InvoiceCreator")
+  approvedInvoices        Invoice[]                @relation("InvoiceApprover")
+  goodsReceipts           GoodsReceipt[]           @relation("ReceiptCreator")
 
   @@index([email])
   @@index([googleId])
+  @@index([isActive])
   @@map("users")
 }
 
@@ -32,7 +46,6 @@ model RefreshToken {
   userId      String
   hashedToken String
   device      String?
-  ipAddress   String?
   expiresAt   DateTime
   revoked     Boolean  @default(false)
   createdAt   DateTime @default(now())
@@ -41,5 +54,400 @@ model RefreshToken {
 
   @@index([userId, revoked])
   @@index([hashedToken])
+  @@index([expiresAt])
   @@map("refresh_tokens")
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("email_verification_tokens")
+}
+
+// ORGANIZATION
+
+enum OrganizationType {
+  BUYER
+  SUPPLIER
+  BOTH
+}
+
+enum OrganizationRole {
+  OWNER
+  ADMIN
+  PROCUREMENT_MANAGER
+  BUYER
+  APPROVER
+  FINANCE_MANAGER
+  SUPPLIER_MANAGER
+  VIEWER
+}
+
+model Organization {
+  id        String           @id @default(uuid())
+  name      String
+  legalName String?
+  type      OrganizationType
+  phone     String?
+  email     String?
+  website   String?
+  logo      String?
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  members           OrganizationMember[]
+  buyerOrders       PurchaseOrder[]       @relation("BuyerOrganization")
+  supplierOrders    PurchaseOrder[]       @relation("SupplierOrganization")
+  buyerRequisitions PurchaseRequisition[] @relation("BuyerOrganization")
+  invoicesIssued    Invoice[]             @relation("SupplierInvoices")
+  invoicesReceived  Invoice[]             @relation("BuyerInvoices")
+  paymentsIssued    Payment[]             @relation("PayerOrganization")
+  paymentsReceived  Payment[]             @relation("PayeeOrganization")
+
+  @@index([type])
+  @@index([isActive])
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  id             String           @id @default(uuid())
+  organizationId String
+  userId         String
+  role           OrganizationRole
+  isPrimary      Boolean          @default(true)
+  isActive       Boolean          @default(true)
+  joinedAt       DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@index([organizationId, role])
+  @@map("organization_members")
+}
+
+// PURCHASE REQUISITIONS
+
+enum RequisitionStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  ORDERED
+}
+
+model PurchaseRequisition {
+  id             String @id @default(uuid())
+  organizationId String
+
+  title       String
+  description String?
+  status      RequisitionStatus @default(DRAFT)
+
+  // Requester
+  requestedBy String
+  requestedAt DateTime @default(now())
+
+  // Approval
+  approvedBy     String?
+  approvedAt     DateTime?
+  rejectedReason String?
+
+  // Financial
+  totalAmount Decimal @db.Decimal(19, 4)
+  currency    String  @default("USD")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization   Organization              @relation("BuyerOrganization", fields: [organizationId], references: [id])
+  requester      User                      @relation("RequisitionCreator", fields: [requestedBy], references: [id])
+  approver       User?                     @relation("RequisitionApprover", fields: [approvedBy], references: [id])
+  items          PurchaseRequisitionItem[]
+  purchaseOrders PurchaseOrder[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([requestedBy])
+  @@index([requestedAt])
+  @@map("purchase_requisitions")
+}
+
+model PurchaseRequisitionItem {
+  id            String @id @default(uuid())
+  requisitionId String
+
+  description String
+  quantity    Decimal @db.Decimal(19, 4)
+  unitPrice   Decimal @db.Decimal(19, 4)
+  totalPrice  Decimal @db.Decimal(19, 4)
+  currency    String  @default("USD")
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  requisition PurchaseRequisition @relation(fields: [requisitionId], references: [id], onDelete: Cascade)
+
+  @@index([requisitionId])
+  @@map("purchase_requisition_items")
+}
+
+// PURCHASE ORDERS
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT // sent to supplier
+  CONFIRMED // supplier acknowledged
+  PARTIALLY_RECEIVED // some goods received
+  RECEIVED // all goods received
+  INVOICED // invoice submitted against this PO
+  CLOSED
+  CANCELLED
+}
+
+model PurchaseOrder {
+  id            String  @id @default(uuid())
+  requisitionId String?
+
+  buyerOrgId    String
+  supplierOrgId String
+
+  status PurchaseOrderStatus @default(DRAFT)
+
+  orderDate    DateTime  @default(now())
+  expectedDate DateTime?
+
+  // Financial
+  subtotal       Decimal @db.Decimal(19, 4)
+  shippingAmount Decimal @default(0) @db.Decimal(19, 4)
+  totalAmount    Decimal @db.Decimal(19, 4)
+  currency       String  @default("USD")
+
+  // Workflow
+  createdBy  String
+  approvedBy String?
+  approvedAt DateTime?
+
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization  Organization         @relation("BuyerOrganization", fields: [buyerOrgId], references: [id])
+  supplierOrg   Organization         @relation("SupplierOrganization", fields: [supplierOrgId], references: [id])
+  requisition   PurchaseRequisition? @relation(fields: [requisitionId], references: [id], onDelete: SetNull)
+  creator       User                 @relation("OrderCreator", fields: [createdBy], references: [id])
+  approver      User?                @relation("OrderApprover", fields: [approvedBy], references: [id])
+  items         PurchaseOrderItem[]
+  goodsReceipts GoodsReceipt[]
+  invoices      Invoice[]
+
+  @@index([buyerOrgId])
+  @@index([supplierOrgId])
+  @@index([status])
+  @@index([orderDate])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id      String @id @default(uuid())
+  orderId String
+
+  description String
+  quantity    Decimal @db.Decimal(19, 4)
+  unitPrice   Decimal @db.Decimal(19, 4)
+  totalPrice  Decimal @db.Decimal(19, 4)
+  currency    String  @default("USD")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order             PurchaseOrder      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  invoiceItems      InvoiceItem[]
+  goodsReceiptItems GoodsReceiptItem[]
+
+  @@index([orderId])
+  @@map("purchase_order_items")
+}
+
+// GOODS RECEIPTS
+
+model GoodsReceipt {
+  id      String @id @default(uuid())
+  orderId String
+
+  receivedBy String
+  receivedAt DateTime @default(now())
+  notes      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order    PurchaseOrder      @relation(fields: [orderId], references: [id])
+  receiver User               @relation("ReceiptCreator", fields: [receivedBy], references: [id])
+  items    GoodsReceiptItem[]
+
+  @@index([orderId])
+  @@map("goods_receipts")
+}
+
+model GoodsReceiptItem {
+  id          String  @id @default(uuid())
+  receiptId   String
+  orderItemId String?
+
+  description      String
+  quantityOrdered  Decimal @db.Decimal(19, 4)
+  quantityReceived Decimal @db.Decimal(19, 4)
+  notes            String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  receipt   GoodsReceipt       @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  orderItem PurchaseOrderItem? @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+
+  @@index([receiptId])
+  @@index([orderItemId])
+  @@map("goods_receipt_items")
+}
+
+// INVOICES
+
+enum InvoiceStatus {
+  DRAFT
+  SUBMITTED // submitted by supplier
+  PENDING_MATCH // 3-way match in progress
+  MATCHED // auto-matched within tolerance
+  EXCEPTION // outside tolerance, needs manual review
+  APPROVED // approved (auto or manual)
+  REJECTED
+  PAID
+}
+
+model Invoice {
+  id     String        @id @default(uuid())
+  status InvoiceStatus @default(DRAFT)
+
+  // Organizations
+  supplierOrgId String
+  buyerOrgId    String
+
+  // References
+  orderId String?
+
+  // Dates
+  issueDate DateTime  @default(now())
+  dueDate   DateTime
+  paidDate  DateTime?
+
+  // Financial
+  subtotal       Decimal @db.Decimal(19, 4)
+  discountAmount Decimal @default(0) @db.Decimal(19, 4)
+  totalAmount    Decimal @db.Decimal(19, 4)
+  paidAmount     Decimal @default(0) @db.Decimal(19, 4)
+  currency       String  @default("USD")
+
+  // 3-way match result
+  matchNotes String?
+
+  // Workflow
+  createdBy      String
+  approvedBy     String?
+  approvedAt     DateTime?
+  rejectedReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  supplierOrg Organization   @relation("SupplierInvoices", fields: [supplierOrgId], references: [id])
+  buyerOrg    Organization   @relation("BuyerInvoices", fields: [buyerOrgId], references: [id])
+  order       PurchaseOrder? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  creator     User           @relation("InvoiceCreator", fields: [createdBy], references: [id])
+  approver    User?          @relation("InvoiceApprover", fields: [approvedBy], references: [id])
+  items       InvoiceItem[]
+  payments    Payment[]
+
+  @@index([supplierOrgId])
+  @@index([buyerOrgId])
+  @@index([orderId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([issueDate])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String  @id @default(uuid())
+  invoiceId   String
+  orderItemId String?
+
+  description    String
+  quantity       Decimal @db.Decimal(19, 4)
+  unitPrice      Decimal @db.Decimal(19, 4)
+  discountRate   Decimal @default(0) @db.Decimal(5, 4)
+  discountAmount Decimal @default(0) @db.Decimal(19, 4)
+  totalPrice     Decimal @db.Decimal(19, 4)
+  currency       String  @default("USD")
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  invoice   Invoice            @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  orderItem PurchaseOrderItem? @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([orderItemId])
+  @@map("invoice_items")
+}
+
+// PAYMENTS
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model Payment {
+  id        String  @id @default(uuid())
+  invoiceId String?
+
+  // Organizations
+  payerOrgId String
+  payeeOrgId String
+
+  // Payment Details
+  amount   Decimal       @db.Decimal(19, 4)
+  currency String        @default("USD")
+  status   PaymentStatus @default(PENDING)
+  method   String? // bank_transfer, check, etc.
+  notes    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  invoice  Invoice?     @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  payerOrg Organization @relation("PayerOrganization", fields: [payerOrgId], references: [id])
+  payeeOrg Organization @relation("PayeeOrganization", fields: [payeeOrgId], references: [id])
+
+  @@index([invoiceId])
+  @@index([payerOrgId])
+  @@index([status])
+  @@map("payments")
 }

@@ -1,0 +1,130 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "create": "Create",
+    "search": "Search",
+    "error": "Something went wrong. Please try again.",
+    "noData": "No data found."
+  },
+  "auth": {
+    "loginTitle": "Welcome back to Mora",
+    "loginSubtitle": "Sign in to continue",
+    "signupTitle": "Create your account",
+    "signupSubtitle": "Join Mora to streamline your procurement",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "John",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Doe",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "forgotPassword": "Forgot password?",
+    "or": "or",
+    "continueWithGoogle": "Continue with Google",
+    "alreadyHaveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "termsNotice": "By continuing, you agree to our Terms of Service and Privacy Policy.",
+    "completeSignIn": "Completing sign in...",
+    "errors": {
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Please enter a valid email address.",
+      "passwordRequired": "Password is required.",
+      "passwordWeak": "Password must be at least 8 characters with uppercase, lowercase, number, and symbol.",
+      "confirmPasswordRequired": "Please confirm your password.",
+      "passwordMismatch": "Passwords do not match.",
+      "firstNameRequired": "First name is required.",
+      "lastNameRequired": "Last name is required."
+    }
+  },
+  "organizations": {
+    "title": "Organizations",
+    "noOrgs": "You are not part of any organization yet.",
+    "createOrg": "Create Organization",
+    "createOrgSubtitle": "Set up a new organization to start managing procurement.",
+    "name": "Organization Name",
+    "namePlaceholder": "Acme Corp",
+    "legalName": "Legal Name",
+    "legalNamePlaceholder": "Acme Corporation Ltd.",
+    "type": "Organization Type",
+    "typeBuyer": "Buyer",
+    "typeSupplier": "Supplier",
+    "typeBoth": "Buyer & Supplier",
+    "roleOwner": "Owner",
+    "roleAdmin": "Admin",
+    "roleProcurementManager": "Procurement Manager",
+    "roleBuyer": "Buyer",
+    "roleApprover": "Approver",
+    "roleFinanceManager": "Finance Manager",
+    "roleSupplierManager": "Supplier Manager",
+    "roleViewer": "Viewer",
+    "createSuccess": "Organization created successfully.",
+    "switchOrg": "Switch Organization",
+    "errors": {
+      "nameRequired": "Organization name is required.",
+      "typeRequired": "Organization type is required."
+    }
+  },
+  "requisitions": {
+    "title": "Purchase Requisitions",
+    "newRequisition": "New Requisition",
+    "noRequisitions": "No purchase requisitions found.",
+    "noRequisitionsHint": "Create your first requisition to get started.",
+    "totalAmount": "Total Amount",
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "ORDERED": "Ordered"
+    },
+    "fields": {
+      "title": "Title",
+      "titlePlaceholder": "Q2 Equipment Purchase",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the purpose of this requisition",
+      "currency": "Currency",
+      "items": "Line Items",
+      "itemDescription": "Description",
+      "itemDescriptionPlaceholder": "MacBook Pro 14\"",
+      "itemQuantity": "Qty",
+      "itemUnitPrice": "Unit Price",
+      "itemTotal": "Total",
+      "itemNotes": "Notes",
+      "itemNotesPlaceholder": "Optional notes",
+      "addItem": "Add Item",
+      "removeItem": "Remove"
+    },
+    "actions": {
+      "submitForApproval": "Submit for Approval",
+      "approve": "Approve",
+      "reject": "Reject",
+      "delete": "Delete Requisition"
+    },
+    "errors": {
+      "titleRequired": "Title is required.",
+      "itemsRequired": "At least one line item is required.",
+      "itemDescriptionRequired": "Item description is required.",
+      "itemQuantityPositive": "Quantity must be at least 1.",
+      "itemPricePositive": "Unit price must be positive."
+    }
+  },
+  "nav": {
+    "requisitions": "Requisitions",
+    "orders": "Purchase Orders",
+    "invoices": "Invoices",
+    "settings": "Settings",
+    "signOut": "Sign Out",
+    "myAccount": "My Account"
+  }
+}

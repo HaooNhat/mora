@@ -3,7 +3,7 @@
 import type { HTMLAttributes } from "react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import { motion, useAnimation } from "motion/react";
-import { cn } from "@workspace/ui/lib/utils";
+import { cn } from "@mora/ui/lib/utils";
 
 export interface RotateCCWIconHandle {
   startAnimation: () => void;

@@ -3,14 +3,14 @@
 import * as React from "react";
 import { ChevronDownIcon } from "lucide-react";
 
-import { Button } from "@workspace/ui/components/button";
-import { Calendar } from "@workspace/ui/components/calendar";
-import { Label } from "@workspace/ui/components/label";
+import { Button } from "@mora/ui/components/button";
+import { Calendar } from "@mora/ui/components/calendar";
+import { Label } from "@mora/ui/components/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@workspace/ui/components/popover";
+} from "@mora/ui/components/popover";
 
 export function Calendar22() {
   const [open, setOpen] = React.useState(false);

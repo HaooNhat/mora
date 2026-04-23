@@ -22,44 +22,26 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Stale time: How long data is considered fresh
-            staleTime: 1000 * 60 * 1, // 1 minute
+            // Procurement data changes via user actions, not time — keep fresh for 5 min
+            staleTime: 1000 * 60 * 5,
+            gcTime: 1000 * 60 * 10,
 
-            // Cache time: How long unused data stays in cache
-            gcTime: 60 * 1000 * 5, // 5 minutes
-
-            // Retry configuration
             retry: (failureCount, error) => {
-              // Don't retry on auth errors
-              if (
-                error instanceof Error &&
-                error.message.includes("UNAUTHENTICATED")
-              ) {
+              if (error instanceof Error && error.message.includes("UNAUTHENTICATED")) {
                 return false;
               }
-              // Retry up to 3 times for other errors
-              return failureCount < 3;
+              return failureCount < 2;
             },
 
-            // Refetch configuration
-            refetchOnWindowFocus: true,
+            // Explicit user refresh is preferred over automatic background refetches
+            refetchOnWindowFocus: false,
             refetchOnMount: true,
             refetchOnReconnect: true,
-
-            // Network mode
             networkMode: "online",
           },
           mutations: {
-            // Retry mutations once
-            retry: 1,
-
-            // Network mode
+            retry: 0,
             networkMode: "online",
-
-            // Global error handler
-            onError: (error) => {
-              console.error("Mutation error:", error);
-            },
           },
         },
       }),

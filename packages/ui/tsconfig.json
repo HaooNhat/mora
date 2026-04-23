@@ -1,11 +1,11 @@
 {
-  "extends": "@workspace/typescript-config/react-library.json",
+  "extends": "@mora/typescript-config/react-library.json",
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
-      "@workspace/ui/*": ["./src/*"]
+      "@mora/ui/*": ["./src/*"]
     }
   },
   "include": ["src/**/*"],

@@ -1,17 +1,18 @@
 {
-  "name": "shadcn-ui-monorepo",
+  "name": "mora-monorepo",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "start": "turbo run start --filter=@mora/web --filter=@mora/api",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
+    "@mora/eslint-config": "workspace:*",
+    "@mora/typescript-config": "workspace:*",
     "eslint": "^9.39.4",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^17.4.0",
@@ -20,7 +21,7 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.56.1"
   },
-  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
+  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
   "engines": {
     "node": ">=20"
   },
@@ -29,8 +30,20 @@
       "@types/react": "19.1.13",
       "@types/react-dom": "19.1.9"
     },
+    "ignoredBuiltDependencies": [
+      "@scarf/scarf",
+      "core-js-pure"
+    ],
     "onlyBuiltDependencies": [
-      "supabase"
+      "@nestjs/core",
+      "@parcel/watcher",
+      "@prisma/engines",
+      "@swc/core",
+      "@tailwindcss/oxide",
+      "bcrypt",
+      "prisma",
+      "sharp",
+      "unrs-resolver"
     ]
   }
 }
