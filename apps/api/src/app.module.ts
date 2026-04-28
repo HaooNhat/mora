@@ -6,23 +6,37 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import appConfig from './configs/app.config';
+import databasePrismaConfig from './configs/database-prisma.config';
+import jwtConfig from './configs/jwt.config';
+import mailConfig from './configs/mail.config';
+import oidcConfig from './configs/oidc.config';
+import redisConfig from './configs/redis.config';
+import userConfig from './configs/user.config';
+import { validate } from './configs/validation';
 import { AuthModule } from './modules/auth/auth.module';
-import { OrganizationModule } from './modules/organization/organization.module';
-import { GoodsReceiptsModule } from './modules/goods-receipts/goods-receipts.module';
-import { InvoicesModule } from './modules/invoices/invoices.module';
-import { PaymentsModule } from './modules/payments/payments.module';
-import { PurchaseOrdersModule } from './modules/purchase-orders/purchase-orders.module';
 import { RequisitionsModule } from './modules/requisitions/requisitions.module';
-import { UserModule } from './services/user/user.module';
 import { PrismaModule } from './services/prisma/prisma.module';
 import { RedisModule } from './services/redis/redis.module';
 import { RedisService } from './services/redis/redis.service';
+import { UserModule } from './services/user/user.module';
 
 @Module({
   imports: [
     // Global configurations
     ConfigModule.forRoot({
       isGlobal: true,
+      load: [
+        appConfig,
+        jwtConfig,
+        oidcConfig,
+        userConfig,
+        mailConfig,
+        redisConfig,
+        databasePrismaConfig,
+      ],
+      validate,
+      cache: true,
     }),
 
     // Redis (global — exposes RedisService to all modules)
@@ -46,12 +60,7 @@ import { RedisService } from './services/redis/redis.service';
     // Feature modules
     UserModule,
     AuthModule,
-    OrganizationModule,
     RequisitionsModule,
-    PurchaseOrdersModule,
-    GoodsReceiptsModule,
-    InvoicesModule,
-    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],

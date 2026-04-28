@@ -1,7 +1,11 @@
-import { ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { UserService } from '@mora/api/services/user/user.service';
+import {
+  ConflictException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User } from '@prisma/client';
-import { UserService } from '../../../services/user/user.service';
 import { AuthService } from '../auth.service';
 import { EmailVerificationService } from '../services/email-verification.service';
 import { JwtTokenService } from '../services/jwt-token.service';
@@ -89,21 +93,24 @@ describe('AuthService', () => {
 
     it('creates a user and sends verification email', async () => {
       mockUserService.getUserByEmail!.mockResolvedValue(null);
-      mockUserService.createUser!.mockResolvedValue(makeUser({ id: 'user-new', email: dto.email }));
+      mockUserService.createUser!.mockResolvedValue(
+        makeUser({ id: 'user-new', email: dto.email }),
+      );
 
       await service.register(dto);
 
       expect(mockUserService.createUser).toHaveBeenCalledWith(
         expect.objectContaining({ email: dto.email }),
       );
-      expect(mockEmailVerification.createAndSendVerificationToken).toHaveBeenCalledWith(
-        'user-new',
-        dto.email,
-      );
+      expect(
+        mockEmailVerification.createAndSendVerificationToken,
+      ).toHaveBeenCalledWith('user-new', dto.email);
     });
 
     it('throws ConflictException if email already verified', async () => {
-      mockUserService.getUserByEmail!.mockResolvedValue(makeUser({ email: dto.email }));
+      mockUserService.getUserByEmail!.mockResolvedValue(
+        makeUser({ email: dto.email }),
+      );
 
       await expect(service.register(dto)).rejects.toThrow(ConflictException);
       expect(mockUserService.createUser).not.toHaveBeenCalled();
@@ -118,26 +125,40 @@ describe('AuthService', () => {
     });
 
     it('resends verification email and throws if email exists but unverified', async () => {
-      const unverified = makeUser({ email: dto.email, isEmailVerified: false, googleId: null });
+      const unverified = makeUser({
+        email: dto.email,
+        isEmailVerified: false,
+        googleId: null,
+      });
       mockUserService.getUserByEmail!.mockResolvedValue(unverified);
 
       await expect(service.register(dto)).rejects.toThrow(ConflictException);
-      expect(mockEmailVerification.createAndSendVerificationToken).toHaveBeenCalled();
+      expect(
+        mockEmailVerification.createAndSendVerificationToken,
+      ).toHaveBeenCalled();
     });
 
     it('throws UnauthorizedException if account is disabled', async () => {
-      mockUserService.getUserByEmail!.mockResolvedValue(makeUser({ isActive: false }));
+      mockUserService.getUserByEmail!.mockResolvedValue(
+        makeUser({ isActive: false }),
+      );
 
-      await expect(service.register(dto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.register(dto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('normalises email to lowercase before lookup', async () => {
       mockUserService.getUserByEmail!.mockResolvedValue(null);
-      mockUserService.createUser!.mockResolvedValue(makeUser({ email: 'new@example.com' }));
+      mockUserService.createUser!.mockResolvedValue(
+        makeUser({ email: 'new@example.com' }),
+      );
 
       await service.register({ ...dto, email: 'NEW@EXAMPLE.COM' });
 
-      expect(mockUserService.getUserByEmail).toHaveBeenCalledWith('new@example.com');
+      expect(mockUserService.getUserByEmail).toHaveBeenCalledWith(
+        'new@example.com',
+      );
     });
   });
 
@@ -151,7 +172,9 @@ describe('AuthService', () => {
 
     it('throws UnauthorizedException when token is invalid', async () => {
       mockEmailVerification.verifyToken!.mockResolvedValue(null);
-      await expect(service.verifyEmail('bad-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.verifyEmail('bad-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -174,20 +197,28 @@ describe('AuthService', () => {
       mockUserService.getUserByEmail!.mockResolvedValue(makeUser());
       mockUserService.verifyPassword!.mockResolvedValue(false);
 
-      await expect(service.loginWithPassword(dto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.loginWithPassword(dto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('throws UnauthorizedException when user not found', async () => {
       mockUserService.getUserByEmail!.mockResolvedValue(null);
 
-      await expect(service.loginWithPassword(dto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.loginWithPassword(dto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('throws UnauthorizedException when email not verified', async () => {
-      mockUserService.getUserByEmail!.mockResolvedValue(makeUser({ isEmailVerified: false }));
+      mockUserService.getUserByEmail!.mockResolvedValue(
+        makeUser({ isEmailVerified: false }),
+      );
       mockUserService.verifyPassword!.mockResolvedValue(true);
 
-      await expect(service.loginWithPassword(dto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.loginWithPassword(dto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('throws UnauthorizedException when account disabled', async () => {
@@ -196,7 +227,9 @@ describe('AuthService', () => {
       );
       mockUserService.verifyPassword!.mockResolvedValue(true);
 
-      await expect(service.loginWithPassword(dto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.loginWithPassword(dto)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -214,7 +247,9 @@ describe('AuthService', () => {
     it('throws NotFoundException when user does not exist', async () => {
       mockUserService.getUserById!.mockResolvedValue(null);
 
-      await expect(service.getUserProfile('ghost')).rejects.toThrow(NotFoundException);
+      await expect(service.getUserProfile('ghost')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -226,7 +261,9 @@ describe('AuthService', () => {
 
       const result = await service.refreshTokens('rt-token');
       expect(result).toEqual(MOCK_TOKENS);
-      expect(mockRefreshRotation.rotateRefreshToken).toHaveBeenCalledWith('rt-token');
+      expect(mockRefreshRotation.rotateRefreshToken).toHaveBeenCalledWith(
+        'rt-token',
+      );
     });
   });
 
@@ -270,7 +307,9 @@ describe('AuthService', () => {
     });
 
     it('throws UnauthorizedException when email belongs to a password account', async () => {
-      mockUserService.getUserByEmail!.mockResolvedValue(makeUser({ googleId: null }));
+      mockUserService.getUserByEmail!.mockResolvedValue(
+        makeUser({ googleId: null }),
+      );
 
       await expect(service.loginWithGoogle(googleInput)).rejects.toThrow(
         UnauthorizedException,
@@ -294,14 +333,20 @@ describe('AuthService', () => {
     it('revokes refresh token and denies access token', async () => {
       await service.logout('rt-token', 'at-token');
 
-      expect(mockRefreshRotation.revokeRefreshToken).toHaveBeenCalledWith('rt-token');
-      expect(mockJwtTokenService.denyAccessToken).toHaveBeenCalledWith('at-token');
+      expect(mockRefreshRotation.revokeRefreshToken).toHaveBeenCalledWith(
+        'rt-token',
+      );
+      expect(mockJwtTokenService.denyAccessToken).toHaveBeenCalledWith(
+        'at-token',
+      );
     });
 
     it('only revokes refresh token when no access token provided', async () => {
       await service.logout('rt-token');
 
-      expect(mockRefreshRotation.revokeRefreshToken).toHaveBeenCalledWith('rt-token');
+      expect(mockRefreshRotation.revokeRefreshToken).toHaveBeenCalledWith(
+        'rt-token',
+      );
       expect(mockJwtTokenService.denyAccessToken).not.toHaveBeenCalled();
     });
   });

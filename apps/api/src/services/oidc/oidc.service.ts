@@ -1,14 +1,14 @@
+import oidcConfig from '@mora/api/configs/oidc.config';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import * as config from '@nestjs/config';
 import * as client from 'openid-client';
-import oidcConfig from './configs/oidc.config';
 
 @Injectable()
 export class OidcService implements OnModuleInit {
   private config: client.Configuration;
   constructor(
     @Inject(oidcConfig.KEY)
-    private readonly oidcConfiguration: config.ConfigType<typeof oidcConfig>,
+    private readonly oidcConf: config.ConfigType<typeof oidcConfig>,
   ) {}
 
   async onModuleInit() {
@@ -19,8 +19,8 @@ export class OidcService implements OnModuleInit {
     try {
       this.config = await client.discovery(
         new URL('https://accounts.google.com'),
-        this.oidcConfiguration.Google_ClientID,
-        this.oidcConfiguration.Google_ClientSecret,
+        this.oidcConf.googleClientID,
+        this.oidcConf.googleClientSecret,
       );
     } catch (error: unknown) {
       console.error('OIDC discovery failed', error);
@@ -36,7 +36,7 @@ export class OidcService implements OnModuleInit {
 
     return {
       url: client.buildAuthorizationUrl(this.config, {
-        redirect_uri: this.oidcConfiguration.Google_CallbackURL,
+        redirect_uri: this.oidcConf.googleCallbackURL,
         scope: 'openid email profile',
         code_challenge,
         code_challenge_method: 'S256',
@@ -63,7 +63,7 @@ export class OidcService implements OnModuleInit {
         expectedNonce: nonce,
         idTokenExpected: true,
       },
-      { redirect_uri: this.oidcConfiguration.Google_CallbackURL },
+      { redirect_uri: this.oidcConf.googleCallbackURL },
     );
 
     return tokens.claims();

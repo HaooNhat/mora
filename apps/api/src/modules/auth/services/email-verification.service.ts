@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import appConfig from '@mora/api/configs/app.config';
+import { MailService } from '@mora/api/services/mail/mail.service';
+import { RedisService } from '@mora/api/services/redis/redis.service';
+import { UserRepository } from '@mora/api/services/user/user.repository';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import crypto from 'crypto';
-import { MailService } from 'src/services/mail/mail.service';
-import { RedisService } from 'src/services/redis/redis.service';
-import { UserRepository } from 'src/services/user/user.repository';
 
 const TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 hours — Redis TTL replaces cron cleanup
 
@@ -12,6 +14,8 @@ export class EmailVerificationService {
     private readonly redisService: RedisService,
     private readonly userRepository: UserRepository,
     private readonly mailService: MailService,
+    @Inject(appConfig.KEY)
+    private readonly appConf: ConfigType<typeof appConfig>,
   ) {}
 
   async createAndSendVerificationToken(
@@ -28,11 +32,17 @@ export class EmailVerificationService {
     const token = crypto.randomBytes(32).toString('hex');
 
     // token → userId (looked up on verification)
-    await this.redisService.set(`email-verify:token:${token}`, userId, TOKEN_TTL_SECONDS);
+    await this.redisService.set(
+      `email-verify:token:${token}`,
+      userId,
+      TOKEN_TTL_SECONDS,
+    );
     // userId → token (used to invalidate previous token on re-registration)
     await this.redisService.set(previousTokenKey, token, TOKEN_TTL_SECONDS);
 
-    const verifyUrl = `${process.env.BACKEND_URL ?? 'http://localhost:3001'}/auth/verify-email?token=${token}`;
+    const backendUrl = this.appConf.backendUrl;
+
+    const verifyUrl = `${backendUrl}/auth/verify-email?token=${token}`;
     await this.mailService.sendVerificationEmail(email, verifyUrl);
   }
 

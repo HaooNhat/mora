@@ -1,18 +1,21 @@
+import jwtConfig from '@mora/api/configs/jwt.config';
+import {
+  JwtExtracted,
+  Payload,
+} from '@mora/api/modules/auth/interfaces/jwt.types';
+import { RedisService } from '@mora/api/services/redis/redis.service';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { RedisService } from 'src/services/redis/redis.service';
-import jwtConfig from '../configs/jwt.config';
-import { JwtExtracted, Payload } from '../interfaces/jwt.types';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly redisService: RedisService,
     @Inject(jwtConfig.KEY)
-    private readonly JwtConfiguration: ConfigType<typeof jwtConfig>,
+    private readonly JwtConf: ConfigType<typeof jwtConfig>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -20,10 +23,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
           return (req.cookies?.accessToken ?? null) as string;
         },
       ]),
-      secretOrKey: JwtConfiguration.JwtSecret,
-      issuer: JwtConfiguration.JwtIssuer,
-      audience: JwtConfiguration.JwtAudience,
-      algorithms: [JwtConfiguration.JwtAlgorithm],
+      secretOrKey: JwtConf.jwtSecret,
+      issuer: JwtConf.jwtIssuer,
+      audience: JwtConf.jwtAudience,
+      algorithms: [JwtConf.jwtAlgorithm],
     });
   }
 

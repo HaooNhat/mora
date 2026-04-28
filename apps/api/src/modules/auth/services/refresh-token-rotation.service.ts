@@ -1,6 +1,6 @@
+import { UserRepository } from '@mora/api/services/user/user.repository';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import crypto from 'crypto';
-import { UserRepository } from 'src/services/user/user.repository';
 import { RefreshTokenRepository } from '../repositories/refresh-token.repository';
 import { JwtTokenService } from './jwt-token.service';
 

@@ -4,7 +4,7 @@ import {
   PurchaseRequisition,
   PurchaseRequisitionItem,
 } from '@prisma/client';
-import { PrismaService } from 'src/services/prisma/prisma.service';
+import { PrismaService } from '@mora/api/services/prisma/prisma.service';
 
 export type RequisitionWithItems = PurchaseRequisition & {
   items: PurchaseRequisitionItem[];

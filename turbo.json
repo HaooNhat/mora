@@ -1,7 +1,26 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-  "globalEnv": ["NODE_ENV", "BACKEND_URL", "FRONTEND_URL"],
+  "globalEnv": [
+    "NODE_ENV",
+    "BACKEND_URL",
+    "FRONTEND_URL",
+    "PORT",
+    "DATABASE_URL",
+    "JWT_SECRET",
+    "JWT_REFRESH_SECRET",
+    "JWT_ISSUER",
+    "JWT_AUDIENCE",
+    "JWT_ALGORITHM",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_SECRET",
+    "GOOGLE_CALLBACK_URL",
+    "SALT_OR_ROUNDS",
+    "RESEND_API_KEY",
+    "RESEND_FROM_EMAIL",
+    "APP_NAME",
+    "REDIS_URL"
+  ],
   "globalDependencies": [""],
   "tasks": {
     "build": {

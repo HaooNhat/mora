@@ -1,3 +1,9 @@
+import { GetUser } from '@mora/api/common/decorators/get-user.decorator';
+import {
+  PaginatedSerialize,
+  Serialize,
+} from '@mora/api/common/decorators/serialize.decorator';
+import { JwtAuthGuard } from '@mora/api/common/guards/jwt.guard';
 import {
   Body,
   Controller,
@@ -18,12 +24,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { GetUser } from 'src/common/decorators/get-user.decorator';
-import {
-  PaginatedSerialize,
-  Serialize,
-} from 'src/common/decorators/serialize.decorator';
-import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { OrganizationService } from '../organization/organization.service';
 import { CreateRequisitionDto } from './dto/create-requisition.dto';
 import { FindRequisitionsDto } from './dto/find-requisitions.dto';

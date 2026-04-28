@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
-import session from 'express-session';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -33,17 +32,6 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
-
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET!,
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        secure: process.env.NODE_ENV === 'production',
-      },
-    }),
-  );
 
   const requestLogger = new RequestLoggerMiddleware();
   app.use(requestLogger.use.bind(requestLogger));

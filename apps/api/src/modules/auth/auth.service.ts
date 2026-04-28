@@ -1,3 +1,4 @@
+import { UserService } from '@mora/api/services/user/user.service';
 import {
   ConflictException,
   Injectable,
@@ -6,7 +7,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { UserService } from 'src/services/user/user.service';
 
 import { LoginWithPasswordDto } from './dto/request-dto/login.dto';
 import { RegisterDto } from './dto/request-dto/register.dto';

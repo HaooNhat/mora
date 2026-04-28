@@ -1,9 +1,9 @@
+import jwtConfig from '@mora/api/configs/jwt.config';
+import { RedisService } from '@mora/api/services/redis/redis.service';
 import { Inject, Injectable } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import crypto from 'crypto';
-import { RedisService } from 'src/services/redis/redis.service';
-import jwtConfig from '../configs/jwt.config';
 import type { Payload, Tokens } from '../interfaces/jwt.types';
 
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60; // 15 minutes
@@ -14,7 +14,7 @@ export class JwtTokenService {
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
     @Inject(jwtConfig.KEY)
-    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    private readonly jwtConf: ConfigType<typeof jwtConfig>,
   ) {}
 
   signTokens(payload: Omit<Payload, 'jti'>): Tokens {
@@ -23,16 +23,16 @@ export class JwtTokenService {
 
     const accessToken = this.jwtService.sign(fullPayload, {
       expiresIn: '15m',
-      secret: this.jwtConfiguration.JwtSecret,
-      issuer: this.jwtConfiguration.JwtIssuer,
-      audience: this.jwtConfiguration.JwtAudience,
+      secret: this.jwtConf.jwtSecret,
+      issuer: this.jwtConf.jwtIssuer,
+      audience: this.jwtConf.jwtAudience,
     });
 
     const refreshToken = this.jwtService.sign(fullPayload, {
       expiresIn: '7d',
-      secret: this.jwtConfiguration.JwtRefreshSecret,
-      issuer: this.jwtConfiguration.JwtIssuer,
-      audience: this.jwtConfiguration.JwtAudience,
+      secret: this.jwtConf.jwtRefreshSecret,
+      issuer: this.jwtConf.jwtIssuer,
+      audience: this.jwtConf.jwtAudience,
     });
 
     return { accessToken, refreshToken };
@@ -40,10 +40,10 @@ export class JwtTokenService {
 
   verifyRefreshToken(rawRefreshToken: string): Payload {
     return this.jwtService.verify(rawRefreshToken, {
-      secret: this.jwtConfiguration.JwtRefreshSecret,
-      issuer: this.jwtConfiguration.JwtIssuer,
-      audience: this.jwtConfiguration.JwtAudience,
-      algorithms: [this.jwtConfiguration.JwtAlgorithm],
+      secret: this.jwtConf.jwtRefreshSecret,
+      issuer: this.jwtConf.jwtIssuer,
+      audience: this.jwtConf.jwtAudience,
+      algorithms: [this.jwtConf.jwtAlgorithm],
     });
   }
 

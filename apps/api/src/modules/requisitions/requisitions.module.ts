@@ -1,5 +1,5 @@
+import { PrismaModule } from '@mora/api/services/prisma/prisma.module';
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../services/prisma/prisma.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { RequisitionsController } from './requisitions.controller';
 import { RequisitionsRepository } from './requisitions.repository';

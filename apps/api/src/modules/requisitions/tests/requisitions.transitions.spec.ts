@@ -1,11 +1,11 @@
-import { OrganizationRole, RequisitionStatus } from '@prisma/client';
 import {
   ForbiddenTransitionException,
   InvalidTransitionException,
   MissingRequiredFieldException,
-} from '../../../common/state-machine/exceptions';
-import { applyTransition } from '../../../common/state-machine/state-machine';
-import { Actor } from '../../../common/state-machine/types';
+} from '@mora/api/common/state-machine/exceptions';
+import { applyTransition } from '@mora/api/common/state-machine/state-machine';
+import { Actor } from '@mora/api/common/state-machine/types';
+import { OrganizationRole, RequisitionStatus } from '@prisma/client';
 import { REQUISITION_TRANSITIONS } from '../requisitions.transitions';
 
 // ---------------------------------------------------------------------------

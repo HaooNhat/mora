@@ -5,30 +5,36 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { RequisitionStatus } from '@prisma/client';
+
+import { paginate, Paginated } from '@mora/api/common/dto/page-query.dto';
 import {
   ForbiddenTransitionException,
   InvalidTransitionException,
   MissingRequiredFieldException,
-} from '../../common/state-machine/exceptions';
-import { applyTransition } from '../../common/state-machine/state-machine';
-import { Actor } from '../../common/state-machine/types';
-import { paginate, Paginated } from '../../common/dto/page-query.dto';
+} from '@mora/api/common/state-machine/exceptions';
+import { applyTransition } from '@mora/api/common/state-machine/state-machine';
+import { Actor } from '@mora/api/common/state-machine/types';
+import { RedisService } from '@mora/api/services/redis/redis.service';
+
 import { CreateRequisitionDto } from './dto/create-requisition.dto';
 import { UpdateRequisitionDto } from './dto/update-requisition.dto';
 import { isAutoApproved } from './requisitions.policy';
 import {
+  RequisitionsRepository,
+  RequisitionWithItems,
+} from './requisitions.repository';
+import {
   REQUISITION_TRANSITIONS,
   RequisitionEvent,
 } from './requisitions.transitions';
-import {
-  RequisitionWithItems,
-  RequisitionsRepository,
-} from './requisitions.repository';
+
+const REQUISITION_CACHE_TTL = 300; // 5 minutes
 
 @Injectable()
 export class RequisitionsService {
   constructor(
     private readonly requisitionsRepository: RequisitionsRepository,
+    private readonly redisService: RedisService,
   ) {}
 
   async create(
@@ -66,11 +72,25 @@ export class RequisitionsService {
     page: number,
     limit: number,
   ): Promise<Paginated<RequisitionWithItems>> {
+    const cacheKey = `requisitions:${orgId}:${page}:${limit}`;
+    const cached =
+      await this.redisService.getObject<RequisitionWithItems[]>(cacheKey);
+
+    if (cached) return paginate(cached, cached.length, page, limit);
+
     const { data, total } = await this.requisitionsRepository.findMany(
       orgId,
       page,
       limit,
     );
+
+    const requisitions: RequisitionWithItems[] = data;
+    await this.redisService.setObject(
+      cacheKey,
+      requisitions,
+      REQUISITION_CACHE_TTL,
+    );
+
     return paginate(data, total, page, limit);
   }
 

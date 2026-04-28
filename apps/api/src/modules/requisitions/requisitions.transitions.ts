@@ -1,9 +1,9 @@
+import { TransitionMap } from '@mora/api/common/state-machine/types';
 import {
   OrganizationRole,
   PurchaseRequisition,
   RequisitionStatus,
 } from '@prisma/client';
-import { TransitionMap } from '../../common/state-machine/types';
 import { canApprove } from './requisitions.policy';
 
 export type RequisitionEvent = 'SUBMIT' | 'APPROVE' | 'REJECT' | 'ORDER';

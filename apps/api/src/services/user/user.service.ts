@@ -1,8 +1,8 @@
+import userConfig from '@mora/api/configs/user.config';
 import { Inject, Injectable } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import userConfig from './configs/user.config';
 import { CreateUserDto } from './dto/user.dto';
 import { UserRepository } from './user.repository';
 

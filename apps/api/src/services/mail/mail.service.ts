@@ -1,7 +1,7 @@
+import mailConfig from '@mora/api/configs/mail.config';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { Resend } from 'resend';
-import mailConfig from './mail.config';
 
 @Injectable()
 export class MailService {

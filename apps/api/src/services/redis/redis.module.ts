@@ -1,4 +1,6 @@
+import redisConfig from '@mora/api/configs/redis.config';
 import { Global, Logger, Module } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import Redis from 'ioredis';
 import { REDIS_CLIENT, RedisService } from './redis.service';
 
@@ -9,14 +11,14 @@ const logger = new Logger('RedisModule');
   providers: [
     {
       provide: REDIS_CLIENT,
-      useFactory: async () => {
-        const client = new Redis(
-          process.env.REDIS_URL || 'redis://localhost:6379',
-          {
-            lazyConnect: true,
-            enableOfflineQueue: false,
-          },
-        );
+      inject: [redisConfig.KEY],
+      useFactory: async (redisConf: ConfigType<typeof redisConfig>) => {
+        const url = redisConf.url;
+
+        const client = new Redis(url, {
+          lazyConnect: true,
+          enableOfflineQueue: false,
+        });
 
         client.on('connect', () => logger.log('Redis connecting...'));
         client.on('ready', () => logger.log('Redis ready'));
