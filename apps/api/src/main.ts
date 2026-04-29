@@ -9,7 +9,12 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { RequestLoggerMiddleware } from './common/middlewares/request-logger.middleware';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger:
+      process.env.NODE_ENV === 'production'
+        ? ['log', 'warn', 'error']
+        : ['verbose', 'debug', 'log', 'warn', 'error'],
+  });
 
   const port = process.env.PORT ?? 3001;
 

@@ -1,35 +1,48 @@
+import { TracedRequest } from '@mora/api/common/interfaces/traced-request.interface';
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
-import crypto from 'crypto';
-import { NextFunction, Request, Response } from 'express';
-
-const uuidv4 = () => crypto.randomUUID();
+import { NextFunction, Response } from 'express';
 
 @Injectable()
 export class RequestLoggerMiddleware implements NestMiddleware {
   private readonly logger = new Logger('HTTP');
 
-  use(req: Request, res: Response, next: NextFunction) {
-    // Generate request ID for tracing
-    const requestId = uuidv4();
-    (req as Request & { requestId: string })['requestId'] = requestId;
+  use(req: TracedRequest, res: Response, next: NextFunction): void {
+    const requestId =
+      (req.headers['x-request-id'] as string) ?? crypto.randomUUID();
 
-    // Add to response headers
+    req.requestId = requestId;
+    req.startTime = Date.now();
+
     res.setHeader('X-Request-ID', requestId);
 
-    // Log when response finishes
-    res.on('finish', () => {
-      const { method, originalUrl } = req;
+    const logOnEnd = (event: 'finish' | 'close') => {
+      res.removeListener('finish', onFinish);
+      res.removeListener('close', onClose);
+
+      const durationMs = Date.now() - req.startTime;
       const { statusCode } = res;
 
-      this.logger.log({
+      const meta = {
         requestId,
-        method,
-        url: originalUrl,
+        event,
+        method: req.method,
+        url: req.originalUrl,
         statusCode,
-        userAgent: req.get('user-agent'),
-        // ip: req.ip,
-      });
-    });
+        durationMs,
+        userAgent: req.headers['user-agent'],
+        contentLength: res.getHeader('content-length') ?? 0,
+      };
+
+      if (statusCode >= 500) this.logger.error('Internal error', meta);
+      else if (statusCode >= 400) this.logger.warn('User error', meta);
+      else this.logger.log('Request ok', meta);
+    };
+
+    const onFinish = () => logOnEnd('finish');
+    const onClose = () => logOnEnd('close');
+
+    res.once('finish', onFinish);
+    res.once('close', onClose);
 
     next();
   }
