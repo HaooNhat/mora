@@ -6,7 +6,10 @@ export class AuthSuccessResponseDto {
   @Expose()
   success: boolean;
 
-  @ApiProperty({ example: 'Operation completed successfully.', required: false })
+  @ApiProperty({
+    example: 'Operation completed successfully.',
+    required: false,
+  })
   @Expose()
   message?: string;
 }

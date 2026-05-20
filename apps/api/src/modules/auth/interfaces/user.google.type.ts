@@ -1,3 +1,6 @@
+/**
+ * User information extracted from Google callback
+ */
 export interface GoogleUser {
   googleId?: string;
   email: string;
@@ -8,6 +11,9 @@ export interface GoogleUser {
   refreshToken: string;
 }
 
+/**
+ * Information used on loginWithGoogle function
+ */
 export interface GoogleLoginInput {
   googleId?: string;
   email: string;

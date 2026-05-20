@@ -78,9 +78,17 @@
   "requisitions": {
     "title": "Yêu cầu mua sắm",
     "newRequisition": "Tạo yêu cầu mới",
-    "noRequisitions": "Không có yêu cầu mua sắm nào.",
-    "noRequisitionsHint": "Tạo yêu cầu đầu tiên để bắt đầu.",
+    "noRequisitions": "Chưa có yêu cầu mua sắm nào.",
+    "noRequisitionsHint": "Tạo yêu cầu đầu tiên để bắt đầu quy trình mua sắm.",
     "totalAmount": "Tổng tiền",
+    "detailTitle": "Chi tiết yêu cầu",
+    "linkedPo": "Đơn mua hàng liên kết",
+    "rejectedReason": "Lý do từ chối",
+    "rejectDialogTitle": "Từ chối yêu cầu",
+    "rejectDialogDescription": "Nhập lý do từ chối. Người yêu cầu sẽ thấy thông tin này.",
+    "rejectReasonPlaceholder": "Giải thích lý do từ chối yêu cầu này…",
+    "rejectReasonRequired": "Lý do từ chối là bắt buộc.",
+    "createPoFromReq": "Tạo đơn mua hàng",
     "status": {
       "DRAFT": "Nháp",
       "SUBMITTED": "Đã gửi",
@@ -119,10 +127,92 @@
       "itemPricePositive": "Đơn giá phải lớn hơn 0."
     }
   },
+  "purchaseOrders": {
+    "title": "Đơn mua hàng",
+    "newOrder": "Tạo đơn mua hàng",
+    "noOrders": "Chưa có đơn mua hàng nào.",
+    "noOrdersHint": "Đơn mua hàng được tạo từ các yêu cầu đã phê duyệt.",
+    "totalAmount": "Tổng tiền",
+    "subtotal": "Tạm tính",
+    "shipping": "Phí vận chuyển",
+    "detailTitle": "Chi tiết đơn mua hàng",
+    "linkedRequisition": "Yêu cầu liên kết",
+    "buyerOrg": "Bên mua",
+    "supplierOrg": "Nhà cung cấp",
+    "orderDate": "Ngày đặt hàng",
+    "expectedDate": "Ngày giao dự kiến",
+    "notes": "Ghi chú",
+    "status": {
+      "DRAFT": "Nháp",
+      "SENT": "Đã gửi",
+      "CONFIRMED": "Đã xác nhận",
+      "PARTIALLY_RECEIVED": "Nhận một phần",
+      "RECEIVED": "Đã nhận",
+      "INVOICED": "Đã xuất hóa đơn",
+      "CLOSED": "Đã đóng",
+      "CANCELLED": "Đã hủy"
+    },
+    "fields": {
+      "requisitionId": "Từ yêu cầu",
+      "supplierOrgId": "Mã tổ chức nhà cung cấp",
+      "supplierOrgIdPlaceholder": "Nhập mã tổ chức nhà cung cấp",
+      "supplierOrgIdHint": "Mã định danh duy nhất của nhà cung cấp trong Mora.",
+      "expectedDate": "Ngày giao hàng dự kiến",
+      "shippingAmount": "Phí vận chuyển",
+      "currency": "Đơn vị tiền tệ",
+      "notes": "Ghi chú",
+      "notesPlaceholder": "Hướng dẫn giao hàng, yêu cầu đặc biệt…",
+      "items": "Danh sách hàng hóa",
+      "itemDescription": "Mô tả",
+      "itemQuantity": "SL",
+      "itemUnitPrice": "Đơn giá",
+      "itemTotal": "Thành tiền"
+    },
+    "actions": {
+      "send": "Gửi cho nhà cung cấp",
+      "confirm": "Xác nhận đơn hàng",
+      "cancel": "Hủy đơn hàng"
+    },
+    "errors": {
+      "supplierRequired": "Mã tổ chức nhà cung cấp là bắt buộc.",
+      "itemsRequired": "Cần ít nhất một mặt hàng.",
+      "itemDescriptionRequired": "Mô tả hàng hóa là bắt buộc.",
+      "itemQuantityPositive": "Số lượng phải ít nhất là 1.",
+      "itemPricePositive": "Đơn giá phải lớn hơn 0."
+    }
+  },
+  "invoices": {
+    "title": "Hóa đơn",
+    "noInvoices": "Chưa có hóa đơn nào.",
+    "noInvoicesHint": "Hóa đơn từ nhà cung cấp sẽ hiển thị tại đây.",
+    "totalAmount": "Tổng tiền",
+    "status": {
+      "DRAFT": "Nháp",
+      "SUBMITTED": "Đã gửi",
+      "PENDING_MATCH": "Đang đối chiếu",
+      "MATCHED": "Đã khớp",
+      "EXCEPTION": "Ngoại lệ",
+      "APPROVED": "Đã phê duyệt",
+      "REJECTED": "Từ chối",
+      "PAID": "Đã thanh toán"
+    }
+  },
+  "payments": {
+    "title": "Thanh toán",
+    "noPayments": "Chưa có thanh toán nào.",
+    "noPaymentsHint": "Thanh toán sẽ hiển thị tại đây sau khi hóa đơn được phê duyệt.",
+    "amount": "Số tiền",
+    "status": {
+      "PENDING": "Đang chờ",
+      "SUCCESS": "Thành công",
+      "FAILED": "Thất bại"
+    }
+  },
   "nav": {
     "requisitions": "Yêu cầu mua sắm",
     "orders": "Đơn mua hàng",
     "invoices": "Hóa đơn",
+    "payments": "Thanh toán",
     "settings": "Cài đặt",
     "signOut": "Đăng xuất",
     "myAccount": "Tài khoản"

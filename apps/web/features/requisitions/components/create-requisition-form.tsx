@@ -11,11 +11,17 @@ import { Input } from "@mora/ui/components/input";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import type { CreateRequisitionInput, CreateRequisitionItemInput } from "../services/requisitions.service";
+import type {
+  CreateRequisitionInput,
+  CreateRequisitionItemInput,
+} from "../services/requisitions.service";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface ItemDraft extends Omit<CreateRequisitionItemInput, "quantity" | "unitPrice"> {
+interface ItemDraft extends Omit<
+  CreateRequisitionItemInput,
+  "quantity" | "unitPrice"
+> {
   quantity: string;
   unitPrice: string;
 }
@@ -81,8 +87,13 @@ export function CreateRequisitionForm({
     if (!v.title.trim()) e.title = t("errors.titleRequired");
 
     const itemErrors = v.items.map((item) => {
-      const ie: { description?: string; quantity?: string; unitPrice?: string } = {};
-      if (!item.description.trim()) ie.description = t("errors.itemDescriptionRequired");
+      const ie: {
+        description?: string;
+        quantity?: string;
+        unitPrice?: string;
+      } = {};
+      if (!item.description.trim())
+        ie.description = t("errors.itemDescriptionRequired");
       if (!item.quantity || Number(item.quantity) < 1)
         ie.quantity = t("errors.itemQuantityPositive");
       if (!item.unitPrice || Number(item.unitPrice) <= 0)
@@ -102,7 +113,9 @@ export function CreateRequisitionForm({
   function setItem(index: number, patch: Partial<ItemDraft>) {
     setValues((prev) => ({
       ...prev,
-      items: prev.items.map((item, i) => (i === index ? { ...item, ...patch } : item)),
+      items: prev.items.map((item, i) =>
+        i === index ? { ...item, ...patch } : item,
+      ),
     }));
   }
 
@@ -122,7 +135,10 @@ export function CreateRequisitionForm({
   const lineTotal = (item: ItemDraft) =>
     (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
 
-  const grandTotal = values.items.reduce((sum, item) => sum + lineTotal(item), 0);
+  const grandTotal = values.items.reduce(
+    (sum, item) => sum + lineTotal(item),
+    0,
+  );
 
   // ── Submit ──────────────────────────────────────────────────────────────────
 
@@ -160,7 +176,8 @@ export function CreateRequisitionForm({
               value={values.title}
               onChange={(e) => {
                 setValues((p) => ({ ...p, title: e.target.value }));
-                if (dirty) setErrors(validate({ ...values, title: e.target.value }));
+                if (dirty)
+                  setErrors(validate({ ...values, title: e.target.value }));
               }}
               placeholder={t("fields.titlePlaceholder")}
               disabled={isSubmitting}
@@ -175,7 +192,9 @@ export function CreateRequisitionForm({
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="req-description">{t("fields.description")}</FieldLabel>
+            <FieldLabel htmlFor="req-description">
+              {t("fields.description")}
+            </FieldLabel>
             <textarea
               id="req-description"
               value={values.description}
@@ -190,7 +209,9 @@ export function CreateRequisitionForm({
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="req-currency">{t("fields.currency")}</FieldLabel>
+            <FieldLabel htmlFor="req-currency">
+              {t("fields.currency")}
+            </FieldLabel>
             <select
               id="req-currency"
               value={values.currency}
@@ -229,7 +250,9 @@ export function CreateRequisitionForm({
                   </label>
                   <Input
                     value={item.description}
-                    onChange={(e) => setItem(index, { description: e.target.value })}
+                    onChange={(e) =>
+                      setItem(index, { description: e.target.value })
+                    }
                     placeholder={t("fields.itemDescriptionPlaceholder")}
                     disabled={isSubmitting}
                     aria-invalid={!!errors.items?.[index]?.description}
@@ -252,7 +275,9 @@ export function CreateRequisitionForm({
                     min="1"
                     step="1"
                     value={item.quantity}
-                    onChange={(e) => setItem(index, { quantity: e.target.value })}
+                    onChange={(e) =>
+                      setItem(index, { quantity: e.target.value })
+                    }
                     disabled={isSubmitting}
                     aria-invalid={!!errors.items?.[index]?.quantity}
                     className={`h-10 ${errors.items?.[index]?.quantity ? "border-red-400" : ""}`}
@@ -269,7 +294,9 @@ export function CreateRequisitionForm({
                     min="0.01"
                     step="0.01"
                     value={item.unitPrice}
-                    onChange={(e) => setItem(index, { unitPrice: e.target.value })}
+                    onChange={(e) =>
+                      setItem(index, { unitPrice: e.target.value })
+                    }
                     placeholder="0.00"
                     disabled={isSubmitting}
                     aria-invalid={!!errors.items?.[index]?.unitPrice}

@@ -35,7 +35,7 @@
     "alreadyHaveAccount": "Already have an account?",
     "noAccount": "Don't have an account?",
     "termsNotice": "By continuing, you agree to our Terms of Service and Privacy Policy.",
-    "completeSignIn": "Completing sign in...",
+    "completeSignIn": "Completing sign in…",
     "errors": {
       "emailRequired": "Email is required.",
       "emailInvalid": "Please enter a valid email address.",
@@ -78,9 +78,17 @@
   "requisitions": {
     "title": "Purchase Requisitions",
     "newRequisition": "New Requisition",
-    "noRequisitions": "No purchase requisitions found.",
-    "noRequisitionsHint": "Create your first requisition to get started.",
+    "noRequisitions": "No purchase requisitions yet.",
+    "noRequisitionsHint": "Create your first requisition to kick off a procurement request.",
     "totalAmount": "Total Amount",
+    "detailTitle": "Requisition Detail",
+    "linkedPo": "Linked Purchase Order",
+    "rejectedReason": "Rejection reason",
+    "rejectDialogTitle": "Reject Requisition",
+    "rejectDialogDescription": "Provide a reason for rejection. This will be visible to the requester.",
+    "rejectReasonPlaceholder": "Explain why this requisition is being rejected…",
+    "rejectReasonRequired": "A rejection reason is required.",
+    "createPoFromReq": "Create Purchase Order",
     "status": {
       "DRAFT": "Draft",
       "SUBMITTED": "Submitted",
@@ -119,10 +127,92 @@
       "itemPricePositive": "Unit price must be positive."
     }
   },
+  "purchaseOrders": {
+    "title": "Purchase Orders",
+    "newOrder": "New Purchase Order",
+    "noOrders": "No purchase orders yet.",
+    "noOrdersHint": "Purchase orders are created from approved requisitions.",
+    "totalAmount": "Total Amount",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "detailTitle": "Purchase Order Detail",
+    "linkedRequisition": "Linked Requisition",
+    "buyerOrg": "Buyer",
+    "supplierOrg": "Supplier",
+    "orderDate": "Order Date",
+    "expectedDate": "Expected Delivery",
+    "notes": "Notes",
+    "status": {
+      "DRAFT": "Draft",
+      "SENT": "Sent",
+      "CONFIRMED": "Confirmed",
+      "PARTIALLY_RECEIVED": "Partially Received",
+      "RECEIVED": "Received",
+      "INVOICED": "Invoiced",
+      "CLOSED": "Closed",
+      "CANCELLED": "Cancelled"
+    },
+    "fields": {
+      "requisitionId": "From Requisition",
+      "supplierOrgId": "Supplier Org ID",
+      "supplierOrgIdPlaceholder": "Enter supplier organization ID",
+      "supplierOrgIdHint": "The unique ID of the supplier organization in Mora.",
+      "expectedDate": "Expected Delivery Date",
+      "shippingAmount": "Shipping Cost",
+      "currency": "Currency",
+      "notes": "Notes",
+      "notesPlaceholder": "Delivery instructions, special requirements…",
+      "items": "Line Items",
+      "itemDescription": "Description",
+      "itemQuantity": "Qty",
+      "itemUnitPrice": "Unit Price",
+      "itemTotal": "Total"
+    },
+    "actions": {
+      "send": "Send to Supplier",
+      "confirm": "Confirm Order",
+      "cancel": "Cancel Order"
+    },
+    "errors": {
+      "supplierRequired": "Supplier organization ID is required.",
+      "itemsRequired": "At least one line item is required.",
+      "itemDescriptionRequired": "Item description is required.",
+      "itemQuantityPositive": "Quantity must be at least 1.",
+      "itemPricePositive": "Unit price must be positive."
+    }
+  },
+  "invoices": {
+    "title": "Invoices",
+    "noInvoices": "No invoices yet.",
+    "noInvoicesHint": "Invoices submitted by suppliers will appear here.",
+    "totalAmount": "Total Amount",
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "PENDING_MATCH": "Matching",
+      "MATCHED": "Matched",
+      "EXCEPTION": "Exception",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "PAID": "Paid"
+    }
+  },
+  "payments": {
+    "title": "Payments",
+    "noPayments": "No payments yet.",
+    "noPaymentsHint": "Payments will appear here once invoices are approved.",
+    "amount": "Amount",
+    "status": {
+      "PENDING": "Pending",
+      "SUCCESS": "Success",
+      "FAILED": "Failed"
+    }
+  },
   "nav": {
     "requisitions": "Requisitions",
     "orders": "Purchase Orders",
     "invoices": "Invoices",
+    "payments": "Payments",
     "settings": "Settings",
     "signOut": "Sign Out",
     "myAccount": "My Account"

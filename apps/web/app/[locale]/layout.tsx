@@ -3,7 +3,7 @@ import { AuthInitializer } from "@/features/auth";
 import { routing } from "@/i18n/routing";
 import { QueryProvider } from "@/providers/react-query-provider";
 import { Toaster } from "@mora/ui/components/sonner";
-import { NextIntlClientProvider } from "next-intl";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 
@@ -22,7 +22,7 @@ export default async function LocaleLayout({
 }: LocaleLayoutProps) {
   const { locale } = await params;
 
-  if (!routing.locales.includes(locale as "en" | "vi")) {
+  if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
 

@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { OidcService } from './oidc.service';
-import oidcConfig from './configs/oidc.config';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ConfigModule.forFeature(oidcConfig)],
+  imports: [],
   providers: [OidcService],
   exports: [OidcService],
 })

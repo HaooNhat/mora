@@ -1,3 +1,9 @@
+import { GetUser } from '@mora/api/common/decorators/get-user.decorator';
+import {
+  PaginatedSerialize,
+  Serialize,
+} from '@mora/api/common/decorators/serialize.decorator';
+import { JwtAuthGuard } from '@mora/api/common/guards/jwt.guard';
 import {
   Body,
   Controller,
@@ -18,12 +24,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { GetUser } from 'src/common/decorators/get-user.decorator';
-import {
-  PaginatedSerialize,
-  Serialize,
-} from 'src/common/decorators/serialize.decorator';
-import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
 import { OrganizationService } from '../organization/organization.service';
 import { CreateRequisitionDto } from './dto/create-requisition.dto';
 import { FindRequisitionsDto } from './dto/find-requisitions.dto';
@@ -99,7 +99,7 @@ export class RequisitionsController {
 
   @Patch(':id')
   @Serialize(RequisitionResponseDto)
-  @ApiOperation({ summary: 'Update a DRAFT requisition' })
+  @ApiOperation({ summary: 'Update a SUBMITTED requisition' })
   @ApiQuery({ name: 'orgId', required: true, description: 'Organization ID' })
   @ApiResponse({
     status: 200,
@@ -108,7 +108,7 @@ export class RequisitionsController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Requisition is not in DRAFT status',
+    description: 'Requisition is not in SUBMITTED status',
   })
   @ApiResponse({ status: 403, description: 'Only the requester can edit' })
   async update(
@@ -123,12 +123,12 @@ export class RequisitionsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a DRAFT requisition' })
+  @ApiOperation({ summary: 'Delete a SUBMITTED requisition' })
   @ApiQuery({ name: 'orgId', required: true, description: 'Organization ID' })
   @ApiResponse({ status: 204, description: 'Requisition deleted' })
   @ApiResponse({
     status: 400,
-    description: 'Requisition is not in DRAFT status',
+    description: 'Requisition is not in SUBMITTED status',
   })
   @ApiResponse({ status: 403, description: 'Only the requester can delete' })
   async remove(
@@ -143,26 +143,6 @@ export class RequisitionsController {
   // ---------------------------------------------------------------------------
   // Transition endpoints
   // ---------------------------------------------------------------------------
-
-  @Post(':id/submit')
-  @Serialize(RequisitionResponseDto)
-  @ApiOperation({ summary: 'Submit a DRAFT requisition for approval' })
-  @ApiQuery({ name: 'orgId', required: true, description: 'Organization ID' })
-  @ApiResponse({
-    status: 201,
-    description: 'Requisition submitted (or auto-approved if below threshold)',
-    type: RequisitionResponseDto,
-  })
-  @ApiResponse({ status: 400, description: 'Invalid transition' })
-  @ApiResponse({ status: 403, description: 'Only the requester can submit' })
-  async submit(
-    @Param('id') id: string,
-    @Query('orgId') orgId: string,
-    @GetUser('id') userId: string,
-  ) {
-    const actor = await this.organizationService.resolveActor(userId, orgId);
-    return this.requisitionsService.submit(id, actor);
-  }
 
   @Post(':id/approve')
   @Serialize(RequisitionResponseDto)

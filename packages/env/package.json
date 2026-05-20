@@ -1,0 +1,21 @@
+{
+  "name": "@mora/env",
+  "version": "0.0.1",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "peerDependencies": {
+    "@nestjs/config": ">=4",
+    "joi": ">=17"
+  },
+  "devDependencies": {
+    "@mora/typescript-config": "workspace:*",
+    "@nestjs/config": "^4.0.3",
+    "joi": "^18.1.2",
+    "typescript": "^5.9.3"
+  }
+}

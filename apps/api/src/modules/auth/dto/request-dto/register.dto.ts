@@ -6,9 +6,9 @@ import {
   MaxLength,
   MinLength,
   Validate,
+  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-  ValidationArguments,
 } from 'class-validator';
 
 @ValidatorConstraint({ name: 'PasswordMatch', async: false })

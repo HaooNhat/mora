@@ -33,6 +33,9 @@ export function applyTransition<
 >(
   map: TransitionMap<TStatus, TEvent, TDoc>,
   doc: TDoc,
+  /**
+   * The target event in the transition document
+   */
   event: TEvent,
   ctx: TransitionContext<TDoc>,
 ): TStatus {

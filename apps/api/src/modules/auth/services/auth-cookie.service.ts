@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import appConfig from '@mora/api/configs/app.config';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import type { Response } from 'express';
 import type { Tokens } from '../interfaces/jwt.types';
 
@@ -7,7 +9,12 @@ const ACCESS_COOKIE_NAME = 'accessToken';
 
 @Injectable()
 export class AuthCookieService {
-  private readonly isProd = process.env.NODE_ENV === 'production';
+  @Inject(appConfig.KEY)
+  private readonly appConf: ConfigType<typeof appConfig>;
+
+  private get isProd(): boolean {
+    return this.appConf.nodeEnv === 'production';
+  }
 
   private get baseCookieOptions() {
     return {

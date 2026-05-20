@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Logger,
   Post,
   Query,
@@ -25,16 +26,19 @@ import { Throttle } from '@nestjs/throttler';
 import crypto from 'crypto';
 import type { Request, Response } from 'express';
 
-import { Public } from 'src/common/decorators/public.decorator';
-import { Serialize } from 'src/common/decorators/serialize.decorator';
-import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
-import { OidcService } from 'src/services/oidc/oidc.service';
-import { RedisService } from 'src/services/redis/redis.service';
+import { Public } from '@mora/api/common/decorators/public.decorator';
+import { Serialize } from '@mora/api/common/decorators/serialize.decorator';
+import { JwtAuthGuard } from '@mora/api/common/guards/jwt.guard';
+import { OidcService } from '@mora/api/services/oidc/oidc.service';
+import { RedisService } from '@mora/api/services/redis/redis.service';
 
 import { AuthService } from './auth.service';
 
+import appConfig from '@mora/api/configs/app.config';
+import { ConfigType } from '@nestjs/config';
 import { LoginWithPasswordDto } from './dto/request-dto/login.dto';
 import { RegisterDto } from './dto/request-dto/register.dto';
+import { VerifyEmailDto } from './dto/request-dto/verify-email-dto';
 import { AuthSuccessResponseDto } from './dto/response-dto/auth-success-response';
 import { UserResponseDto } from './dto/response-dto/login-response';
 import type {
@@ -55,6 +59,9 @@ export class AuthController {
     private readonly oidcService: OidcService,
     private readonly authCookieService: AuthCookieService,
     private readonly redisService: RedisService,
+
+    @Inject(appConfig.KEY)
+    private readonly appConf: ConfigType<typeof appConfig>,
   ) {}
 
   @Public()
@@ -90,8 +97,8 @@ export class AuthController {
     type: AuthSuccessResponseDto,
   })
   @ApiResponse({ status: 401, description: 'Invalid or expired token' })
-  async verifyEmail(@Query('token') token: string) {
-    await this.authService.verifyEmail(token);
+  async verifyEmail(@Query() query: VerifyEmailDto) {
+    await this.authService.verifyEmail(query.token);
     return {
       success: true,
       message: 'Email verified successfully. You can now log in.',
@@ -101,6 +108,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   @Serialize(AuthSuccessResponseDto)
   @ApiOperation({
     summary: 'Login with email and password — sets auth cookies',
@@ -145,6 +153,7 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post('refresh')
+  @HttpCode(HttpStatus.OK)
   @Serialize(AuthSuccessResponseDto)
   @ApiCookieAuth('refreshToken')
   @ApiOperation({
@@ -208,9 +217,10 @@ export class AuthController {
     description: 'Redirect to frontend with auth cookies set',
   })
   async googleCallback(@Req() req: Request, @Res() res: Response) {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const frontendUrl = this.appConf.frontendUrl;
+    const backendUrl = this.appConf.backendUrl;
+
     const redirectUrl = `${frontendUrl}/auth/callback`;
-    const backendUrl = process.env.BACKEND_URL ?? 'http://localhost:3001';
 
     try {
       const currentUrl = new URL(req.originalUrl, backendUrl);
@@ -278,6 +288,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
+  @HttpCode(HttpStatus.OK)
   @Serialize(AuthSuccessResponseDto)
   @ApiBearerAuth()
   @ApiOperation({

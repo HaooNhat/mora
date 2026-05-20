@@ -1,6 +1,6 @@
+import { UserRepository } from '@mora/api/services/user/user.repository';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import crypto from 'crypto';
-import { UserRepository } from 'src/services/user/user.repository';
 import { RefreshTokenRepository } from '../repositories/refresh-token.repository';
 import { JwtTokenService } from './jwt-token.service';
 
@@ -39,18 +39,13 @@ export class RefreshTokenRotationService {
     const userId = payload.sub;
     const hashedIncomingToken = this.hashToken(rawRefreshToken);
 
-    const { count } = await this.refreshTokenRepository.revokeOne(
+    const { revoked, isReuse } = await this.refreshTokenRepository.revokeAndDetectReuse(
       userId,
       hashedIncomingToken,
     );
 
-    if (count === 0) {
-      const revokedRecord = await this.refreshTokenRepository.findRevoked(
-        userId,
-        hashedIncomingToken,
-      );
-
-      if (revokedRecord) {
+    if (!revoked) {
+      if (isReuse) {
         await this.refreshTokenRepository.revokeAll(userId);
         this.logger.warn(
           `Refresh token reuse detected for user ${userId} — all sessions revoked`,

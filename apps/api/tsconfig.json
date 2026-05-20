@@ -2,10 +2,13 @@
   "extends": "../../packages/typescript-config/nest.json",
   "compilerOptions": {
     "baseUrl": "./",
+    "rootDir": "./src",
     "paths": {
-      "@mora/api/*": ["src/*"]
+      "@mora/api/*": ["src/*"],
+      "@mora/env/*": ["../../packages/env/src/*"]
     },
     "outDir": "./dist",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "strictNullChecks": true
   }
 }

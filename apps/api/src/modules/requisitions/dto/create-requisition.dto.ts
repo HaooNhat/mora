@@ -1,12 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
   IsArray,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
+  Length,
+  Matches,
   ValidateNested,
 } from 'class-validator';
 
@@ -51,10 +54,15 @@ export class CreateRequisitionDto {
   @ApiProperty({ example: 'USD', required: false, default: 'USD' })
   @IsOptional()
   @IsString()
+  @Length(3, 3)
+  @Matches(/^[A-Z]{3}$/, {
+    message: 'Currency must be a 3-letter ISO 4217 code',
+  })
   currency?: string;
 
   @ApiProperty({ type: () => [CreateRequisitionItemDto] })
   @IsArray()
+  @ArrayMinSize(1, { message: 'At least one item is required' })
   @ValidateNested({ each: true })
   @Type(() => CreateRequisitionItemDto)
   items: CreateRequisitionItemDto[];

@@ -3,16 +3,23 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
-import session from 'express-session';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
-import { RequestLoggerMiddleware } from './common/middlewares/request-logger.middleware';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger:
+      process.env.NODE_ENV === 'production'
+        ? ['log', 'warn', 'error']
+        : ['verbose', 'debug', 'log', 'warn', 'error'],
+  });
 
-  const port = process.env.PORT ?? 3001;
+  const port = process.env.PORT ?? 3000;
+
+  // TODO: Implement OnApplicationShutdown hooks on external services like DATABASE, REDIS, JOBS, QUERES, TCP/WEBSOCKETS
+  app.enableShutdownHooks();
 
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
@@ -33,20 +40,11 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
-
   app.use(
-    session({
-      secret: process.env.SESSION_SECRET!,
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        secure: process.env.NODE_ENV === 'production',
-      },
+    helmet({
+      contentSecurityPolicy: process.env.NODE_ENV === 'production',
     }),
   );
-
-  const requestLogger = new RequestLoggerMiddleware();
-  app.use(requestLogger.use.bind(requestLogger));
 
   const config = new DocumentBuilder()
     .setTitle('Mora - Procurement Platform API')
@@ -74,5 +72,13 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, documentFactory);
 
   await app.listen(port);
+
+  const shutdown = async () => {
+    await app.close();
+    process.exit(0);
+  };
+
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 }
 bootstrap();

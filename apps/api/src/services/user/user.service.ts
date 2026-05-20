@@ -1,8 +1,8 @@
+import userConfig from '@mora/api/configs/user.config';
 import { Inject, Injectable } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { User } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import userConfig from './configs/user.config';
 import { CreateUserDto } from './dto/user.dto';
 import { UserRepository } from './user.repository';
 
@@ -30,7 +30,6 @@ export class UserService {
       lastName: dto.lastName,
       picture: dto.picture,
       googleId: dto.googleId,
-      lastLoginAt: new Date(),
       isEmailVerified: dto.email_verified,
     });
   }
@@ -46,5 +45,9 @@ export class UserService {
   async verifyPassword(user: User, plaintext: string): Promise<boolean> {
     if (!user.passwordHash) return false;
     return bcrypt.compare(plaintext, user.passwordHash);
+  }
+
+  async updateLastLogin(id: string): Promise<void> {
+    await this.userRepository.update(id, { lastLoginAt: new Date() });
   }
 }

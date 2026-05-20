@@ -1,15 +1,15 @@
 import "@mora/ui/globals.css";
 import { getLocale } from "next-intl/server";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Inter_Tight } from "next/font/google";
 
-const fontSans = Geist({
+const fontInter = Inter({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-inter",
 });
 
-const fontMono = Geist_Mono({
+const fontInterTight = Inter_Tight({
   subsets: ["latin"],
-  variable: "--font-mono",
+  variable: "--font-inter-tight",
 });
 
 /**
@@ -27,11 +27,9 @@ export default async function RootLayout({
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${fontSans.variable} ${fontMono.variable}`}
+      className={`${fontInter.variable} ${fontInter.className} ${fontInterTight.variable}`}
     >
-      <body className="font-sans antialiased min-h-dvh md:min-h-screen">
-        {children}
-      </body>
+      <body className="antialiased min-h-dvh md:min-h-screen">{children}</body>
     </html>
   );
 }

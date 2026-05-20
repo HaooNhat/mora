@@ -1,6 +1,5 @@
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -34,6 +33,7 @@ model User {
   createdInvoices         Invoice[]                @relation("InvoiceCreator")
   approvedInvoices        Invoice[]                @relation("InvoiceApprover")
   goodsReceipts           GoodsReceipt[]           @relation("ReceiptCreator")
+  auditLogs               AuditLog[]
 
   @@index([email])
   @@index([googleId])
@@ -82,14 +82,10 @@ enum OrganizationType {
 }
 
 enum OrganizationRole {
-  OWNER
-  ADMIN
-  PROCUREMENT_MANAGER
-  BUYER
-  APPROVER
-  FINANCE_MANAGER
-  SUPPLIER_MANAGER
-  VIEWER
+  OWNER // Full access + payment approval
+  MANAGER // Approves requisitions, read-all
+  FINANCE // Creates POs, approves invoices, processes payments
+  STAFF // Creates requisitions, receives goods
 }
 
 model Organization {
@@ -113,6 +109,7 @@ model Organization {
   invoicesReceived  Invoice[]             @relation("BuyerInvoices")
   paymentsIssued    Payment[]             @relation("PayerOrganization")
   paymentsReceived  Payment[]             @relation("PayeeOrganization")
+  auditLogs         AuditLog[]
 
   @@index([type])
   @@index([isActive])
@@ -141,7 +138,6 @@ model OrganizationMember {
 // PURCHASE REQUISITIONS
 
 enum RequisitionStatus {
-  DRAFT
   SUBMITTED
   APPROVED
   REJECTED
@@ -154,7 +150,7 @@ model PurchaseRequisition {
 
   title       String
   description String?
-  status      RequisitionStatus @default(DRAFT)
+  status      RequisitionStatus @default(SUBMITTED)
 
   // Requester
   requestedBy String
@@ -209,7 +205,7 @@ model PurchaseRequisitionItem {
 // PURCHASE ORDERS
 
 enum PurchaseOrderStatus {
-  DRAFT
+  SUBMITTED
   SENT // sent to supplier
   CONFIRMED // supplier acknowledged
   PARTIALLY_RECEIVED // some goods received
@@ -220,13 +216,13 @@ enum PurchaseOrderStatus {
 }
 
 model PurchaseOrder {
-  id            String  @id @default(uuid())
-  requisitionId String?
+  id            String @id @default(uuid())
+  requisitionId String @unique()
 
   buyerOrgId    String
   supplierOrgId String
 
-  status PurchaseOrderStatus @default(DRAFT)
+  status PurchaseOrderStatus @default(SUBMITTED)
 
   orderDate    DateTime  @default(now())
   expectedDate DateTime?
@@ -248,7 +244,7 @@ model PurchaseOrder {
 
   organization  Organization         @relation("BuyerOrganization", fields: [buyerOrgId], references: [id])
   supplierOrg   Organization         @relation("SupplierOrganization", fields: [supplierOrgId], references: [id])
-  requisition   PurchaseRequisition? @relation(fields: [requisitionId], references: [id], onDelete: SetNull)
+  requisition   PurchaseRequisition? @relation(fields: [requisitionId], references: [id], onDelete: Cascade)
   creator       User                 @relation("OrderCreator", fields: [createdBy], references: [id])
   approver      User?                @relation("OrderApprover", fields: [approvedBy], references: [id])
   items         PurchaseOrderItem[]
@@ -328,7 +324,6 @@ model GoodsReceiptItem {
 // INVOICES
 
 enum InvoiceStatus {
-  DRAFT
   SUBMITTED // submitted by supplier
   PENDING_MATCH // 3-way match in progress
   MATCHED // auto-matched within tolerance
@@ -340,7 +335,7 @@ enum InvoiceStatus {
 
 model Invoice {
   id     String        @id @default(uuid())
-  status InvoiceStatus @default(DRAFT)
+  status InvoiceStatus @default(SUBMITTED)
 
   // Organizations
   supplierOrgId String
@@ -450,4 +445,38 @@ model Payment {
   @@index([payerOrgId])
   @@index([status])
   @@map("payments")
+}
+
+enum EntityType {
+  REQUISITION
+  PURCHASE_ORDER
+  INVOICE
+  PAYMENT
+  GOODS_RECEIPT
+}
+
+model AuditLog {
+  id             String @id @default(uuid())
+  organizationId String
+  entityType     EntityType
+  entityId      String
+  event          String // the transition event name (SUBMIT, APPROVE, REJECT, …)
+  fromStatus     String
+  toStatus       String
+  actorId        String
+  metadata       Json   @default("{}")
+
+  // Outbox Pattern: guarantee At-Least-One event is published. Still possible for duplicate events but losing an event is more worse.
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  actor        User         @relation(fields: [actorId], references: [id])
+
+  @@index([entityId])
+  @@index([organizationId, createdAt])
+  @@index([actorId])
+  @@index([publishedAt]) // outbox poller query
+  @@map("audit_logs")
 }

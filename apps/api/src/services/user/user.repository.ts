@@ -1,6 +1,6 @@
+import { PrismaService } from '@mora/api/services/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
-import { PrismaService } from 'src/services/prisma/prisma.service';
 
 @Injectable()
 export class UserRepository {

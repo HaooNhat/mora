@@ -1,12 +1,11 @@
 "use client";
 
 import { RegisterForm, useAuth } from "@/features/auth";
-import { Link } from "@/lib/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
+import { CheckCircle2, Loader2, Waves } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/lib/navigation";
 import { useEffect, useState } from "react";
-import { CheckCircle2, Loader2, Waves } from "lucide-react";
 
 export default function SignupPage() {
   const t = useTranslations("auth");

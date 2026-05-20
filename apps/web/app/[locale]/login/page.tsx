@@ -1,21 +1,20 @@
 "use client";
 
 import { LoginForm, useAuth } from "@/features/auth";
-import { Link } from "@/lib/navigation";
-import { Loader2, Waves } from "lucide-react";
+import { Link, useRouter } from "@/i18n/navigation";
+import { Boxes, Loader2 } from "lucide-react";
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/lib/navigation";
 import { useEffect } from "react";
 
 export default function LoginPage() {
   const t = useTranslations("auth");
-  const tCommon = useTranslations("common");
+  // const tCommon = useTranslations("common");
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) router.replace("/app");
+    if (isAuthenticated) router.replace("/dashboard");
   }, [isAuthenticated, router]);
 
   if (isLoading) {
@@ -27,7 +26,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-slate-50 via-white to-blue-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -35,11 +34,11 @@ export default function LoginPage() {
         className="w-full max-w-md"
       >
         {/* Card */}
-        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/60 dark:border-gray-700/50 p-8">
+        <div className="bg-card backdrop-blur-xl rounded-2xl shadow-xl border p-8">
           {/* Header */}
           <div className="flex flex-col items-center mb-8">
             <div className="bg-linear-to-br from-blue-600 to-violet-600 p-3 rounded-2xl shadow-lg mb-4">
-              <Waves className="h-7 w-7 text-white" aria-hidden="true" />
+              <Boxes className="h-7 w-7 text-white" aria-hidden="true" />
             </div>
             <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
               {t("loginTitle").replace("Mora", "")}
