@@ -244,33 +244,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/purchase-orders": {
+    "/organizations/me": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List purchase orders for an organization (buyer or supplier) */
-        get: operations["PurchaseOrdersController_findAll"];
-        put?: never;
-        /** Create a purchase order from an approved requisition */
-        post: operations["PurchaseOrdersController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/purchase-orders/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a single purchase order */
-        get: operations["PurchaseOrdersController_findOne"];
+        /** List all organizations the current user belongs to */
+        get: operations["OrganizationController_getMyOrganizations"];
         put?: never;
         post?: never;
         delete?: never;
@@ -279,7 +261,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/purchase-orders/{id}/send": {
+    "/organizations": {
         parameters: {
             query?: never;
             header?: never;
@@ -288,220 +270,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Send PO to supplier — DRAFT → SENT */
-        post: operations["PurchaseOrdersController_send"];
+        /** Create a new organization — current user becomes OWNER */
+        post: operations["OrganizationController_create"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/purchase-orders/{id}/confirm": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Confirm PO receipt by supplier — SENT → CONFIRMED */
-        post: operations["PurchaseOrdersController_confirm"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/purchase-orders/{id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Cancel a PO — only allowed before goods are received */
-        post: operations["PurchaseOrdersController_cancel"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goods-receipts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all receipts for a purchase order */
-        get: operations["GoodsReceiptsController_findAll"];
-        put?: never;
-        /** Log a new goods receipt — triggers PO status recalculation */
-        post: operations["GoodsReceiptsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/goods-receipts/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a single goods receipt */
-        get: operations["GoodsReceiptsController_findOne"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invoices": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List invoices for an organization (buyer or supplier view) */
-        get: operations["InvoicesController_findAll"];
-        put?: never;
-        /** Create an invoice draft against a purchase order */
-        post: operations["InvoicesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invoices/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a single invoice with match result */
-        get: operations["InvoicesController_findOne"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update a DRAFT invoice (supplier only) */
-        patch: operations["InvoicesController_update"];
-        trace?: never;
-    };
-    "/invoices/{id}/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Submit invoice — triggers 3-way match, auto-approves if matched */
-        post: operations["InvoicesController_submit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invoices/{id}/approve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Manually approve an EXCEPTION invoice (AP / Finance role) */
-        post: operations["InvoicesController_approve"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/invoices/{id}/reject": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Reject an EXCEPTION invoice (AP / Finance role) */
-        post: operations["InvoicesController_reject"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/payments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List payments for an organization (payer or payee) */
-        get: operations["PaymentsController_findAll"];
-        put?: never;
-        /** Record a payment against an approved invoice — marks invoice PAID and closes PO when fully paid */
-        post: operations["PaymentsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/payments/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a single payment record */
-        get: operations["PaymentsController_findOne"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/payments/{id}/fail": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Mark a PENDING payment as FAILED — invoice remains APPROVED, retry with a new payment */
-        patch: operations["PaymentsController_fail"];
         trace?: never;
     };
 }
@@ -538,11 +312,13 @@ export interface components {
             /** @example user@example.com */
             email: string;
             /** @example John */
-            firstName: Record<string, never> | null;
+            firstName: string | null;
             /** @example Doe */
-            lastName: Record<string, never> | null;
+            lastName: string | null;
             /** @example https://example.com/avatar.jpg */
-            picture: Record<string, never> | null;
+            picture: string | null;
+            /** @example true */
+            isEmailVerified: boolean;
         };
         CreateRequisitionItemDto: {
             /** @example MacBook Pro 14" */
@@ -576,9 +352,9 @@ export interface components {
             /** @example 2 */
             quantity: number;
             /** @example 1999.99 */
-            unitPrice: number;
+            unitPrice: string;
             /** @example 3999.98 */
-            totalPrice: number;
+            totalPrice: string;
             /** @example USD */
             currency: string;
             /** @example Needed for the design team */
@@ -631,375 +407,42 @@ export interface components {
             /** @example Budget exceeded for this quarter */
             rejectedReason: string;
         };
-        CreatePurchaseOrderItemDto: {
-            /** @example MacBook Pro 14" */
-            description: string;
-            /** @example 2 */
-            quantity: number;
-            /** @example 1999.99 */
-            unitPrice: number;
-        };
-        CreatePurchaseOrderDto: {
-            /**
-             * @description Must reference an APPROVED purchase requisition
-             * @example pr-uuid
-             */
-            requisitionId: string;
-            /**
-             * @description Buyer organization — used for actor resolution
-             * @example buyer-org-uuid
-             */
-            buyerOrgId: string;
-            /** @example supplier-org-uuid */
-            supplierOrgId: string;
-            /**
-             * @description Expected delivery date (ISO 8601)
-             * @example 2026-05-01
-             */
-            expectedDate?: string;
-            /**
-             * @default 0
-             * @example 50
-             */
-            shippingAmount: number;
-            /**
-             * @default USD
-             * @example USD
-             */
-            currency: string;
-            /** @example Urgent — please deliver by end of month */
-            notes?: string;
-            items: components["schemas"]["CreatePurchaseOrderItemDto"][];
-        };
-        PurchaseOrderItemResponseDto: {
-            /** @example clx1234abcd */
+        OrganizationResponseDto: {
+            /** @example org-uuid */
             id: string;
-            /** @example MacBook Pro 14" */
-            description: string;
-            /** @example 2 */
-            quantity: number;
-            /** @example 1999.99 */
-            unitPrice: number;
-            /** @example 3999.98 */
-            totalPrice: number;
-            /** @example USD */
-            currency: string;
-        };
-        PurchaseOrderResponseDto: {
-            /** @example clx1234abcd */
-            id: string;
-            /** @example pr-uuid */
-            requisitionId: Record<string, never> | null;
-            /** @example buyer-org-uuid */
-            buyerOrgId: string;
-            /** @example supplier-org-uuid */
-            supplierOrgId: string;
+            /** @example Acme Corp */
+            name: string;
+            /** @example Acme Corporation Ltd. */
+            legalName: Record<string, never> | null;
             /**
-             * @example DRAFT
+             * @example BUYER
              * @enum {string}
              */
-            status: "DRAFT" | "SENT" | "CONFIRMED" | "PARTIALLY_RECEIVED" | "RECEIVED" | "INVOICED" | "CLOSED" | "CANCELLED";
+            type: "BUYER" | "SUPPLIER" | "BOTH";
+            /** @example https://example.com/logo.png */
+            logo: Record<string, never> | null;
             /**
-             * Format: date-time
-             * @example 2026-04-01T00:00:00.000Z
-             */
-            orderDate: string;
-            /** @example 2026-05-01T00:00:00.000Z */
-            expectedDate: Record<string, never> | null;
-            /** @example 3999.98 */
-            subtotal: number;
-            /** @example 50 */
-            shippingAmount: number;
-            /** @example 4049.98 */
-            totalAmount: number;
-            /** @example USD */
-            currency: string;
-            /** @example user-uuid */
-            createdBy: string;
-            /** @example approver-uuid */
-            approvedBy: Record<string, never> | null;
-            /** @example 2026-04-01T00:00:00.000Z */
-            approvedAt: Record<string, never> | null;
-            /** @example Urgent delivery requested */
-            notes: Record<string, never> | null;
-            /**
-             * Format: date-time
-             * @example 2026-04-01T00:00:00.000Z
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @example 2026-04-01T00:00:00.000Z
-             */
-            updatedAt: string;
-            items: components["schemas"]["PurchaseOrderItemResponseDto"][];
-        };
-        CreateGoodsReceiptItemDto: {
-            /**
-             * @description Links to a specific PO line item
-             * @example poi-uuid
-             */
-            orderItemId?: string;
-            /** @example MacBook Pro 14" */
-            description: string;
-            /**
-             * @description Quantity from the PO (for reference)
-             * @example 2
-             */
-            quantityOrdered: number;
-            /**
-             * @description What actually arrived — the authoritative figure
-             * @example 2
-             */
-            quantityReceived: number;
-            /** @example 1 unit arrived damaged and was rejected */
-            notes?: string;
-        };
-        CreateGoodsReceiptDto: {
-            /** @example po-uuid */
-            orderId: string;
-            /**
-             * @description Buyer organization ID — used for actor resolution
-             * @example buyer-org-uuid
-             */
-            orgId: string;
-            /** @example Partial delivery — remaining items expected next week */
-            notes?: string;
-            items: components["schemas"]["CreateGoodsReceiptItemDto"][];
-        };
-        GoodsReceiptItemResponseDto: {
-            /** @example clx1234abcd */
-            id: string;
-            /** @example poi-uuid */
-            orderItemId: Record<string, never> | null;
-            /** @example MacBook Pro 14" */
-            description: string;
-            /** @example 2 */
-            quantityOrdered: number;
-            /** @example 2 */
-            quantityReceived: number;
-            /** @example 1 unit arrived damaged */
-            notes: Record<string, never> | null;
-        };
-        GoodsReceiptResponseDto: {
-            /** @example clx1234abcd */
-            id: string;
-            /** @example po-uuid */
-            orderId: string;
-            /** @example user-uuid */
-            receivedBy: string;
-            /**
-             * Format: date-time
-             * @example 2026-04-01T10:00:00.000Z
-             */
-            receivedAt: string;
-            /** @example Partial delivery — 2 of 5 boxes arrived */
-            notes: Record<string, never> | null;
-            /**
-             * Format: date-time
-             * @example 2026-04-01T10:00:00.000Z
-             */
-            createdAt: string;
-            items: components["schemas"]["GoodsReceiptItemResponseDto"][];
-        };
-        CreateInvoiceItemDto: {
-            /**
-             * @description Links this line to a PO line item for 3-way matching
-             * @example poi-uuid
-             */
-            orderItemId?: string;
-            /** @example MacBook Pro 14" */
-            description: string;
-            /** @example 2 */
-            quantity: number;
-            /** @example 1999.99 */
-            unitPrice: number;
-            /**
-             * @description Discount rate (0–1)
-             * @default 0
-             * @example 0.05
-             */
-            discountRate: number;
-            /** @example Bulk discount applied */
-            notes?: string;
-        };
-        CreateInvoiceDto: {
-            /**
-             * @description Purchase order being invoiced
-             * @example po-uuid
-             */
-            orderId: string;
-            /**
-             * @description Supplier organization — actor must be a member
-             * @example supplier-org-uuid
-             */
-            supplierOrgId: string;
-            /** @example buyer-org-uuid */
-            buyerOrgId: string;
-            /**
-             * @description Payment due date (ISO 8601)
-             * @example 2026-05-15
-             */
-            dueDate: string;
-            /**
-             * @default USD
-             * @example USD
-             */
-            currency: string;
-            items: components["schemas"]["CreateInvoiceItemDto"][];
-        };
-        InvoiceItemResponseDto: {
-            /** @example clx1234abcd */
-            id: string;
-            /** @example poi-uuid */
-            orderItemId: Record<string, never> | null;
-            /** @example MacBook Pro 14" */
-            description: string;
-            /** @example 2 */
-            quantity: number;
-            /** @example 1999.99 */
-            unitPrice: number;
-            /** @example 0.05 */
-            discountRate: number;
-            /** @example 199.99 */
-            discountAmount: number;
-            /** @example 3799.99 */
-            totalPrice: number;
-            /** @example USD */
-            currency: string;
-            /** @example Bulk discount applied */
-            notes: Record<string, never> | null;
-        };
-        InvoiceResponseDto: {
-            /** @example clx1234abcd */
-            id: string;
-            /**
-             * @example DRAFT
+             * @example OWNER
              * @enum {string}
              */
-            status: "DRAFT" | "SUBMITTED" | "PENDING_MATCH" | "MATCHED" | "EXCEPTION" | "APPROVED" | "REJECTED" | "PAID";
-            /** @example supplier-org-uuid */
-            supplierOrgId: string;
-            /** @example buyer-org-uuid */
-            buyerOrgId: string;
-            /** @example po-uuid */
-            orderId: Record<string, never> | null;
-            /**
-             * Format: date-time
-             * @example 2026-04-01T00:00:00.000Z
-             */
-            issueDate: string;
-            /**
-             * Format: date-time
-             * @example 2026-05-15T00:00:00.000Z
-             */
-            dueDate: string;
-            /** @example 2026-04-20T00:00:00.000Z */
-            paidDate: Record<string, never> | null;
-            /** @example 3999.98 */
-            subtotal: number;
-            /** @example 199.99 */
-            discountAmount: number;
-            /** @example 3799.99 */
-            totalAmount: number;
-            /** @example 0 */
-            paidAmount: number;
-            /** @example USD */
-            currency: string;
-            /**
-             * @description Result of the 3-way match — populated after submission
-             * @example All 2 line item(s) passed the 3-way match.
-             */
-            matchNotes: Record<string, never> | null;
-            /** @example user-uuid */
-            createdBy: string;
-            /** @example approver-uuid */
-            approvedBy: Record<string, never> | null;
-            /** @example 2026-04-02T00:00:00.000Z */
-            approvedAt: Record<string, never> | null;
-            /** @example Unit price does not match contract */
-            rejectedReason: Record<string, never> | null;
+            role: "OWNER" | "ADMIN" | "PROCUREMENT_MANAGER" | "BUYER" | "APPROVER" | "FINANCE_MANAGER" | "SUPPLIER_MANAGER" | "VIEWER";
             /**
              * Format: date-time
              * @example 2026-04-01T00:00:00.000Z
              */
             createdAt: string;
-            /**
-             * Format: date-time
-             * @example 2026-04-01T00:00:00.000Z
-             */
-            updatedAt: string;
-            items: components["schemas"]["InvoiceItemResponseDto"][];
         };
-        UpdateInvoiceDto: {
+        CreateOrganizationDto: {
+            /** @example Acme Corp */
+            name: string;
             /**
-             * @description Updated due date (ISO 8601)
-             * @example 2026-06-01
-             */
-            dueDate?: string;
-            /** @description Replaces all existing line items */
-            items?: components["schemas"]["CreateInvoiceItemDto"][];
-            /** @example Updated payment terms */
-            notes?: string;
-        };
-        RejectInvoiceDto: {
-            /** @example Unit price does not match agreed contract rate */
-            rejectedReason: string;
-        };
-        CreatePaymentDto: {
-            /** @example invoice-uuid */
-            invoiceId: string;
-            /**
-             * @description Payer organization — actor must be a member with Finance role
-             * @example buyer-org-uuid
-             */
-            payerOrgId: string;
-            /** @example supplier-org-uuid */
-            payeeOrgId: string;
-            /** @example 3799.99 */
-            amount: number;
-            /** @example USD */
-            currency: string;
-            /**
-             * @description Payment method: bank_transfer, check, wire, credit_card, cash
-             * @example bank_transfer
-             */
-            method?: string;
-            /** @example Wire ref: TXN-20260401-001 */
-            notes?: string;
-        };
-        PaymentResponseDto: {
-            /** @example clx1234abcd */
-            id: string;
-            /** @example invoice-uuid */
-            invoiceId: Record<string, never> | null;
-            /** @example buyer-org-uuid */
-            payerOrgId: string;
-            /** @example supplier-org-uuid */
-            payeeOrgId: string;
-            /** @example 3799.99 */
-            amount: number;
-            /** @example USD */
-            currency: string;
-            /**
-             * @example SUCCESS
+             * @description BUYER, SUPPLIER, or BOTH
+             * @example BUYER
              * @enum {string}
              */
-            status: "PENDING" | "SUCCESS" | "FAILED";
-            /** @example bank_transfer */
-            method: Record<string, never> | null;
-            /** @example Wire ref: TXN-20260401-001 */
-            notes: Record<string, never> | null;
-            /**
-             * Format: date-time
-             * @example 2026-04-01T00:00:00.000Z
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @example 2026-04-01T00:00:00.000Z
-             */
-            updatedAt: string;
+            type: "BUYER" | "SUPPLIER" | "BOTH";
+            /** @example Acme Corporation Ltd. */
+            legalName?: string;
         };
     };
     responses: never;
@@ -1239,6 +682,10 @@ export interface operations {
     RequisitionsController_findAll: {
         parameters: {
             query: {
+                /** @description Page number (1-based) */
+                page?: number;
+                /** @description Items per page (max 100) */
+                limit?: number;
                 /** @description Organization ID */
                 orgId: string;
             };
@@ -1248,14 +695,12 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description List of requisitions */
+            /** @description Paginated list of requisitions */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["RequisitionResponseDto"][];
-                };
+                content?: never;
             };
             /** @description Not a member of the organization */
             403: {
@@ -1530,37 +975,27 @@ export interface operations {
             };
         };
     };
-    PurchaseOrdersController_findAll: {
+    OrganizationController_getMyOrganizations: {
         parameters: {
-            query: {
-                /** @description Buyer or supplier organization ID */
-                orgId: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description List of purchase orders */
+            /** @description List of organizations with the user role in each */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PurchaseOrderResponseDto"][];
+                    "application/json": components["schemas"]["OrganizationResponseDto"][];
                 };
-            };
-            /** @description Not a member of the organization */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
-    PurchaseOrdersController_create: {
+    OrganizationController_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -1569,672 +1004,18 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreatePurchaseOrderDto"];
+                "application/json": components["schemas"]["CreateOrganizationDto"];
             };
         };
         responses: {
-            /** @description Purchase order created */
+            /** @description Organization created */
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PurchaseOrderResponseDto"];
+                    "application/json": components["schemas"]["OrganizationResponseDto"];
                 };
-            };
-            /** @description Requisition is not APPROVED */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Insufficient role — buyer roles required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PurchaseOrdersController_findOne: {
-        parameters: {
-            query: {
-                /** @description Buyer or supplier organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Purchase order found */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderResponseDto"];
-                };
-            };
-            /** @description Purchase order not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PurchaseOrdersController_send: {
-        parameters: {
-            query: {
-                /** @description Buyer organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description PO sent */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderResponseDto"];
-                };
-            };
-            /** @description Invalid transition */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Buyer role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PurchaseOrdersController_confirm: {
-        parameters: {
-            query: {
-                /** @description Supplier organization ID — must match the PO's supplierOrgId */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description PO confirmed */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderResponseDto"];
-                };
-            };
-            /** @description Invalid transition */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Supplier role required or org mismatch */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PurchaseOrdersController_cancel: {
-        parameters: {
-            query: {
-                /** @description Buyer organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description PO cancelled */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PurchaseOrderResponseDto"];
-                };
-            };
-            /** @description PO is past the cancellable state */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Buyer role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GoodsReceiptsController_findAll: {
-        parameters: {
-            query: {
-                /** @description Purchase order ID */
-                orderId: string;
-                /** @description Buyer or supplier organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of receipts */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GoodsReceiptResponseDto"][];
-                };
-            };
-            /** @description Order not found or not accessible */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GoodsReceiptsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateGoodsReceiptDto"];
-            };
-        };
-        responses: {
-            /** @description Receipt logged */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GoodsReceiptResponseDto"];
-                };
-            };
-            /** @description PO is not in a receivable state */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Buyer receiver role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GoodsReceiptsController_findOne: {
-        parameters: {
-            query: {
-                /** @description Buyer or supplier organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Receipt found */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GoodsReceiptResponseDto"];
-                };
-            };
-            /** @description Receipt not found or not accessible */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    InvoicesController_findAll: {
-        parameters: {
-            query: {
-                /** @description Buyer or supplier organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of invoices */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceResponseDto"][];
-                };
-            };
-        };
-    };
-    InvoicesController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateInvoiceDto"];
-            };
-        };
-        responses: {
-            /** @description Invoice created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceResponseDto"];
-                };
-            };
-            /** @description PO is not in an invoiceable state */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Supplier role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    InvoicesController_findOne: {
-        parameters: {
-            query: {
-                /** @description Buyer or supplier organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Invoice found */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceResponseDto"];
-                };
-            };
-            /** @description Invoice not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    InvoicesController_update: {
-        parameters: {
-            query: {
-                /** @description Supplier organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateInvoiceDto"];
-            };
-        };
-        responses: {
-            /** @description Invoice updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceResponseDto"];
-                };
-            };
-            /** @description Invoice is not in DRAFT status */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Only the supplier can edit */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    InvoicesController_submit: {
-        parameters: {
-            query: {
-                /** @description Supplier organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Invoice submitted. Status is APPROVED (matched) or EXCEPTION (failed) */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceResponseDto"];
-                };
-            };
-            /** @description Invalid state or invoiced amount exceeds PO total */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Supplier role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    InvoicesController_approve: {
-        parameters: {
-            query: {
-                /** @description Buyer organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Invoice approved */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceResponseDto"];
-                };
-            };
-            /** @description Invoice is not in EXCEPTION status */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description AP or Finance role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    InvoicesController_reject: {
-        parameters: {
-            query: {
-                /** @description Buyer organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RejectInvoiceDto"];
-            };
-        };
-        responses: {
-            /** @description Invoice rejected */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceResponseDto"];
-                };
-            };
-            /** @description Invoice is not in EXCEPTION status */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description AP or Finance role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PaymentsController_findAll: {
-        parameters: {
-            query: {
-                /** @description Payer or payee organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of payments */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentResponseDto"][];
-                };
-            };
-        };
-    };
-    PaymentsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreatePaymentDto"];
-            };
-        };
-        responses: {
-            /** @description Payment recorded */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentResponseDto"];
-                };
-            };
-            /** @description Invoice not APPROVED, currency mismatch, or amount exceeds total */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Finance Manager role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PaymentsController_findOne: {
-        parameters: {
-            query: {
-                /** @description Payer or payee organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Payment found */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentResponseDto"];
-                };
-            };
-            /** @description Payment not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PaymentsController_fail: {
-        parameters: {
-            query: {
-                /** @description Payer organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Payment marked as failed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaymentResponseDto"];
-                };
-            };
-            /** @description Payment is not in PENDING status */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Finance Manager role required */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };

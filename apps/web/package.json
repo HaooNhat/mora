@@ -10,7 +10,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "typecheck": "tsc --noEmit",
-    "generate:types": "openapi-typescript ../api/openapi.yaml -o ./lib/api-client/schema.d.ts",
+    "generate:types": "openapi-typescript ../api/openapi.yaml -o ./lib/api-client/schema.ts",
     "generate:api": "openapi-typescript http://localhost:3000/api-json -o src/lib/api-client/schema.d.ts"
   },
   "dependencies": {

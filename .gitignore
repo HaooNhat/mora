@@ -5,6 +5,7 @@ openapi.yaml
 openapi.json
 .http
 *.d.ts
+*.tex
 
 # Depgendencies
 node_modules
@@ -33,6 +34,7 @@ coverage
 out/
 build
 dist
+*.tsbuildinfo
 
 
 # Debug

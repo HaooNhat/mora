@@ -6,28 +6,20 @@ import { useState, type ReactNode } from "react";
 
 const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
 
-/**
- * React Query Provider Configuration
- *
- * Configures:
- * - Default query options
- * - Cache behavior
- * - Retry logic
- * - Error handling
- */
-
 export function QueryProvider({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Procurement data changes via user actions, not time — keep fresh for 5 min
             staleTime: 1000 * 60 * 5,
             gcTime: 1000 * 60 * 10,
 
             retry: (failureCount, error) => {
-              if (error instanceof Error && error.message.includes("UNAUTHENTICATED")) {
+              if (
+                error instanceof Error &&
+                error.message.includes("UNAUTHENTICATED")
+              ) {
                 return false;
               }
               return failureCount < 2;

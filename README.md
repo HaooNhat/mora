@@ -1,10 +1,10 @@
 # Mora
 
-**Mora is a simple procure-to-pay platform for small and medium businesses.**
+**Mora is a lightweight procurement platform for small and medium businesses.**
 
-It covers the full procurement lifecycle — from purchase requests through to supplier payments.
+It models the core procure-to-pay chain with domain logic: approval workflows, state machines, role-based authorization, and cache-aware APIs.
 
-> Built by a solo dev. A personal project to explore what a lightweight P2P tool might look like for teams that need real procurement workflow.
+> This is a portfolio project for exploring what a lightweight P2P tool might look like. The current focuses on two main modules: **Purchase Requisitions** and **Purchase Orders**. The remaining modules (Goods Receipts, Invoices, Payments) are planned, but are out of scope for the current working.
 
 ---
 
