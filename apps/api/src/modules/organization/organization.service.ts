@@ -32,7 +32,7 @@ export class OrganizationService {
 
     const member = await this.organizationRepository.findMember(orgId, userId);
 
-    if (!member || !member.isActive) {
+    if (!member || !member.isActive || !member.organization.isActive) {
       throw new ForbiddenException(
         'You are not a member of this organization.',
       );

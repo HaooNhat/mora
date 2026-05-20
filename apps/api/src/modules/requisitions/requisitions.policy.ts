@@ -15,12 +15,9 @@ export const APPROVAL_THRESHOLDS: {
   below: number;
   roles: OrganizationRole[];
 }[] = [
-  { below: 500, roles: [] },
-  { below: 5_000, roles: [OrganizationRole.APPROVER] },
-  {
-    below: Infinity,
-    roles: [OrganizationRole.APPROVER, OrganizationRole.FINANCE_MANAGER],
-  },
+  { below: 500, roles: [] }, // auto-approved by the system
+  { below: 5_000, roles: [OrganizationRole.MANAGER] }, // MANAGER approves mid-range
+  { below: Infinity, roles: [OrganizationRole.OWNER] }, // only OWNER for high-value
 ];
 
 /**
@@ -31,17 +28,7 @@ export function resolveRequiredApproverRoles(
   amount: number,
 ): OrganizationRole[] {
   const tier = APPROVAL_THRESHOLDS.find((t) => amount < t.below);
-  return (
-    tier?.roles ?? [OrganizationRole.APPROVER, OrganizationRole.FINANCE_MANAGER]
-  );
-}
-
-/**
- * Returns true if the PR amount qualifies for automatic approval
- * (no human approver required).
- */
-export function isAutoApproved(amount: number): boolean {
-  return resolveRequiredApproverRoles(amount).length === 0;
+  return tier?.roles ?? [OrganizationRole.OWNER];
 }
 
 /**
@@ -49,9 +36,7 @@ export function isAutoApproved(amount: number): boolean {
  * These bypass threshold checks entirely.
  */
 const ELEVATED_APPROVER_ROLES: OrganizationRole[] = [
-  OrganizationRole.OWNER,
-  OrganizationRole.ADMIN,
-  OrganizationRole.PROCUREMENT_MANAGER,
+  OrganizationRole.OWNER, // full access + payment approval — bypasses all tiers
 ];
 
 /**

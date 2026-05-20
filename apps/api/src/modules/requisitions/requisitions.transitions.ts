@@ -6,14 +6,12 @@ import {
 } from '@prisma/client';
 import { canApprove } from './requisitions.policy';
 
-export type RequisitionEvent = 'SUBMIT' | 'APPROVE' | 'REJECT' | 'ORDER';
+export type RequisitionEvent = 'APPROVE' | 'REJECT' | 'ORDER';
 
-/** Roles that can create and manage POs from approved PRs */
-const BUYER_ROLES: OrganizationRole[] = [
-  OrganizationRole.OWNER,
-  OrganizationRole.ADMIN,
-  OrganizationRole.PROCUREMENT_MANAGER,
-  OrganizationRole.BUYER,
+/** Roles that can create POs from approved PRs */
+const ORDER_ELIGIBLE_ROLES: OrganizationRole[] = [
+  OrganizationRole.OWNER, // full access
+  OrganizationRole.FINANCE, // creates POs
 ];
 
 /**
@@ -30,14 +28,6 @@ export const REQUISITION_TRANSITIONS: TransitionMap<
   RequisitionEvent,
   PurchaseRequisition
 > = {
-  [RequisitionStatus.DRAFT]: {
-    SUBMIT: {
-      to: RequisitionStatus.SUBMITTED,
-      // Only the requester can submit their own PR
-      guard: ({ doc, actor }) => actor.id === doc.requestedBy,
-    },
-  },
-
   [RequisitionStatus.SUBMITTED]: {
     APPROVE: {
       to: RequisitionStatus.APPROVED,
@@ -59,8 +49,8 @@ export const REQUISITION_TRANSITIONS: TransitionMap<
   [RequisitionStatus.APPROVED]: {
     ORDER: {
       to: RequisitionStatus.ORDERED,
-      // Called internally by the PO service when a PO is created from this PR
-      guard: ({ actor }) => BUYER_ROLES.includes(actor.role),
+      // Must have the right role to order (finance team or owner)
+      guard: ({ actor }) => ORDER_ELIGIBLE_ROLES.includes(actor.role),
     },
   },
 };

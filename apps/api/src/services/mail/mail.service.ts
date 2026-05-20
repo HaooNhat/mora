@@ -1,4 +1,5 @@
-import mailConfig from '@mora/api/configs/mail.config';
+import appConfig from '@mora/api/configs/app.config';
+import { mailConfig } from '@mora/env';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { Resend } from 'resend';
@@ -11,13 +12,25 @@ export class MailService {
   constructor(
     @Inject(mailConfig.KEY)
     private readonly config: ConfigType<typeof mailConfig>,
+
+    @Inject(appConfig.KEY)
+    private readonly appConf: ConfigType<typeof appConfig>,
   ) {
     this.resend = new Resend(config.apiKey);
   }
 
-  async sendVerificationEmail(to: string, verifyUrl: string): Promise<void> {
+  async sendVerificationEmail(
+    toEmail: string,
+    verifyUrl: string,
+  ): Promise<void> {
+    const from = this.config.fromEmail;
+    const to =
+      this.appConf.nodeEnv === 'production'
+        ? toEmail
+        : (this.config.devToEmail ?? toEmail);
+
     const { error } = await this.resend.emails.send({
-      from: this.config.fromEmail,
+      from,
       to,
       subject: `Verify your ${this.config.appName} account`,
       html: `
@@ -30,7 +43,10 @@ export class MailService {
     });
 
     if (error) {
-      this.logger.error(`Failed to send verification email to ${to}`, error);
+      this.logger.error(
+        `Failed to send verification email to ${to} from ${from}`,
+        error,
+      );
       throw new Error('Failed to send verification email');
     }
   }

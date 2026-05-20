@@ -34,7 +34,7 @@ function makeRequisition(
     rejectedReason: null,
     currency: 'USD',
     totalAmount: 1000 as any,
-    status: RequisitionStatus.DRAFT,
+    status: RequisitionStatus.SUBMITTED,
     requestedAt: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -44,7 +44,7 @@ function makeRequisition(
 }
 
 function makeActor(
-  role: OrganizationRole = OrganizationRole.BUYER,
+  role: OrganizationRole = OrganizationRole.STAFF,
   id = 'user-1',
 ): Actor {
   return { id, role, orgId: 'org-1' };
@@ -100,10 +100,10 @@ describe('RequisitionsService', () => {
       expect(mockRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({
           title: dto.title,
-          totalAmount: 2100, // 2*1000 + 5*20
+          totalAmount: 2100,
           requestedBy: actor.id,
           organizationId: dto.orgId,
-          status: RequisitionStatus.DRAFT,
+          status: RequisitionStatus.SUBMITTED,
         }),
       );
     });
@@ -148,11 +148,11 @@ describe('RequisitionsService', () => {
   describe('update', () => {
     const dto: UpdateRequisitionDto = { title: 'Updated Title' };
 
-    it('updates a DRAFT requisition when requester edits', async () => {
-      const actor = makeActor(OrganizationRole.BUYER, 'user-1');
+    it('updates a SUBMITTED requisition when requester edits', async () => {
+      const actor = makeActor(OrganizationRole.STAFF, 'user-1');
       const req = makeRequisition({
         requestedBy: 'user-1',
-        status: RequisitionStatus.DRAFT,
+        status: RequisitionStatus.SUBMITTED,
       });
       mockRepo.findOne!.mockResolvedValue(req);
       mockRepo.update!.mockResolvedValue({ ...req, title: 'Updated Title' });
@@ -161,8 +161,8 @@ describe('RequisitionsService', () => {
       expect(result.title).toBe('Updated Title');
     });
 
-    it('throws BadRequestException when not in DRAFT status', async () => {
-      const actor = makeActor(OrganizationRole.BUYER, 'user-1');
+    it('throws BadRequestException when not in SUBMITTED status', async () => {
+      const actor = makeActor(OrganizationRole.STAFF, 'user-1');
       mockRepo.findOne!.mockResolvedValue(
         makeRequisition({
           status: RequisitionStatus.SUBMITTED,
@@ -176,10 +176,10 @@ describe('RequisitionsService', () => {
     });
 
     it('throws ForbiddenException when a different user tries to edit', async () => {
-      const actor = makeActor(OrganizationRole.ADMIN, 'user-other');
+      const actor = makeActor(OrganizationRole.OWNER, 'user-other');
       mockRepo.findOne!.mockResolvedValue(
         makeRequisition({
-          status: RequisitionStatus.DRAFT,
+          status: RequisitionStatus.SUBMITTED,
           requestedBy: 'user-1',
         }),
       );
@@ -193,11 +193,11 @@ describe('RequisitionsService', () => {
   // ── remove ────────────────────────────────────────────────────────────────
 
   describe('remove', () => {
-    it('deletes a DRAFT requisition when the requester calls it', async () => {
-      const actor = makeActor(OrganizationRole.BUYER, 'user-1');
+    it('deletes a SUBMITTED requisition when the requester calls it', async () => {
+      const actor = makeActor(OrganizationRole.STAFF, 'user-1');
       mockRepo.findOne!.mockResolvedValue(
         makeRequisition({
-          status: RequisitionStatus.DRAFT,
+          status: RequisitionStatus.SUBMITTED,
           requestedBy: 'user-1',
         }),
       );
@@ -206,8 +206,8 @@ describe('RequisitionsService', () => {
       expect(mockRepo.delete).toHaveBeenCalledWith('req-1');
     });
 
-    it('throws BadRequestException when not in DRAFT status', async () => {
-      const actor = makeActor(OrganizationRole.BUYER, 'user-1');
+    it('throws BadRequestException when not in SUBMITTED status', async () => {
+      const actor = makeActor(OrganizationRole.STAFF, 'user-1');
       mockRepo.findOne!.mockResolvedValue(
         makeRequisition({
           status: RequisitionStatus.APPROVED,
@@ -221,10 +221,10 @@ describe('RequisitionsService', () => {
     });
 
     it('throws ForbiddenException when a different user tries to delete', async () => {
-      const actor = makeActor(OrganizationRole.ADMIN, 'user-other');
+      const actor = makeActor(OrganizationRole.OWNER, 'user-other');
       mockRepo.findOne!.mockResolvedValue(
         makeRequisition({
-          status: RequisitionStatus.DRAFT,
+          status: RequisitionStatus.SUBMITTED,
           requestedBy: 'user-1',
         }),
       );
@@ -235,69 +235,11 @@ describe('RequisitionsService', () => {
     });
   });
 
-  // ── submit ────────────────────────────────────────────────────────────────
-
-  describe('submit', () => {
-    it('transitions DRAFT → SUBMITTED for requester (amount >= $500)', async () => {
-      const actor = makeActor(OrganizationRole.VIEWER, 'user-1');
-      const req = makeRequisition({
-        status: RequisitionStatus.DRAFT,
-        requestedBy: 'user-1',
-        totalAmount: 1000 as any,
-      });
-      mockRepo.findOne!.mockResolvedValue(req);
-      mockRepo.update!.mockResolvedValue({
-        ...req,
-        status: RequisitionStatus.SUBMITTED,
-      });
-
-      const result = await service.submit('req-1', actor);
-      expect(mockRepo.update).toHaveBeenCalledWith(
-        'req-1',
-        expect.objectContaining({ status: RequisitionStatus.SUBMITTED }),
-      );
-    });
-
-    it('auto-approves when total amount is below $500', async () => {
-      const actor = makeActor(OrganizationRole.VIEWER, 'user-1');
-      const req = makeRequisition({
-        status: RequisitionStatus.DRAFT,
-        requestedBy: 'user-1',
-        totalAmount: 100 as any,
-      });
-      mockRepo.findOne!.mockResolvedValue(req);
-      mockRepo.update!.mockResolvedValue({
-        ...req,
-        status: RequisitionStatus.APPROVED,
-      });
-
-      await service.submit('req-1', actor);
-      expect(mockRepo.update).toHaveBeenCalledWith(
-        'req-1',
-        expect.objectContaining({ status: RequisitionStatus.APPROVED }),
-      );
-    });
-
-    it('throws ForbiddenException when another user submits', async () => {
-      const actor = makeActor(OrganizationRole.ADMIN, 'user-other');
-      mockRepo.findOne!.mockResolvedValue(
-        makeRequisition({
-          status: RequisitionStatus.DRAFT,
-          requestedBy: 'user-1',
-        }),
-      );
-
-      await expect(service.submit('req-1', actor)).rejects.toThrow(
-        ForbiddenException,
-      );
-    });
-  });
-
   // ── approve ───────────────────────────────────────────────────────────────
 
   describe('approve', () => {
     it('transitions SUBMITTED → APPROVED for an approver', async () => {
-      const actor = makeActor(OrganizationRole.APPROVER, 'user-approver');
+      const actor = makeActor(OrganizationRole.MANAGER, 'user-approver');
       const req = makeRequisition({
         status: RequisitionStatus.SUBMITTED,
         requestedBy: 'user-1',
@@ -320,7 +262,7 @@ describe('RequisitionsService', () => {
     });
 
     it('throws ForbiddenException when requester self-approves', async () => {
-      const actor = makeActor(OrganizationRole.APPROVER, 'user-1');
+      const actor = makeActor(OrganizationRole.MANAGER, 'user-1');
       mockRepo.findOne!.mockResolvedValue(
         makeRequisition({
           status: RequisitionStatus.SUBMITTED,
@@ -338,7 +280,7 @@ describe('RequisitionsService', () => {
 
   describe('reject', () => {
     it('transitions SUBMITTED → REJECTED with a reason', async () => {
-      const actor = makeActor(OrganizationRole.APPROVER, 'user-approver');
+      const actor = makeActor(OrganizationRole.MANAGER, 'user-approver');
       const req = makeRequisition({
         status: RequisitionStatus.SUBMITTED,
         requestedBy: 'user-1',
@@ -361,7 +303,7 @@ describe('RequisitionsService', () => {
     });
 
     it('throws BadRequestException when reason is empty', async () => {
-      const actor = makeActor(OrganizationRole.APPROVER, 'user-approver');
+      const actor = makeActor(OrganizationRole.MANAGER, 'user-approver');
       mockRepo.findOne!.mockResolvedValue(
         makeRequisition({
           status: RequisitionStatus.SUBMITTED,

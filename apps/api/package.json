@@ -7,8 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "swagger:generate": "ts-node -r tsconfig-paths/register scripts/generate-openapi.ts",
-    "swagger:types": "npm run swagger:generate && openapi-typescript openapi.json -o ../frontend/src/types/api.ts",
-    "build": "nest build",
+    "swagger:types": "npm run swagger:generate && openapi-typescript openapi.json -o ../web/lib/api-client/schema.ts",
+    "build": "nest build && tsc-alias -p tsconfig.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -26,6 +26,8 @@
     "db:gen": "npx prisma generate"
   },
   "dependencies": {
+    "@mora/env": "workspace:*",
+    "@aws-sdk/client-sqs": "^3.0.0",
     "@nestjs/common": "^11.1.17",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.1.17",
@@ -33,13 +35,15 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.17",
     "@nestjs/schedule": "^6.1.1",
+    "@nestjs/terminus": "^11.1.1",
     "@nestjs/throttler": "^6.5.0",
     "@prisma/adapter-pg": "^7.6.0",
-    "@prisma/client": "^7.6.0",
+    "@prisma/client": "^7.8.0",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "cookie-parser": "^1.4.7",
+    "helmet": "^8.1.0",
     "ioredis": "^5.10.1",
     "joi": "^18.1.2",
     "nestjs-throttler-storage-redis": "^0.5.1",
@@ -48,6 +52,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.20.0",
+    "prom-client": "^15.1.3",
     "reflect-metadata": "^0.2.2",
     "resend": "^6.10.0",
     "rxjs": "^7.8.2",
@@ -80,15 +85,19 @@
     "jest": "^30.3.0",
     "js-yaml": "^4.1.1",
     "prettier": "^3.8.1",
-    "prisma": "^7.6.0",
+    "prisma": "^7.8.0",
     "source-map-support": "^0.5.21",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.6",
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.1"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -102,7 +111,8 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "moduleNameMapper": {
-      "^src/(.*)$": "<rootDir>/$1"
+      "^src/(.*)$": "<rootDir>/$1",
+      "^@mora/api/(.*)$": "<rootDir>/$1"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"

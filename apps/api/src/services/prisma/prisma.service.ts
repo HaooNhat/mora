@@ -1,4 +1,4 @@
-import databasePrismaConfig from '@mora/api/configs/database-prisma.config';
+import { databasePrismaConfig } from '@mora/env';
 import {
   Inject,
   Injectable,

@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 
+import { MetricsService } from '@mora/api/modules/metrics/metrics.service';
 import { LoginWithPasswordDto } from './dto/request-dto/login.dto';
 import { RegisterDto } from './dto/request-dto/register.dto';
 
@@ -27,6 +28,7 @@ export class AuthService {
     private readonly jwtTokenService: JwtTokenService,
     private readonly refreshTokenRotationService: RefreshTokenRotationService,
     private readonly emailVerificationService: EmailVerificationService,
+    private readonly metrics: MetricsService,
   ) {}
 
   async register(dto: RegisterDto): Promise<void> {
@@ -57,13 +59,18 @@ export class AuthService {
       throw new ConflictException('An account with this email already exists.');
     }
 
-    await this.userService.createUser({
+    const user = await this.userService.createUser({
       email: normalizedEmail,
-      email_verified: true,
+      email_verified: false,
       password: dto.password,
       firstName: dto.firstName,
       lastName: dto.lastName,
     });
+
+    await this.emailVerificationService.createAndSendVerificationToken(
+      user.id,
+      user.email,
+    );
   }
 
   async verifyEmail(token: string): Promise<void> {
@@ -86,19 +93,23 @@ export class AuthService {
 
     if (!user || !(await this.userService.verifyPassword(user, dto.password))) {
       this.logger.warn(`Failed login attempt for email: ${dto.email}`);
+      this.metrics.authAttemptsTotal.inc({ method: 'password', outcome: 'failure' });
       throw new UnauthorizedException('Invalid credentials');
     }
 
     if (!user.isEmailVerified) {
+      this.metrics.authAttemptsTotal.inc({ method: 'password', outcome: 'unverified' });
       throw new UnauthorizedException(
         'Please verify your email before logging in',
       );
     }
 
     if (!user.isActive) {
+      this.metrics.authAttemptsTotal.inc({ method: 'password', outcome: 'disabled' });
       throw new UnauthorizedException('Account is disabled');
     }
 
+    this.metrics.authAttemptsTotal.inc({ method: 'password', outcome: 'success' });
     return this.issueAndPersistTokens(user);
   }
 
@@ -131,9 +142,11 @@ export class AuthService {
     }
 
     if (!user.isActive) {
+      this.metrics.authAttemptsTotal.inc({ method: 'google', outcome: 'disabled' });
       throw new UnauthorizedException('Account is disabled');
     }
 
+    this.metrics.authAttemptsTotal.inc({ method: 'google', outcome: 'success' });
     return this.issueAndPersistTokens(user, {
       stableDeviceId: input.stableDeviceId,
     });
@@ -159,11 +172,14 @@ export class AuthService {
       email: user.email,
     });
 
-    await this.refreshTokenRotationService.persistRefreshToken({
-      userId: user.id,
-      rawRefreshToken: tokens.refreshToken,
-      stableDeviceId: options?.stableDeviceId,
-    });
+    await Promise.all([
+      this.refreshTokenRotationService.persistRefreshToken({
+        userId: user.id,
+        rawRefreshToken: tokens.refreshToken,
+        stableDeviceId: options?.stableDeviceId,
+      }),
+      this.userService.updateLastLogin(user.id),
+    ]);
 
     return tokens;
   }

@@ -15,27 +15,30 @@ export class RefreshTokenRepository {
     await this.prisma.refreshToken.create({ data });
   }
 
-  async revokeOne(
+  /**
+   * Atomically revokes the token if active, or detects reuse if it was already revoked.
+   * Combines both checks in a single transaction to eliminate the race window that
+   * exists when they run as separate queries.
+   */
+  async revokeAndDetectReuse(
     userId: string,
     hashedToken: string,
-  ): Promise<{ count: number }> {
-    return this.prisma.refreshToken.updateMany({
-      where: {
-        userId,
-        hashedToken,
-        revoked: false,
-        expiresAt: { gt: new Date() },
-      },
-      data: { revoked: true },
-    });
-  }
+  ): Promise<{ revoked: boolean; isReuse: boolean }> {
+    return this.prisma.$transaction(async (tx) => {
+      const result = await tx.refreshToken.updateMany({
+        where: { userId, hashedToken, revoked: false, expiresAt: { gt: new Date() } },
+        data: { revoked: true },
+      });
 
-  async findRevoked(
-    userId: string,
-    hashedToken: string,
-  ): Promise<RefreshToken | null> {
-    return this.prisma.refreshToken.findFirst({
-      where: { userId, hashedToken, revoked: true },
+      if (result.count > 0) {
+        return { revoked: true, isReuse: false };
+      }
+
+      const revokedRecord = await tx.refreshToken.findFirst({
+        where: { userId, hashedToken, revoked: true },
+      });
+
+      return { revoked: false, isReuse: !!revokedRecord };
     });
   }
 

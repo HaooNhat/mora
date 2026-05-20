@@ -31,11 +31,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: Payload): Promise<JwtExtracted> {
-    if (payload.jti) {
-      const denied = await this.redisService.exists(`jwt:deny:${payload.jti}`);
-      if (denied) {
-        throw new UnauthorizedException('Token has been revoked.');
-      }
+    if (!payload.jti) {
+      throw new UnauthorizedException('Invalid token structure.');
+    }
+
+    const denied = await this.redisService.exists(`jwt:deny:${payload.jti}`);
+    if (denied) {
+      throw new UnauthorizedException('Token has been revoked.');
     }
 
     return {

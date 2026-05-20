@@ -7,26 +7,17 @@ import {
 import { RequisitionStatus } from '@prisma/client';
 
 import { paginate, Paginated } from '@mora/api/common/dto/page-query.dto';
-import {
-  ForbiddenTransitionException,
-  InvalidTransitionException,
-  MissingRequiredFieldException,
-} from '@mora/api/common/state-machine/exceptions';
-import { applyTransition } from '@mora/api/common/state-machine/state-machine';
 import { Actor } from '@mora/api/common/state-machine/types';
+import { TransitionExecutor } from '@mora/api/common/transition-executor/transition-executor.service';
 import { RedisService } from '@mora/api/services/redis/redis.service';
 
 import { CreateRequisitionDto } from './dto/create-requisition.dto';
 import { UpdateRequisitionDto } from './dto/update-requisition.dto';
-import { isAutoApproved } from './requisitions.policy';
 import {
   RequisitionsRepository,
   RequisitionWithItems,
 } from './requisitions.repository';
-import {
-  REQUISITION_TRANSITIONS,
-  RequisitionEvent,
-} from './requisitions.transitions';
+import { REQUISITION_TRANSITIONS } from './requisitions.transitions';
 
 const REQUISITION_CACHE_TTL = 300; // 5 minutes
 
@@ -35,6 +26,7 @@ export class RequisitionsService {
   constructor(
     private readonly requisitionsRepository: RequisitionsRepository,
     private readonly redisService: RedisService,
+    private readonly transitionExecutor: TransitionExecutor,
   ) {}
 
   async create(
@@ -46,14 +38,14 @@ export class RequisitionsService {
       0,
     );
 
-    return this.requisitionsRepository.create({
+    const result = await this.requisitionsRepository.create({
       title: dto.title,
       description: dto.description,
       organizationId: dto.orgId,
       requestedBy: actor.id,
       totalAmount,
       currency: dto.currency ?? 'USD',
-      status: RequisitionStatus.DRAFT,
+      status: RequisitionStatus.SUBMITTED,
       items: {
         create: dto.items.map((item) => ({
           description: item.description,
@@ -65,6 +57,8 @@ export class RequisitionsService {
         })),
       },
     });
+    await this.invalidateOrgCache(dto.orgId);
+    return result;
   }
 
   async findAll(
@@ -73,10 +67,12 @@ export class RequisitionsService {
     limit: number,
   ): Promise<Paginated<RequisitionWithItems>> {
     const cacheKey = `requisitions:${orgId}:${page}:${limit}`;
-    const cached =
-      await this.redisService.getObject<RequisitionWithItems[]>(cacheKey);
+    const cached = await this.redisService.getObject<{
+      data: RequisitionWithItems[];
+      total: number;
+    }>(cacheKey);
 
-    if (cached) return paginate(cached, cached.length, page, limit);
+    if (cached) return paginate(cached.data, cached.total, page, limit);
 
     const { data, total } = await this.requisitionsRepository.findMany(
       orgId,
@@ -84,10 +80,9 @@ export class RequisitionsService {
       limit,
     );
 
-    const requisitions: RequisitionWithItems[] = data;
     await this.redisService.setObject(
       cacheKey,
-      requisitions,
+      { data, total },
       REQUISITION_CACHE_TTL,
     );
 
@@ -107,8 +102,8 @@ export class RequisitionsService {
   ): Promise<RequisitionWithItems> {
     const pr = await this.findOne(id, actor.orgId);
 
-    if (pr.status !== RequisitionStatus.DRAFT) {
-      throw new BadRequestException('Only DRAFT requisitions can be updated.');
+    if (pr.status !== RequisitionStatus.SUBMITTED) {
+      throw new BadRequestException('Only SUBMITTED requisitions can be updated.');
     }
     if (pr.requestedBy !== actor.id) {
       throw new ForbiddenException(
@@ -120,7 +115,7 @@ export class RequisitionsService {
       ? dto.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
       : Number(pr.totalAmount);
 
-    return this.requisitionsRepository.update(id, {
+    const result = await this.requisitionsRepository.update(id, actor.orgId, {
       title: dto.title,
       description: dto.description,
       totalAmount,
@@ -138,13 +133,15 @@ export class RequisitionsService {
         },
       }),
     });
+    await this.invalidateOrgCache(actor.orgId);
+    return result;
   }
 
   async remove(id: string, actor: Actor): Promise<void> {
     const pr = await this.findOne(id, actor.orgId);
 
-    if (pr.status !== RequisitionStatus.DRAFT) {
-      throw new BadRequestException('Only DRAFT requisitions can be deleted.');
+    if (pr.status !== RequisitionStatus.SUBMITTED) {
+      throw new BadRequestException('Only SUBMITTED requisitions can be deleted.');
     }
     if (pr.requestedBy !== actor.id) {
       throw new ForbiddenException(
@@ -152,37 +149,40 @@ export class RequisitionsService {
       );
     }
 
-    await this.requisitionsRepository.delete(id);
+    await this.requisitionsRepository.delete(id, actor.orgId);
+    await this.invalidateOrgCache(actor.orgId);
   }
 
   // ---------------------------------------------------------------------------
   // Transitions
   // ---------------------------------------------------------------------------
 
-  async submit(id: string, actor: Actor): Promise<RequisitionWithItems> {
-    const pr = await this.findOne(id, actor.orgId);
-    this.transition(pr, 'SUBMIT', actor);
-
-    // Compute the final status before writing — single atomic update, no transaction needed.
-    const autoApprove = isAutoApproved(Number(pr.totalAmount));
-
-    return this.requisitionsRepository.update(id, {
-      status: autoApprove
-        ? RequisitionStatus.APPROVED
-        : RequisitionStatus.SUBMITTED,
-      ...(autoApprove && { approvedAt: new Date() }),
-    });
-  }
-
   async approve(id: string, actor: Actor): Promise<RequisitionWithItems> {
     const pr = await this.findOne(id, actor.orgId);
-    const newStatus = this.transition(pr, 'APPROVE', actor);
 
-    return this.requisitionsRepository.update(id, {
-      status: newStatus,
-      approvedBy: actor.id,
-      approvedAt: new Date(),
-    });
+    const result = await this.transitionExecutor.execute(
+      {
+        map: REQUISITION_TRANSITIONS,
+        doc: pr,
+        event: 'APPROVE',
+        ctx: { doc: pr, actor },
+        orgId: actor.orgId,
+        entityType: 'REQUISITION',
+      },
+      (tx, newStatus) =>
+        tx.purchaseRequisition.update({
+          where: { id, organizationId: actor.orgId },
+          data: {
+            status: newStatus,
+            approvedBy: actor.id,
+            approvedAt: new Date(),
+          },
+          include: { items: true },
+        }),
+    );
+
+    await this.invalidateOrgCache(actor.orgId);
+    return result as RequisitionWithItems;
   }
 
   async reject(
@@ -191,14 +191,32 @@ export class RequisitionsService {
     actor: Actor,
   ): Promise<RequisitionWithItems> {
     const pr = await this.findOne(id, actor.orgId);
-    const newStatus = this.transition(pr, 'REJECT', actor, { rejectedReason });
 
-    return this.requisitionsRepository.update(id, {
-      status: newStatus,
-      approvedBy: actor.id,
-      approvedAt: new Date(),
-      rejectedReason,
-    });
+    const result = await this.transitionExecutor.execute(
+      {
+        map: REQUISITION_TRANSITIONS,
+        doc: pr,
+        event: 'REJECT',
+        ctx: { doc: pr, actor, payload: { rejectedReason } },
+        orgId: actor.orgId,
+        entityType: 'REQUISITION',
+        metadata: { rejectedReason },
+      },
+      (tx, newStatus) =>
+        tx.purchaseRequisition.update({
+          where: { id, organizationId: actor.orgId },
+          data: {
+            status: newStatus,
+            approvedBy: actor.id,
+            approvedAt: new Date(),
+            rejectedReason,
+          },
+          include: { items: true },
+        }),
+    );
+
+    await this.invalidateOrgCache(actor.orgId);
+    return result as RequisitionWithItems;
   }
 
   /**
@@ -207,41 +225,41 @@ export class RequisitionsService {
    */
   async markOrdered(id: string, actor: Actor): Promise<RequisitionWithItems> {
     const pr = await this.findOne(id, actor.orgId);
-    const newStatus = this.transition(pr, 'ORDER', actor);
 
-    return this.requisitionsRepository.update(id, { status: newStatus });
+    const newStatus = this.transitionExecutor.validate({
+      map: REQUISITION_TRANSITIONS,
+      doc: pr,
+      event: 'ORDER',
+      ctx: { doc: pr, actor },
+    });
+
+    const result = await this.transitionExecutor.executeWithAudit(
+      {
+        orgId: actor.orgId,
+        entityType: 'REQUISITION',
+        entityId: id,
+        event: 'ORDER',
+        fromStatus: pr.status,
+        toStatus: newStatus,
+        actorId: actor.id,
+      },
+      (tx) =>
+        tx.purchaseRequisition.update({
+          where: { id, organizationId: actor.orgId },
+          data: { status: newStatus },
+          include: { items: true },
+        }),
+    );
+
+    await this.invalidateOrgCache(actor.orgId);
+    return result as RequisitionWithItems;
   }
 
   // ---------------------------------------------------------------------------
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  /**
-   * Wraps applyTransition and maps state machine exceptions to NestJS HTTP exceptions.
-   */
-  private transition(
-    pr: RequisitionWithItems,
-    event: RequisitionEvent,
-    actor: Actor,
-    payload?: Record<string, unknown>,
-  ): RequisitionStatus {
-    try {
-      return applyTransition(REQUISITION_TRANSITIONS, pr, event, {
-        doc: pr,
-        actor,
-        payload,
-      });
-    } catch (err) {
-      if (err instanceof InvalidTransitionException) {
-        throw new BadRequestException(err.message);
-      }
-      if (err instanceof ForbiddenTransitionException) {
-        throw new ForbiddenException(err.message);
-      }
-      if (err instanceof MissingRequiredFieldException) {
-        throw new BadRequestException(err.message);
-      }
-      throw err;
-    }
+  private async invalidateOrgCache(orgId: string): Promise<void> {
+    await this.redisService.delByPattern(`requisitions:${orgId}:*`);
   }
 }

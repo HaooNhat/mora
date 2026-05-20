@@ -54,16 +54,19 @@ export class RequisitionsRepository {
 
   async update(
     id: string,
+    orgId: string,
     data: Prisma.PurchaseRequisitionUncheckedUpdateInput,
   ): Promise<RequisitionWithItems> {
     return this.prisma.purchaseRequisition.update({
-      where: { id },
+      where: { id, organizationId: orgId },
       data,
       include: { items: true },
     });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.prisma.purchaseRequisition.delete({ where: { id } });
+  async delete(id: string, orgId: string): Promise<void> {
+    await this.prisma.purchaseRequisition.delete({
+      where: { id, organizationId: orgId },
+    });
   }
 }

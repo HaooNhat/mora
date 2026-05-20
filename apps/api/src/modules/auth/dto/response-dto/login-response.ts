@@ -10,17 +10,27 @@ export class UserResponseDto {
   @Expose()
   email: string;
 
-  @ApiProperty({ example: 'John', nullable: true })
+  @ApiProperty({ example: 'John', nullable: true, type: String })
   @Expose()
   firstName: string | null;
 
-  @ApiProperty({ example: 'Doe', nullable: true })
+  @ApiProperty({ example: 'Doe', nullable: true, type: String })
   @Expose()
   lastName: string | null;
 
-  @ApiProperty({ example: 'https://example.com/avatar.jpg', nullable: true })
+  @ApiProperty({
+    example: 'https://example.com/avatar.jpg',
+    nullable: true,
+    type: String,
+  })
   @Expose()
   picture: string | null;
+
+  @ApiProperty({
+    example: 'true',
+  })
+  @Expose()
+  isEmailVerified: boolean;
 
   @Exclude()
   googleId: string | null;
@@ -32,8 +42,6 @@ export class UserResponseDto {
   updatedAt: Date;
   @Exclude()
   lastLoginAt: Date | null;
-  @Exclude()
-  isEmailVerified: boolean;
   @Exclude()
   isActive: boolean;
 }

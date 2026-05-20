@@ -27,8 +27,7 @@ export type TransitionContext<TDoc> = {
  * - `guard`    — optional fn that returns false to block the transition
  * - `requires` — payload keys that must be present (non-empty) to proceed
  *
- * Effects (emails, cascading updates) are handled in the service layer,
- * not here — keeping this as pure, synchronous, testable data.
+ * Effects (emails, cascading updates) are handled in the service layer, not here.
  */
 export type Transition<TStatus, TDoc> = {
   to: TStatus;
@@ -39,7 +38,7 @@ export type Transition<TStatus, TDoc> = {
 /**
  * Full transition map for a document type.
  *
- * Shape: { [currentStatus]: { [eventName]: Transition } }
+ * Shape: { [currentStatus]: { [eventName/action]: Transition/Next_State } }
  *
  * Only valid (from, event) pairs are defined — anything not listed
  * is automatically an invalid transition.

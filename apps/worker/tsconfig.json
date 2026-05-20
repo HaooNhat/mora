@@ -1,0 +1,14 @@
+{
+  "extends": "../../packages/typescript-config/nest.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "rootDir": "./src",
+    "paths": {
+      "@mora/worker/*": ["src/*"],
+      "@mora/env": ["../../packages/env/src/*"]
+    },
+    "outDir": "./dist",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "strictNullChecks": true
+  }
+}

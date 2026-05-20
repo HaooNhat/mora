@@ -10,6 +10,10 @@ export type OrganizationWithMemberRole = Organization & {
   role: OrganizationRole;
 };
 
+export type MemberWithOrgStatus = OrganizationMember & {
+  organization: { isActive: boolean };
+};
+
 @Injectable()
 export class OrganizationRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -17,9 +21,10 @@ export class OrganizationRepository {
   async findMember(
     organizationId: string,
     userId: string,
-  ): Promise<OrganizationMember | null> {
+  ): Promise<MemberWithOrgStatus | null> {
     return this.prisma.organizationMember.findUnique({
       where: { organizationId_userId: { organizationId, userId } },
+      include: { organization: { select: { isActive: true } } },
     });
   }
 
