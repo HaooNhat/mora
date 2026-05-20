@@ -1,7 +1,7 @@
-"use client";
+// "use client";
 
-import { InvoicesPage } from "@/features/invoices/components/invoices-page";
+// import { InvoicesPage } from "@/features/invoices/components/invoices-page";
 
-export default function Page() {
-  return <InvoicesPage />;
-}
+// export default function Page() {
+//   return <InvoicesPage />;
+// }

@@ -1,7 +1,7 @@
-"use client";
+// "use client";
 
-import { PaymentsPage } from "@/features/payments/components/payments-page";
+// import { PaymentsPage } from "@/features/payments/components/payments-page";
 
-export default function Page() {
-  return <PaymentsPage />;
-}
+// export default function Page() {
+//   return <PaymentsPage />;
+// }
