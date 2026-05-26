@@ -1,9 +1,9 @@
-import Joi from 'joi';
+import Joi from "joi";
 
 export const baseSchema = {
   NODE_ENV: Joi.string()
-    .valid('development', 'production', 'test')
-    .default('development'),
+    .valid("development", "production", "test")
+    .default("development"),
 };
 
 export const databaseSchema = {
@@ -12,15 +12,22 @@ export const databaseSchema = {
 
 export const mailSchema = {
   RESEND_API_KEY: Joi.string().required(),
-  RESEND_FROM_EMAIL: Joi.string().default('onboarding@resend.dev'),
+  RESEND_FROM_EMAIL: Joi.string().default("onboarding@resend.dev"),
   RESEND_DEV_TO_EMAIL: Joi.string().optional(),
-  APP_NAME: Joi.string().default('Mora'),
+  APP_NAME: Joi.string().default("Mora"),
 };
 
 export const sqsSchema = {
-  AWS_REGION: Joi.string().default('us-east-1'),
+  AWS_REGION: Joi.string().default("us-east-1"),
   AWS_ACCESS_KEY_ID: Joi.string().required(),
   AWS_SECRET_ACCESS_KEY: Joi.string().required(),
   SQS_QUEUE_URL: Joi.string().required(),
   SQS_ENDPOINT_URL: Joi.string().optional(),
+};
+
+export const redisSchema = {
+  REDIS_URL: Joi.string().default("localhost:6379"),
+  REDIS_PASSWORD: Joi.string().optional(),
+  REDIS_USERNAME: Joi.string().optional(),
+  REDIS_TLS: Joi.boolean().default(false),
 };

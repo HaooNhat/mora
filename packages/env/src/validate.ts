@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi from "joi";
 
 export function buildValidate(schema: Joi.ObjectSchema) {
   return function validate(config: Record<string, unknown>) {
