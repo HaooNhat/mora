@@ -29,7 +29,7 @@
     "SQS_QUEUE_URL",
     "SQS_ENDPOINT_URL"
   ],
-  "globalDependencies": [""],
+  "globalDependencies": ["pnpm-lock.yaml"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -60,12 +60,12 @@
       "persistent": true
     },
     "@mora/api#dev": {
-      "dependsOn": ["@mora/env#build"],
+      "dependsOn": ["@mora/env#build", "@mora/jobs#build"],
       "cache": false,
       "persistent": true
     },
     "@mora/worker#dev": {
-      "dependsOn": ["@mora/env#build"],
+      "dependsOn": ["@mora/env#build", "@mora/jobs#build"],
       "cache": false,
       "persistent": true
     },

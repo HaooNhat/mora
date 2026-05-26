@@ -46,7 +46,7 @@
     "@mora/eslint-config": "workspace:*",
     "@mora/typescript-config": "workspace:*",
     "tailwindcss": "^4.1.11",
-    "typescript": "^5.9.2"
+    "typescript": "^6.0.3"
   },
   "exports": {
     "./globals.css": "./src/styles/globals.css",

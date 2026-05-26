@@ -4,7 +4,7 @@
   "root": "apps/api",
   "sourceRoot": "apps/api/src",
   "compilerOptions": {
-    "tsConfigPath": "apps/api/tsconfig.json",
+    "tsConfigPath": "apps/api/tsconfig.build.json",
     "deleteOutDir": true
   },
   "projects": {
@@ -14,7 +14,7 @@
       "entryFile": "main",
       "sourceRoot": "apps/api/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/api/tsconfig.json",
+        "tsConfigPath": "apps/api/tsconfig.build.json",
         "deleteOutDir": true
       }
     },
@@ -24,10 +24,9 @@
       "entryFile": "main",
       "sourceRoot": "apps/worker/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/worker/tsconfig.json",
+        "tsConfigPath": "apps/worker/tsconfig.build.json",
         "deleteOutDir": true
       }
     }
   }
 }
-

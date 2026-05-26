@@ -2,6 +2,7 @@
   "extends": "@mora/typescript-config/base.json",
   "compilerOptions": {
     "strictNullChecks": true,
+    "ignoreDeprecations": "6.0",
     "baseUrl": "./",
     "paths": {}
   }
