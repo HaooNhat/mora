@@ -97,6 +97,34 @@ services:
       - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
     depends_on:
       - prometheus
+      - loki
+
+  loki:
+    image: grafana/loki:3.0.0
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki.yml
+    volumes:
+      - ./infra/loki/loki.yml:/etc/loki/loki.yml:ro
+      - loki_data:/loki
+
+  alloy:
+    image: grafana/alloy:latest
+    restart: unless-stopped
+    ports:
+      - "12345:12345"
+    volumes:
+      - ./infra/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - alloy_data:/var/lib/alloy
+    command: >
+      run
+      --server.http.listen-addr=0.0.0.0:12345
+      --storage.path=/var/lib/alloy
+      /etc/alloy/config.alloy
+    depends_on:
+      - loki
 
   localstack:
     image: localstack/localstack:3
@@ -119,5 +147,7 @@ volumes:
   postgres_data:
   redis_data:
   prometheus_data:
+  loki_data:
+  alloy_data:
   grafana_data:
   localstack_data:
