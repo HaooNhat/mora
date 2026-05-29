@@ -17,8 +17,8 @@ export class MetricsInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const req = context.switchToHttp().getRequest<Request>();
-    const route: string = (req as Request & { route?: { path: string } }).route
-      ?.path ?? req.url;
+    const route: string =
+      (req as Request & { route?: { path: string } }).route?.path ?? req.url;
 
     if (EXCLUDED_ROUTES.has(route)) return next.handle();
 

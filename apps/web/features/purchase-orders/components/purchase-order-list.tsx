@@ -50,11 +50,18 @@ export function PurchaseOrderList({ orgId }: PurchaseOrderListProps) {
   }
 
   if (isError) {
-    return <div className="text-center py-16 text-destructive text-sm">{tCommon("error")}</div>;
+    return (
+      <div className="text-center py-16 text-destructive text-sm">
+        {tCommon("error")}
+      </div>
+    );
   }
 
   const all = data?.data ?? [];
-  const filtered = selected.size === 0 ? all : all.filter((po) => selected.has(po.status as PurchaseOrderStatus));
+  const filtered =
+    selected.size === 0
+      ? all
+      : all.filter((po) => selected.has(po.status as PurchaseOrderStatus));
 
   return (
     <div className="space-y-4">
@@ -108,10 +115,14 @@ export function PurchaseOrderList({ orgId }: PurchaseOrderListProps) {
           </div>
           <p className="text-foreground font-medium">{t("noOrders")}</p>
           <p className="text-sm text-muted-foreground mt-1">
-            {selected.size > 0 ? "No items match the selected filters." : t("noOrdersHint")}
+            {selected.size > 0
+              ? "No items match the selected filters."
+              : t("noOrdersHint")}
           </p>
           <Link href={`/${locale}/dashboard/requisitions`} className="mt-4">
-            <Button variant="outline" className="text-sm">Go to Requisitions →</Button>
+            <Button variant="outline" className="text-sm">
+              Go to Requisitions →
+            </Button>
           </Link>
         </div>
       )}
@@ -122,11 +133,21 @@ export function PurchaseOrderList({ orgId }: PurchaseOrderListProps) {
           <table className="w-full text-sm">
             <thead className="bg-secondary/40">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Order</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground hidden md:table-cell">Supplier</th>
-                <th className="px-4 py-3 text-right font-medium text-muted-foreground hidden sm:table-cell">{t("totalAmount")}</th>
-                <th className="px-4 py-3 text-center font-medium text-muted-foreground">Status</th>
-                <th className="px-4 py-3 text-right font-medium text-muted-foreground hidden md:table-cell">{t("orderDate")}</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                  Order
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground hidden md:table-cell">
+                  Supplier
+                </th>
+                <th className="px-4 py-3 text-right font-medium text-muted-foreground hidden sm:table-cell">
+                  {t("totalAmount")}
+                </th>
+                <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-right font-medium text-muted-foreground hidden md:table-cell">
+                  {t("orderDate")}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -134,12 +155,18 @@ export function PurchaseOrderList({ orgId }: PurchaseOrderListProps) {
                 <tr
                   key={po.id}
                   className="hover:bg-secondary/30 transition-colors cursor-pointer"
-                  onClick={() => (window.location.href = `/${locale}/dashboard/purchase-orders/${po.id}`)}
+                  onClick={() =>
+                    (window.location.href = `/${locale}/dashboard/purchase-orders/${po.id}`)
+                  }
                 >
                   <td className="px-4 py-3">
-                    <div className="font-mono font-medium text-foreground text-xs">{po.id.slice(0, 8).toUpperCase()}</div>
+                    <div className="font-mono font-medium text-foreground text-xs">
+                      {po.id.slice(0, 8).toUpperCase()}
+                    </div>
                     {po.requisitionId && (
-                      <div className="text-xs text-muted-foreground mt-0.5">PR: {po.requisitionId.slice(0, 8).toUpperCase()}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        PR: {po.requisitionId.slice(0, 8).toUpperCase()}
+                      </div>
                     )}
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell">
@@ -148,7 +175,10 @@ export function PurchaseOrderList({ orgId }: PurchaseOrderListProps) {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums text-foreground hidden sm:table-cell">
-                    {new Intl.NumberFormat(undefined, { style: "currency", currency: po.currency }).format(po.totalAmount)}
+                    {new Intl.NumberFormat(undefined, {
+                      style: "currency",
+                      currency: po.currency,
+                    }).format(po.totalAmount)}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <PurchaseOrderStatusBadge status={po.status} />

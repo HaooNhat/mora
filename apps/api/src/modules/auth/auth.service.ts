@@ -93,23 +93,35 @@ export class AuthService {
 
     if (!user || !(await this.userService.verifyPassword(user, dto.password))) {
       this.logger.warn(`Failed login attempt for email: ${dto.email}`);
-      this.metrics.authAttemptsTotal.inc({ method: 'password', outcome: 'failure' });
+      this.metrics.authAttemptsTotal.inc({
+        method: 'password',
+        outcome: 'failure',
+      });
       throw new UnauthorizedException('Invalid credentials');
     }
 
     if (!user.isEmailVerified) {
-      this.metrics.authAttemptsTotal.inc({ method: 'password', outcome: 'unverified' });
+      this.metrics.authAttemptsTotal.inc({
+        method: 'password',
+        outcome: 'unverified',
+      });
       throw new UnauthorizedException(
         'Please verify your email before logging in',
       );
     }
 
     if (!user.isActive) {
-      this.metrics.authAttemptsTotal.inc({ method: 'password', outcome: 'disabled' });
+      this.metrics.authAttemptsTotal.inc({
+        method: 'password',
+        outcome: 'disabled',
+      });
       throw new UnauthorizedException('Account is disabled');
     }
 
-    this.metrics.authAttemptsTotal.inc({ method: 'password', outcome: 'success' });
+    this.metrics.authAttemptsTotal.inc({
+      method: 'password',
+      outcome: 'success',
+    });
     return this.issueAndPersistTokens(user);
   }
 
@@ -142,11 +154,17 @@ export class AuthService {
     }
 
     if (!user.isActive) {
-      this.metrics.authAttemptsTotal.inc({ method: 'google', outcome: 'disabled' });
+      this.metrics.authAttemptsTotal.inc({
+        method: 'google',
+        outcome: 'disabled',
+      });
       throw new UnauthorizedException('Account is disabled');
     }
 
-    this.metrics.authAttemptsTotal.inc({ method: 'google', outcome: 'success' });
+    this.metrics.authAttemptsTotal.inc({
+      method: 'google',
+      outcome: 'success',
+    });
     return this.issueAndPersistTokens(user, {
       stableDeviceId: input.stableDeviceId,
     });

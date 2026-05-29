@@ -33,7 +33,11 @@ interface Props {
   isSubmitting?: boolean;
 }
 
-function emptyItem(from?: { description: string; quantity: number; unitPrice: string }): ItemDraft {
+function emptyItem(from?: {
+  description: string;
+  quantity: number;
+  unitPrice: string;
+}): ItemDraft {
   return {
     description: from?.description ?? "",
     quantity: String(from?.quantity ?? "1"),
@@ -78,18 +82,28 @@ export function CreatePurchaseOrderForm({
     const e: FormErrors = {};
     if (!supplierOrgId.trim()) e.supplierOrgId = t("errors.supplierRequired");
     const itemErrors = items.map((item) => {
-      const ie: { description?: string; quantity?: string; unitPrice?: string } = {};
-      if (!item.description.trim()) ie.description = t("errors.itemDescriptionRequired");
-      if (!item.quantity || Number(item.quantity) < 1) ie.quantity = t("errors.itemQuantityPositive");
-      if (!item.unitPrice || Number(item.unitPrice) <= 0) ie.unitPrice = t("errors.itemPricePositive");
+      const ie: {
+        description?: string;
+        quantity?: string;
+        unitPrice?: string;
+      } = {};
+      if (!item.description.trim())
+        ie.description = t("errors.itemDescriptionRequired");
+      if (!item.quantity || Number(item.quantity) < 1)
+        ie.quantity = t("errors.itemQuantityPositive");
+      if (!item.unitPrice || Number(item.unitPrice) <= 0)
+        ie.unitPrice = t("errors.itemPricePositive");
       return ie;
     });
-    if (itemErrors.some((ie) => Object.keys(ie).length > 0)) e.items = itemErrors;
+    if (itemErrors.some((ie) => Object.keys(ie).length > 0))
+      e.items = itemErrors;
     return e;
   }
 
   function setItem(index: number, patch: Partial<ItemDraft>) {
-    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, ...patch } : item)));
+    setItems((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, ...patch } : item)),
+    );
   }
 
   const lineTotal = (item: ItemDraft) =>
@@ -127,8 +141,11 @@ export function CreatePurchaseOrderForm({
       {prefillFromRequisition && (
         <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 px-4 py-3 text-sm text-blue-700 dark:text-blue-300">
           <span className="font-medium">{t("fields.requisitionId")}: </span>
-          <span className="font-inter-tight">{prefillFromRequisition.id.slice(0, 8).toUpperCase()}</span>
-          {" — "}{prefillFromRequisition.title}
+          <span className="font-inter-tight">
+            {prefillFromRequisition.id.slice(0, 8).toUpperCase()}
+          </span>
+          {" — "}
+          {prefillFromRequisition.title}
         </div>
       )}
 
@@ -136,7 +153,9 @@ export function CreatePurchaseOrderForm({
         <FieldGroup className="gap-4">
           {/* Supplier */}
           <Field>
-            <FieldLabel htmlFor="po-supplier">{t("fields.supplierOrgId")}</FieldLabel>
+            <FieldLabel htmlFor="po-supplier">
+              {t("fields.supplierOrgId")}
+            </FieldLabel>
             <Input
               id="po-supplier"
               value={supplierOrgId}
@@ -149,16 +168,22 @@ export function CreatePurchaseOrderForm({
               aria-invalid={!!errors.supplierOrgId}
               className={`h-12 ${errors.supplierOrgId ? "border-red-400" : ""}`}
             />
-            <p className="text-xs text-gray-400 mt-1">{t("fields.supplierOrgIdHint")}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {t("fields.supplierOrgIdHint")}
+            </p>
             {errors.supplierOrgId && (
-              <p className="text-xs text-red-500 mt-1">{errors.supplierOrgId}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.supplierOrgId}
+              </p>
             )}
           </Field>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Expected date */}
             <Field>
-              <FieldLabel htmlFor="po-date">{t("fields.expectedDate")}</FieldLabel>
+              <FieldLabel htmlFor="po-date">
+                {t("fields.expectedDate")}
+              </FieldLabel>
               <Input
                 id="po-date"
                 type="date"
@@ -171,7 +196,9 @@ export function CreatePurchaseOrderForm({
 
             {/* Shipping */}
             <Field>
-              <FieldLabel htmlFor="po-shipping">{t("fields.shippingAmount")}</FieldLabel>
+              <FieldLabel htmlFor="po-shipping">
+                {t("fields.shippingAmount")}
+              </FieldLabel>
               <Input
                 id="po-shipping"
                 type="number"
@@ -219,7 +246,9 @@ export function CreatePurchaseOrderForm({
                   </label>
                   <Input
                     value={item.description}
-                    onChange={(e) => setItem(index, { description: e.target.value })}
+                    onChange={(e) =>
+                      setItem(index, { description: e.target.value })
+                    }
                     disabled={isSubmitting}
                     className={`h-10 ${errors.items?.[index]?.description ? "border-red-400" : ""}`}
                   />
@@ -232,7 +261,9 @@ export function CreatePurchaseOrderForm({
                     type="number"
                     min="1"
                     value={item.quantity}
-                    onChange={(e) => setItem(index, { quantity: e.target.value })}
+                    onChange={(e) =>
+                      setItem(index, { quantity: e.target.value })
+                    }
                     disabled={isSubmitting}
                     className="h-10"
                   />
@@ -247,7 +278,9 @@ export function CreatePurchaseOrderForm({
                     step="0.01"
                     value={item.unitPrice}
                     placeholder="0.00"
-                    onChange={(e) => setItem(index, { unitPrice: e.target.value })}
+                    onChange={(e) =>
+                      setItem(index, { unitPrice: e.target.value })
+                    }
                     disabled={isSubmitting}
                     className="h-10"
                   />
@@ -263,7 +296,9 @@ export function CreatePurchaseOrderForm({
                 <div className="col-span-2 sm:col-span-1 flex items-end pb-1 justify-end">
                   <button
                     type="button"
-                    onClick={() => setItems((p) => p.filter((_, i) => i !== index))}
+                    onClick={() =>
+                      setItems((p) => p.filter((_, i) => i !== index))
+                    }
                     disabled={items.length === 1 || isSubmitting}
                     className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-30"
                   >
@@ -288,23 +323,34 @@ export function CreatePurchaseOrderForm({
       <div className="space-y-1 py-3 border-t border-gray-200 dark:border-gray-700">
         <div className="flex justify-end gap-12 text-sm text-gray-500">
           <span>{t("subtotal")}</span>
-          <span className="tabular-nums w-28 text-right">{formatCurrency(subtotal, currency)}</span>
+          <span className="tabular-nums w-28 text-right">
+            {formatCurrency(subtotal, currency)}
+          </span>
         </div>
         {Number(shippingAmount) > 0 && (
           <div className="flex justify-end gap-12 text-sm text-gray-500">
             <span>{t("shipping")}</span>
-            <span className="tabular-nums w-28 text-right">{formatCurrency(Number(shippingAmount), currency)}</span>
+            <span className="tabular-nums w-28 text-right">
+              {formatCurrency(Number(shippingAmount), currency)}
+            </span>
           </div>
         )}
         <div className="flex justify-end gap-12 text-sm font-semibold text-gray-900 dark:text-white border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
           <span>{t("totalAmount")}</span>
-          <span className="tabular-nums w-28 text-right">{formatCurrency(total, currency)}</span>
+          <span className="tabular-nums w-28 text-right">
+            {formatCurrency(total, currency)}
+          </span>
         </div>
       </div>
 
       {/* Submit */}
       <div className="flex items-center gap-3 justify-end">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isSubmitting}
+        >
           {tCommon("cancel")}
         </Button>
         <Button

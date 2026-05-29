@@ -9,7 +9,9 @@ import {
 
 const keys = {
   list: (orgId: string, status?: InvoiceStatus) =>
-    status ? ["invoices", orgId, status] as const : ["invoices", orgId] as const,
+    status
+      ? (["invoices", orgId, status] as const)
+      : (["invoices", orgId] as const),
   detail: (orgId: string, id: string) => ["invoices", orgId, id] as const,
 };
 
@@ -74,7 +76,13 @@ export function useRejectInvoice(orgId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, rejectedReason }: { id: string; rejectedReason: string }) => {
+    mutationFn: async ({
+      id,
+      rejectedReason,
+    }: {
+      id: string;
+      rejectedReason: string;
+    }) => {
       const res = await invoicesService.reject(id, orgId, rejectedReason);
       return res.data;
     },

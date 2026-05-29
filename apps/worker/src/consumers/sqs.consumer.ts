@@ -1,7 +1,13 @@
 import { sqsConfig } from '@mora/env';
 import { SendEmailHandler } from '@mora/worker/handlers/send-email.handler';
 import { JobMessage } from '@mora/worker/jobs/job.types';
-import { Inject, Injectable, Logger, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  OnApplicationBootstrap,
+  OnApplicationShutdown,
+} from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import {
   DeleteMessageCommand,
@@ -57,7 +63,11 @@ export class SqsConsumerService
     }
   }
 
-  private async process(message: { Body?: string; MessageId?: string; ReceiptHandle?: string }) {
+  private async process(message: {
+    Body?: string;
+    MessageId?: string;
+    ReceiptHandle?: string;
+  }) {
     try {
       const job = JSON.parse(message.Body!) as JobMessage;
 

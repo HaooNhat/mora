@@ -7,7 +7,10 @@ import { FileText, Loader2, Plus, Search, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useCreateRequisition, useRequisitions } from "../hooks/use-requisitions";
+import {
+  useCreateRequisition,
+  useRequisitions,
+} from "../hooks/use-requisitions";
 import type { RequisitionStatus } from "../services/requisitions.service";
 import { CreateRequisitionForm } from "./create-requisition-form";
 import { RequisitionStatusBadge } from "./requisition-status-badge";
@@ -25,7 +28,10 @@ const STATUSES: { value: RequisitionStatus; label: string }[] = [
   { value: "ORDERED", label: "Ordered" },
 ];
 
-export function RequisitionList({ orgId, orgCurrency = "USD" }: RequisitionListProps) {
+export function RequisitionList({
+  orgId,
+  orgCurrency = "USD",
+}: RequisitionListProps) {
   const t = useTranslations("requisitions");
   const tCommon = useTranslations("common");
   const locale = useLocale();
@@ -46,7 +52,9 @@ export function RequisitionList({ orgId, orgCurrency = "USD" }: RequisitionListP
     });
   }
 
-  async function handleCreate(input: Parameters<typeof createMutation.mutateAsync>[0]) {
+  async function handleCreate(
+    input: Parameters<typeof createMutation.mutateAsync>[0],
+  ) {
     await createMutation.mutateAsync(input);
     setShowCreateForm(false);
     toast.success(t("newRequisition") + " created");
@@ -61,13 +69,18 @@ export function RequisitionList({ orgId, orgCurrency = "USD" }: RequisitionListP
   }
 
   if (isError) {
-    return <div className="text-center py-16 text-destructive text-sm">{tCommon("error")}</div>;
+    return (
+      <div className="text-center py-16 text-destructive text-sm">
+        {tCommon("error")}
+      </div>
+    );
   }
 
   const all = data?.data ?? [];
 
   const filtered = all.filter((req) => {
-    const matchesStatus = selected.size === 0 || selected.has(req.status as RequisitionStatus);
+    const matchesStatus =
+      selected.size === 0 || selected.has(req.status as RequisitionStatus);
     const matchesSearch =
       search.trim() === "" ||
       req.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -118,7 +131,9 @@ export function RequisitionList({ orgId, orgCurrency = "USD" }: RequisitionListP
                 }`}
               >
                 {label}
-                <span className={`tabular-nums ${isOn ? "opacity-70" : "opacity-60"}`}>
+                <span
+                  className={`tabular-nums ${isOn ? "opacity-70" : "opacity-60"}`}
+                >
                   {count}
                 </span>
               </button>
@@ -138,7 +153,9 @@ export function RequisitionList({ orgId, orgCurrency = "USD" }: RequisitionListP
       {/* Create form */}
       {showCreateForm && (
         <div className="rounded-xl border border-border bg-card p-6">
-          <h3 className="text-lg font-semibold text-foreground mb-6">{t("newRequisition")}</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-6">
+            {t("newRequisition")}
+          </h3>
           <CreateRequisitionForm
             orgId={orgId}
             onSubmit={handleCreate}
@@ -156,7 +173,9 @@ export function RequisitionList({ orgId, orgCurrency = "USD" }: RequisitionListP
           </div>
           <p className="text-foreground font-medium">{t("noRequisitions")}</p>
           <p className="text-sm text-muted-foreground mt-1">
-            {selected.size > 0 ? "No items match the selected filters." : t("noRequisitionsHint")}
+            {selected.size > 0
+              ? "No items match the selected filters."
+              : t("noRequisitionsHint")}
           </p>
         </div>
       )}
@@ -167,27 +186,44 @@ export function RequisitionList({ orgId, orgCurrency = "USD" }: RequisitionListP
           <table className="w-full text-sm">
             <thead className="bg-secondary/40">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t("fields.title")}</th>
-                <th className="px-4 py-3 text-right font-medium text-muted-foreground hidden sm:table-cell">{t("totalAmount")}</th>
-                <th className="px-4 py-3 text-center font-medium text-muted-foreground">Status</th>
-                <th className="px-4 py-3 text-right font-medium text-muted-foreground hidden md:table-cell">Date</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
+                  {t("fields.title")}
+                </th>
+                <th className="px-4 py-3 text-right font-medium text-muted-foreground hidden sm:table-cell">
+                  {t("totalAmount")}
+                </th>
+                <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-right font-medium text-muted-foreground hidden md:table-cell">
+                  Date
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.map((req) => (
                 <tr
                   key={req.id}
-                  onClick={() => router.push(`/${locale}/dashboard/requisitions/${req.id}`)}
+                  onClick={() =>
+                    router.push(`/${locale}/dashboard/requisitions/${req.id}`)
+                  }
                   className="hover:bg-secondary/30 transition-colors cursor-pointer"
                 >
                   <td className="px-4 py-3">
-                    <div className="font-medium text-foreground truncate max-w-[200px]">{req.title}</div>
+                    <div className="font-medium text-foreground truncate max-w-[200px]">
+                      {req.title}
+                    </div>
                     {req.description && (
-                      <div className="text-xs text-muted-foreground truncate max-w-[200px]">{req.description}</div>
+                      <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                        {req.description}
+                      </div>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums text-foreground hidden sm:table-cell">
-                    {new Intl.NumberFormat(undefined, { style: "currency", currency: req.currency }).format(req.totalAmount)}
+                    {new Intl.NumberFormat(undefined, {
+                      style: "currency",
+                      currency: req.currency,
+                    }).format(req.totalAmount)}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <RequisitionStatusBadge status={req.status} />

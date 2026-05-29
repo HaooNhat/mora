@@ -39,10 +39,11 @@ export class RefreshTokenRotationService {
     const userId = payload.sub;
     const hashedIncomingToken = this.hashToken(rawRefreshToken);
 
-    const { revoked, isReuse } = await this.refreshTokenRepository.revokeAndDetectReuse(
-      userId,
-      hashedIncomingToken,
-    );
+    const { revoked, isReuse } =
+      await this.refreshTokenRepository.revokeAndDetectReuse(
+        userId,
+        hashedIncomingToken,
+      );
 
     if (!revoked) {
       if (isReuse) {

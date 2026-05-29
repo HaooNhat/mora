@@ -61,7 +61,11 @@ export class JwtTokenService {
       if (payload?.jti && payload.exp) {
         const remainingTtl = payload.exp - Math.floor(Date.now() / 1000);
         if (remainingTtl > 0) {
-          await this.redisService.set(`jwt:deny:${payload.jti}`, '1', remainingTtl);
+          await this.redisService.set(
+            `jwt:deny:${payload.jti}`,
+            '1',
+            remainingTtl,
+          );
         }
       }
     } catch {

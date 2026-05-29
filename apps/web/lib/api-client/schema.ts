@@ -4,1019 +4,1027 @@
  */
 
 export interface paths {
-    "/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["AppController_getHello"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  "/": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/register": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Register a new account */
-        post: operations["AuthController_register"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations["AppController_getHello"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/register": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/verify-email": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Verify email address via token sent by email */
-        get: operations["AuthController_verifyEmail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** Register a new account */
+    post: operations["AuthController_register"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/verify-email": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Login with email and password — sets auth cookies */
-        post: operations["AuthController_login"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Verify email address via token sent by email */
+    get: operations["AuthController_verifyEmail"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/login": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the authenticated user profile */
-        get: operations["AuthController_getUserProfile"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** Login with email and password — sets auth cookies */
+    post: operations["AuthController_login"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/refresh": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Refresh access token using the refreshToken cookie */
-        post: operations["AuthController_refreshTokens"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Get the authenticated user profile */
+    get: operations["AuthController_getUserProfile"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/refresh": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/google/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Initiate Google OAuth login — redirects to Google */
-        get: operations["AuthController_googleLogin"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** Refresh access token using the refreshToken cookie */
+    post: operations["AuthController_refreshTokens"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/google/login": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/google/callback": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Google OAuth callback — handled automatically by Google */
-        get: operations["AuthController_googleCallback"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Initiate Google OAuth login — redirects to Google */
+    get: operations["AuthController_googleLogin"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/google/callback": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Logout — revokes refresh token and clears cookies */
-        post: operations["AuthController_logout"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Google OAuth callback — handled automatically by Google */
+    get: operations["AuthController_googleCallback"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/logout": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/requisitions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all requisitions for an organization */
-        get: operations["RequisitionsController_findAll"];
-        put?: never;
-        /** Create a new purchase requisition */
-        post: operations["RequisitionsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** Logout — revokes refresh token and clears cookies */
+    post: operations["AuthController_logout"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/requisitions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/requisitions/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a single requisition by ID */
-        get: operations["RequisitionsController_findOne"];
-        put?: never;
-        post?: never;
-        /** Delete a DRAFT requisition */
-        delete: operations["RequisitionsController_remove"];
-        options?: never;
-        head?: never;
-        /** Update a DRAFT requisition */
-        patch: operations["RequisitionsController_update"];
-        trace?: never;
+    /** List all requisitions for an organization */
+    get: operations["RequisitionsController_findAll"];
+    put?: never;
+    /** Create a new purchase requisition */
+    post: operations["RequisitionsController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/requisitions/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/requisitions/{id}/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Submit a DRAFT requisition for approval */
-        post: operations["RequisitionsController_submit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** Get a single requisition by ID */
+    get: operations["RequisitionsController_findOne"];
+    put?: never;
+    post?: never;
+    /** Delete a DRAFT requisition */
+    delete: operations["RequisitionsController_remove"];
+    options?: never;
+    head?: never;
+    /** Update a DRAFT requisition */
+    patch: operations["RequisitionsController_update"];
+    trace?: never;
+  };
+  "/requisitions/{id}/submit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/requisitions/{id}/approve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Approve a submitted requisition */
-        post: operations["RequisitionsController_approve"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** Submit a DRAFT requisition for approval */
+    post: operations["RequisitionsController_submit"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/requisitions/{id}/approve": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/requisitions/{id}/reject": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Reject a submitted requisition */
-        post: operations["RequisitionsController_reject"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** Approve a submitted requisition */
+    post: operations["RequisitionsController_approve"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/requisitions/{id}/reject": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/organizations/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all organizations the current user belongs to */
-        get: operations["OrganizationController_getMyOrganizations"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** Reject a submitted requisition */
+    post: operations["RequisitionsController_reject"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/organizations/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/organizations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create a new organization — current user becomes OWNER */
-        post: operations["OrganizationController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** List all organizations the current user belongs to */
+    get: operations["OrganizationController_getMyOrganizations"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/organizations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    get?: never;
+    put?: never;
+    /** Create a new organization — current user becomes OWNER */
+    post: operations["OrganizationController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        RegisterDto: {
-            /** @example user@example.com */
-            email: string;
-            /** @example SecurePass1! */
-            password: string;
-            /** @example SecurePass1! */
-            confirmPassword: string;
-            /** @example John */
-            firstName: string;
-            /** @example Doe */
-            lastName: string;
-        };
-        AuthSuccessResponseDto: {
-            /** @example true */
-            success: boolean;
-            /** @example Operation completed successfully. */
-            message?: string;
-        };
-        LoginWithPasswordDto: {
-            /** @example user@example.com */
-            email: string;
-            /** @example SecurePass1! */
-            password: string;
-        };
-        UserResponseDto: {
-            /** @example clx1234abcd */
-            id: string;
-            /** @example user@example.com */
-            email: string;
-            /** @example John */
-            firstName: string | null;
-            /** @example Doe */
-            lastName: string | null;
-            /** @example https://example.com/avatar.jpg */
-            picture: string | null;
-            /** @example true */
-            isEmailVerified: boolean;
-        };
-        CreateRequisitionItemDto: {
-            /** @example MacBook Pro 14" */
-            description: string;
-            /** @example 2 */
-            quantity: number;
-            /** @example 1999.99 */
-            unitPrice: number;
-            /** @example Needed for the design team */
-            notes?: string;
-        };
-        CreateRequisitionDto: {
-            /** @example Q2 Equipment Purchase */
-            title: string;
-            /** @example Laptops for new design hires */
-            description?: string;
-            /** @example org-uuid */
-            orgId: string;
-            /**
-             * @default USD
-             * @example USD
-             */
-            currency: string;
-            items: components["schemas"]["CreateRequisitionItemDto"][];
-        };
-        RequisitionItemResponseDto: {
-            /** @example clx1234abcd */
-            id: string;
-            /** @example MacBook Pro 14" */
-            description: string;
-            /** @example 2 */
-            quantity: number;
-            /** @example 1999.99 */
-            unitPrice: string;
-            /** @example 3999.98 */
-            totalPrice: string;
-            /** @example USD */
-            currency: string;
-            /** @example Needed for the design team */
-            notes: Record<string, never> | null;
-        };
-        RequisitionResponseDto: {
-            /** @example clx1234abcd */
-            id: string;
-            /** @example Q2 Equipment Purchase */
-            title: string;
-            /** @example Laptops for the new design hires */
-            description: Record<string, never> | null;
-            /**
-             * @example DRAFT
-             * @enum {string}
-             */
-            status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "ORDERED";
-            /** @example 3999.98 */
-            totalAmount: number;
-            /** @example USD */
-            currency: string;
-            /** @example user-uuid */
-            requestedBy: string;
-            /** @example approver-uuid */
-            approvedBy: Record<string, never> | null;
-            /** @example 2026-04-01T00:00:00.000Z */
-            approvedAt: Record<string, never> | null;
-            /** @example Budget exceeded for this quarter */
-            rejectedReason: Record<string, never> | null;
-            /**
-             * Format: date-time
-             * @example 2026-04-01T00:00:00.000Z
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @example 2026-04-01T00:00:00.000Z
-             */
-            updatedAt: string;
-            items: components["schemas"]["RequisitionItemResponseDto"][];
-        };
-        UpdateRequisitionDto: {
-            /** @example Updated Equipment Purchase */
-            title?: string;
-            /** @example Updated description */
-            description?: string;
-            items?: components["schemas"]["CreateRequisitionItemDto"][];
-        };
-        RejectRequisitionDto: {
-            /** @example Budget exceeded for this quarter */
-            rejectedReason: string;
-        };
-        OrganizationResponseDto: {
-            /** @example org-uuid */
-            id: string;
-            /** @example Acme Corp */
-            name: string;
-            /** @example Acme Corporation Ltd. */
-            legalName: Record<string, never> | null;
-            /**
-             * @example BUYER
-             * @enum {string}
-             */
-            type: "BUYER" | "SUPPLIER" | "BOTH";
-            /** @example https://example.com/logo.png */
-            logo: Record<string, never> | null;
-            /**
-             * @example OWNER
-             * @enum {string}
-             */
-            role: "OWNER" | "ADMIN" | "PROCUREMENT_MANAGER" | "BUYER" | "APPROVER" | "FINANCE_MANAGER" | "SUPPLIER_MANAGER" | "VIEWER";
-            /**
-             * Format: date-time
-             * @example 2026-04-01T00:00:00.000Z
-             */
-            createdAt: string;
-        };
-        CreateOrganizationDto: {
-            /** @example Acme Corp */
-            name: string;
-            /**
-             * @description BUYER, SUPPLIER, or BOTH
-             * @example BUYER
-             * @enum {string}
-             */
-            type: "BUYER" | "SUPPLIER" | "BOTH";
-            /** @example Acme Corporation Ltd. */
-            legalName?: string;
-        };
+  schemas: {
+    RegisterDto: {
+      /** @example user@example.com */
+      email: string;
+      /** @example SecurePass1! */
+      password: string;
+      /** @example SecurePass1! */
+      confirmPassword: string;
+      /** @example John */
+      firstName: string;
+      /** @example Doe */
+      lastName: string;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    AuthSuccessResponseDto: {
+      /** @example true */
+      success: boolean;
+      /** @example Operation completed successfully. */
+      message?: string;
+    };
+    LoginWithPasswordDto: {
+      /** @example user@example.com */
+      email: string;
+      /** @example SecurePass1! */
+      password: string;
+    };
+    UserResponseDto: {
+      /** @example clx1234abcd */
+      id: string;
+      /** @example user@example.com */
+      email: string;
+      /** @example John */
+      firstName: string | null;
+      /** @example Doe */
+      lastName: string | null;
+      /** @example https://example.com/avatar.jpg */
+      picture: string | null;
+      /** @example true */
+      isEmailVerified: boolean;
+    };
+    CreateRequisitionItemDto: {
+      /** @example MacBook Pro 14" */
+      description: string;
+      /** @example 2 */
+      quantity: number;
+      /** @example 1999.99 */
+      unitPrice: number;
+      /** @example Needed for the design team */
+      notes?: string;
+    };
+    CreateRequisitionDto: {
+      /** @example Q2 Equipment Purchase */
+      title: string;
+      /** @example Laptops for new design hires */
+      description?: string;
+      /** @example org-uuid */
+      orgId: string;
+      /**
+       * @default USD
+       * @example USD
+       */
+      currency: string;
+      items: components["schemas"]["CreateRequisitionItemDto"][];
+    };
+    RequisitionItemResponseDto: {
+      /** @example clx1234abcd */
+      id: string;
+      /** @example MacBook Pro 14" */
+      description: string;
+      /** @example 2 */
+      quantity: number;
+      /** @example 1999.99 */
+      unitPrice: string;
+      /** @example 3999.98 */
+      totalPrice: string;
+      /** @example USD */
+      currency: string;
+      /** @example Needed for the design team */
+      notes: Record<string, never> | null;
+    };
+    RequisitionResponseDto: {
+      /** @example clx1234abcd */
+      id: string;
+      /** @example Q2 Equipment Purchase */
+      title: string;
+      /** @example Laptops for the new design hires */
+      description: Record<string, never> | null;
+      /**
+       * @example DRAFT
+       * @enum {string}
+       */
+      status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "ORDERED";
+      /** @example 3999.98 */
+      totalAmount: number;
+      /** @example USD */
+      currency: string;
+      /** @example user-uuid */
+      requestedBy: string;
+      /** @example approver-uuid */
+      approvedBy: Record<string, never> | null;
+      /** @example 2026-04-01T00:00:00.000Z */
+      approvedAt: Record<string, never> | null;
+      /** @example Budget exceeded for this quarter */
+      rejectedReason: Record<string, never> | null;
+      /**
+       * Format: date-time
+       * @example 2026-04-01T00:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @example 2026-04-01T00:00:00.000Z
+       */
+      updatedAt: string;
+      items: components["schemas"]["RequisitionItemResponseDto"][];
+    };
+    UpdateRequisitionDto: {
+      /** @example Updated Equipment Purchase */
+      title?: string;
+      /** @example Updated description */
+      description?: string;
+      items?: components["schemas"]["CreateRequisitionItemDto"][];
+    };
+    RejectRequisitionDto: {
+      /** @example Budget exceeded for this quarter */
+      rejectedReason: string;
+    };
+    OrganizationResponseDto: {
+      /** @example org-uuid */
+      id: string;
+      /** @example Acme Corp */
+      name: string;
+      /** @example Acme Corporation Ltd. */
+      legalName: Record<string, never> | null;
+      /**
+       * @example BUYER
+       * @enum {string}
+       */
+      type: "BUYER" | "SUPPLIER" | "BOTH";
+      /** @example https://example.com/logo.png */
+      logo: Record<string, never> | null;
+      /**
+       * @example OWNER
+       * @enum {string}
+       */
+      role:
+        | "OWNER"
+        | "ADMIN"
+        | "PROCUREMENT_MANAGER"
+        | "BUYER"
+        | "APPROVER"
+        | "FINANCE_MANAGER"
+        | "SUPPLIER_MANAGER"
+        | "VIEWER";
+      /**
+       * Format: date-time
+       * @example 2026-04-01T00:00:00.000Z
+       */
+      createdAt: string;
+    };
+    CreateOrganizationDto: {
+      /** @example Acme Corp */
+      name: string;
+      /**
+       * @description BUYER, SUPPLIER, or BOTH
+       * @example BUYER
+       * @enum {string}
+       */
+      type: "BUYER" | "SUPPLIER" | "BOTH";
+      /** @example Acme Corporation Ltd. */
+      legalName?: string;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    AppController_getHello: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  AppController_getHello: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    AuthController_register: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RegisterDto"];
-            };
-        };
-        responses: {
-            /** @description Verification email sent */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthSuccessResponseDto"];
-                };
-            };
-            /** @description Email already in use */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+        content?: never;
+      };
     };
-    AuthController_verifyEmail: {
-        parameters: {
-            query: {
-                /** @description Email verification token */
-                token: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Email verified */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthSuccessResponseDto"];
-                };
-            };
-            /** @description Invalid or expired token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  AuthController_register: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    AuthController_login: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginWithPasswordDto"];
-            };
-        };
-        responses: {
-            /** @description Logged in, auth cookies set */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthSuccessResponseDto"];
-                };
-            };
-            /** @description Invalid credentials or unverified email */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RegisterDto"];
+      };
     };
-    AuthController_getUserProfile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      /** @description Verification email sent */
+      201: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description User profile */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserResponseDto"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+        content: {
+          "application/json": components["schemas"]["AuthSuccessResponseDto"];
         };
+      };
+      /** @description Email already in use */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
-    AuthController_refreshTokens: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description New auth cookies set */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthSuccessResponseDto"];
-                };
-            };
-            /** @description Missing or invalid refresh token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  AuthController_verifyEmail: {
+    parameters: {
+      query: {
+        /** @description Email verification token */
+        token: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    AuthController_googleLogin: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Email verified */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Redirect to Google authorization page */
-            302: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+        content: {
+          "application/json": components["schemas"]["AuthSuccessResponseDto"];
         };
+      };
+      /** @description Invalid or expired token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
-    AuthController_googleCallback: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Redirect to frontend with auth cookies set */
-            302: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  AuthController_login: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    AuthController_logout: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Logged out */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthSuccessResponseDto"];
-                };
-            };
-            /** @description Missing refresh token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LoginWithPasswordDto"];
+      };
     };
-    RequisitionsController_findAll: {
-        parameters: {
-            query: {
-                /** @description Page number (1-based) */
-                page?: number;
-                /** @description Items per page (max 100) */
-                limit?: number;
-                /** @description Organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      /** @description Logged in, auth cookies set */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Paginated list of requisitions */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Not a member of the organization */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+        content: {
+          "application/json": components["schemas"]["AuthSuccessResponseDto"];
         };
+      };
+      /** @description Invalid credentials or unverified email */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
-    RequisitionsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateRequisitionDto"];
-            };
-        };
-        responses: {
-            /** @description Requisition created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RequisitionResponseDto"];
-                };
-            };
-            /** @description Not a member of the organization */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  AuthController_getUserProfile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    RequisitionsController_findOne: {
-        parameters: {
-            query: {
-                /** @description Organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description User profile */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Requisition found */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RequisitionResponseDto"];
-                };
-            };
-            /** @description Requisition not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+        content: {
+          "application/json": components["schemas"]["UserResponseDto"];
         };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
-    RequisitionsController_remove: {
-        parameters: {
-            query: {
-                /** @description Organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Requisition deleted */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Requisition is not in DRAFT status */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Only the requester can delete */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  AuthController_refreshTokens: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    RequisitionsController_update: {
-        parameters: {
-            query: {
-                /** @description Organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description New auth cookies set */
+      200: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateRequisitionDto"];
-            };
+        content: {
+          "application/json": components["schemas"]["AuthSuccessResponseDto"];
         };
-        responses: {
-            /** @description Requisition updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RequisitionResponseDto"];
-                };
-            };
-            /** @description Requisition is not in DRAFT status */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Only the requester can edit */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
+      };
+      /** @description Missing or invalid refresh token */
+      401: {
+        headers: {
+          [name: string]: unknown;
         };
+        content?: never;
+      };
     };
-    RequisitionsController_submit: {
-        parameters: {
-            query: {
-                /** @description Organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Requisition submitted (or auto-approved if below threshold) */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RequisitionResponseDto"];
-                };
-            };
-            /** @description Invalid transition */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Only the requester can submit */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  AuthController_googleLogin: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    RequisitionsController_approve: {
-        parameters: {
-            query: {
-                /** @description Organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Redirect to Google authorization page */
+      302: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Requisition approved */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RequisitionResponseDto"];
-                };
-            };
-            /** @description Invalid transition */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Insufficient role or self-approval not allowed */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+        content?: never;
+      };
     };
-    RequisitionsController_reject: {
-        parameters: {
-            query: {
-                /** @description Organization ID */
-                orgId: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RejectRequisitionDto"];
-            };
-        };
-        responses: {
-            /** @description Requisition rejected */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RequisitionResponseDto"];
-                };
-            };
-            /** @description Invalid transition or missing rejection reason */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Insufficient role or self-rejection not allowed */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
+  };
+  AuthController_googleCallback: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    OrganizationController_getMyOrganizations: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Redirect to frontend with auth cookies set */
+      302: {
+        headers: {
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description List of organizations with the user role in each */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrganizationResponseDto"][];
-                };
-            };
-        };
+        content?: never;
+      };
     };
-    OrganizationController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateOrganizationDto"];
-            };
-        };
-        responses: {
-            /** @description Organization created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrganizationResponseDto"];
-                };
-            };
-        };
+  };
+  AuthController_logout: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    requestBody?: never;
+    responses: {
+      /** @description Logged out */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuthSuccessResponseDto"];
+        };
+      };
+      /** @description Missing refresh token */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  RequisitionsController_findAll: {
+    parameters: {
+      query: {
+        /** @description Page number (1-based) */
+        page?: number;
+        /** @description Items per page (max 100) */
+        limit?: number;
+        /** @description Organization ID */
+        orgId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Paginated list of requisitions */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not a member of the organization */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  RequisitionsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateRequisitionDto"];
+      };
+    };
+    responses: {
+      /** @description Requisition created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RequisitionResponseDto"];
+        };
+      };
+      /** @description Not a member of the organization */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  RequisitionsController_findOne: {
+    parameters: {
+      query: {
+        /** @description Organization ID */
+        orgId: string;
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Requisition found */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RequisitionResponseDto"];
+        };
+      };
+      /** @description Requisition not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  RequisitionsController_remove: {
+    parameters: {
+      query: {
+        /** @description Organization ID */
+        orgId: string;
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Requisition deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Requisition is not in DRAFT status */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Only the requester can delete */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  RequisitionsController_update: {
+    parameters: {
+      query: {
+        /** @description Organization ID */
+        orgId: string;
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateRequisitionDto"];
+      };
+    };
+    responses: {
+      /** @description Requisition updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RequisitionResponseDto"];
+        };
+      };
+      /** @description Requisition is not in DRAFT status */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Only the requester can edit */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  RequisitionsController_submit: {
+    parameters: {
+      query: {
+        /** @description Organization ID */
+        orgId: string;
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Requisition submitted (or auto-approved if below threshold) */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RequisitionResponseDto"];
+        };
+      };
+      /** @description Invalid transition */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Only the requester can submit */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  RequisitionsController_approve: {
+    parameters: {
+      query: {
+        /** @description Organization ID */
+        orgId: string;
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Requisition approved */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RequisitionResponseDto"];
+        };
+      };
+      /** @description Invalid transition */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Insufficient role or self-approval not allowed */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  RequisitionsController_reject: {
+    parameters: {
+      query: {
+        /** @description Organization ID */
+        orgId: string;
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RejectRequisitionDto"];
+      };
+    };
+    responses: {
+      /** @description Requisition rejected */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RequisitionResponseDto"];
+        };
+      };
+      /** @description Invalid transition or missing rejection reason */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Insufficient role or self-rejection not allowed */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  OrganizationController_getMyOrganizations: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of organizations with the user role in each */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OrganizationResponseDto"][];
+        };
+      };
+    };
+  };
+  OrganizationController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateOrganizationDto"];
+      };
+    };
+    responses: {
+      /** @description Organization created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OrganizationResponseDto"];
+        };
+      };
+    };
+  };
 }

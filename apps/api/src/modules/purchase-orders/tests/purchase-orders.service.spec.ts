@@ -218,8 +218,12 @@ describe('PurchaseOrdersService', () => {
   describe('send', () => {
     it('sends the PO for a BUYER role (FINANCE)', async () => {
       const actor = makeActor(OrganizationRole.FINANCE);
-      mockRepo.findOne!.mockResolvedValue(makePO({ status: PurchaseOrderStatus.SUBMITTED }));
-      mockRepo.updateStatus!.mockResolvedValue(makePO({ status: PurchaseOrderStatus.SENT }));
+      mockRepo.findOne!.mockResolvedValue(
+        makePO({ status: PurchaseOrderStatus.SUBMITTED }),
+      );
+      mockRepo.updateStatus!.mockResolvedValue(
+        makePO({ status: PurchaseOrderStatus.SENT }),
+      );
 
       const result = await service.send('po-1', actor);
 
@@ -234,7 +238,9 @@ describe('PurchaseOrdersService', () => {
     // which the service wraps into ForbiddenException
     it('throws ForbiddenException when a non-buyer role (MANAGER) tries to send', async () => {
       const actor = makeActor(OrganizationRole.MANAGER);
-      mockRepo.findOne!.mockResolvedValue(makePO({ status: PurchaseOrderStatus.SUBMITTED }));
+      mockRepo.findOne!.mockResolvedValue(
+        makePO({ status: PurchaseOrderStatus.SUBMITTED }),
+      );
 
       await expect(service.send('po-1', actor)).rejects.toThrow(
         ForbiddenException,
@@ -245,7 +251,9 @@ describe('PurchaseOrdersService', () => {
     // wrong source state, which the service wraps into BadRequestException
     it('throws BadRequestException when PO is already SENT (invalid transition)', async () => {
       const actor = makeActor(OrganizationRole.FINANCE);
-      mockRepo.findOne!.mockResolvedValue(makePO({ status: PurchaseOrderStatus.SENT }));
+      mockRepo.findOne!.mockResolvedValue(
+        makePO({ status: PurchaseOrderStatus.SENT }),
+      );
 
       await expect(service.send('po-1', actor)).rejects.toThrow(
         BadRequestException,
@@ -259,7 +267,9 @@ describe('PurchaseOrdersService', () => {
     // What we're verifying: supplier org identity check in the guard
     it('confirms the PO when a supplier FINANCE role calls confirm', async () => {
       const actor = makeActor(OrganizationRole.FINANCE, 'org-supplier');
-      mockRepo.findOne!.mockResolvedValue(makePO({ status: PurchaseOrderStatus.SENT }));
+      mockRepo.findOne!.mockResolvedValue(
+        makePO({ status: PurchaseOrderStatus.SENT }),
+      );
       mockRepo.updateStatus!.mockResolvedValue(
         makePO({ status: PurchaseOrderStatus.CONFIRMED }),
       );
@@ -272,7 +282,9 @@ describe('PurchaseOrdersService', () => {
     // because the guard checks actor.orgId === doc.supplierOrgId
     it('throws ForbiddenException when the buyer tries to confirm (wrong org)', async () => {
       const actor = makeActor(OrganizationRole.FINANCE, 'org-buyer');
-      mockRepo.findOne!.mockResolvedValue(makePO({ status: PurchaseOrderStatus.SENT }));
+      mockRepo.findOne!.mockResolvedValue(
+        makePO({ status: PurchaseOrderStatus.SENT }),
+      );
 
       await expect(service.confirm('po-1', actor)).rejects.toThrow(
         ForbiddenException,
@@ -285,7 +297,9 @@ describe('PurchaseOrdersService', () => {
   describe('cancel', () => {
     it('cancels a SUBMITTED PO for a BUYER role', async () => {
       const actor = makeActor(OrganizationRole.OWNER);
-      mockRepo.findOne!.mockResolvedValue(makePO({ status: PurchaseOrderStatus.SUBMITTED }));
+      mockRepo.findOne!.mockResolvedValue(
+        makePO({ status: PurchaseOrderStatus.SUBMITTED }),
+      );
       mockRepo.updateStatus!.mockResolvedValue(
         makePO({ status: PurchaseOrderStatus.CANCELLED }),
       );
@@ -407,14 +421,18 @@ describe('PurchaseOrdersService', () => {
   describe('markInvoiced', () => {
     it('throws NotFoundException when PO does not exist', async () => {
       mockRepo.findById!.mockResolvedValue(null);
-      await expect(service.markInvoiced('ghost')).rejects.toThrow(NotFoundException);
+      await expect(service.markInvoiced('ghost')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('throws BadRequestException when PO is not RECEIVED', async () => {
       mockRepo.findById!.mockResolvedValue(
         makePO({ status: PurchaseOrderStatus.CONFIRMED }),
       );
-      await expect(service.markInvoiced('po-1')).rejects.toThrow(BadRequestException);
+      await expect(service.markInvoiced('po-1')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('moves PO to INVOICED when it is RECEIVED', async () => {
@@ -440,14 +458,18 @@ describe('PurchaseOrdersService', () => {
   describe('markClosed', () => {
     it('throws NotFoundException when PO does not exist', async () => {
       mockRepo.findById!.mockResolvedValue(null);
-      await expect(service.markClosed('ghost')).rejects.toThrow(NotFoundException);
+      await expect(service.markClosed('ghost')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('throws BadRequestException when PO is not INVOICED', async () => {
       mockRepo.findById!.mockResolvedValue(
         makePO({ status: PurchaseOrderStatus.RECEIVED }),
       );
-      await expect(service.markClosed('po-1')).rejects.toThrow(BadRequestException);
+      await expect(service.markClosed('po-1')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('moves PO to CLOSED when it is INVOICED', async () => {

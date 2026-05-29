@@ -48,7 +48,10 @@ export class RequisitionResponseDto {
   @Expose()
   description: string | null;
 
-  @ApiProperty({ enum: RequisitionStatus, example: RequisitionStatus.SUBMITTED })
+  @ApiProperty({
+    enum: RequisitionStatus,
+    example: RequisitionStatus.SUBMITTED,
+  })
   @Expose()
   status: RequisitionStatus;
 

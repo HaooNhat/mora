@@ -103,7 +103,9 @@ export class RequisitionsService {
     const pr = await this.findOne(id, actor.orgId);
 
     if (pr.status !== RequisitionStatus.SUBMITTED) {
-      throw new BadRequestException('Only SUBMITTED requisitions can be updated.');
+      throw new BadRequestException(
+        'Only SUBMITTED requisitions can be updated.',
+      );
     }
     if (pr.requestedBy !== actor.id) {
       throw new ForbiddenException(
@@ -141,7 +143,9 @@ export class RequisitionsService {
     const pr = await this.findOne(id, actor.orgId);
 
     if (pr.status !== RequisitionStatus.SUBMITTED) {
-      throw new BadRequestException('Only SUBMITTED requisitions can be deleted.');
+      throw new BadRequestException(
+        'Only SUBMITTED requisitions can be deleted.',
+      );
     }
     if (pr.requestedBy !== actor.id) {
       throw new ForbiddenException(

@@ -1,8 +1,14 @@
 import { api } from "@/lib/api-client";
 
 export type InvoiceStatus =
-  | "DRAFT" | "SUBMITTED" | "PENDING_MATCH" | "MATCHED"
-  | "EXCEPTION" | "APPROVED" | "REJECTED" | "PAID";
+  | "DRAFT"
+  | "SUBMITTED"
+  | "PENDING_MATCH"
+  | "MATCHED"
+  | "EXCEPTION"
+  | "APPROVED"
+  | "REJECTED"
+  | "PAID";
 
 export interface InvoiceItem {
   id: string;
@@ -51,23 +57,38 @@ interface PaginatedResponse<T> {
 
 export const invoicesService = {
   list: async (orgId: string, page = 1, limit = 20, status?: InvoiceStatus) => {
-    const params = new URLSearchParams({ orgId, page: String(page), limit: String(limit) });
+    const params = new URLSearchParams({
+      orgId,
+      page: String(page),
+      limit: String(limit),
+    });
     if (status) params.set("status", status);
-    const res = await api.get<{ statusCode: number; message: string; data: PaginatedResponse<Invoice> }>(
-      `/invoices?${params}`
-    );
+    const res = await api.get<{
+      statusCode: number;
+      message: string;
+      data: PaginatedResponse<Invoice>;
+    }>(`/invoices?${params}`);
     return res.data;
   },
 
   get: (id: string, orgId: string) =>
-    api.get<{ data: Invoice }>(`/invoices/${id}?orgId=${encodeURIComponent(orgId)}`),
+    api.get<{ data: Invoice }>(
+      `/invoices/${id}?orgId=${encodeURIComponent(orgId)}`,
+    ),
 
   submit: (id: string, orgId: string) =>
-    api.post<{ data: Invoice }>(`/invoices/${id}/submit?orgId=${encodeURIComponent(orgId)}`),
+    api.post<{ data: Invoice }>(
+      `/invoices/${id}/submit?orgId=${encodeURIComponent(orgId)}`,
+    ),
 
   approve: (id: string, orgId: string) =>
-    api.post<{ data: Invoice }>(`/invoices/${id}/approve?orgId=${encodeURIComponent(orgId)}`),
+    api.post<{ data: Invoice }>(
+      `/invoices/${id}/approve?orgId=${encodeURIComponent(orgId)}`,
+    ),
 
   reject: (id: string, orgId: string, rejectedReason: string) =>
-    api.post<{ data: Invoice }>(`/invoices/${id}/reject?orgId=${encodeURIComponent(orgId)}`, { rejectedReason }),
+    api.post<{ data: Invoice }>(
+      `/invoices/${id}/reject?orgId=${encodeURIComponent(orgId)}`,
+      { rejectedReason },
+    ),
 };

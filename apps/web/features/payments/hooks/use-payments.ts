@@ -9,7 +9,9 @@ import {
 
 const keys = {
   list: (orgId: string, status?: PaymentStatus) =>
-    status ? ["payments", orgId, status] as const : ["payments", orgId] as const,
+    status
+      ? (["payments", orgId, status] as const)
+      : (["payments", orgId] as const),
   detail: (orgId: string, id: string) => ["payments", orgId, id] as const,
 };
 

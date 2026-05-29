@@ -4,7 +4,7 @@ import { OrganizationRole } from '@prisma/client';
  * Roles that can create, send, and cancel POs on behalf of the buying org.
  */
 export const BUYER_ROLES: OrganizationRole[] = [
-  OrganizationRole.OWNER,   // full access
+  OrganizationRole.OWNER, // full access
   OrganizationRole.FINANCE, // creates POs, sends POs
 ];
 
@@ -12,7 +12,7 @@ export const BUYER_ROLES: OrganizationRole[] = [
  * Roles that can confirm a PO on behalf of the supplier org.
  */
 export const SUPPLIER_ROLES: OrganizationRole[] = [
-  OrganizationRole.OWNER,   // full access
+  OrganizationRole.OWNER, // full access
   OrganizationRole.FINANCE, // manages supplier-side financial transactions
 ];
 

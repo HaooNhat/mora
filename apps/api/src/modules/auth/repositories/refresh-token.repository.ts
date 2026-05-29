@@ -26,7 +26,12 @@ export class RefreshTokenRepository {
   ): Promise<{ revoked: boolean; isReuse: boolean }> {
     return this.prisma.$transaction(async (tx) => {
       const result = await tx.refreshToken.updateMany({
-        where: { userId, hashedToken, revoked: false, expiresAt: { gt: new Date() } },
+        where: {
+          userId,
+          hashedToken,
+          revoked: false,
+          expiresAt: { gt: new Date() },
+        },
         data: { revoked: true },
       });
 
