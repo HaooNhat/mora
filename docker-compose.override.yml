@@ -1,0 +1,10 @@
+# Dev overrides — auto-merged by `docker compose up` (no -f flag needed).
+#
+# Currently empty because the API and worker run directly on the host
+# in watch mode (pnpm dev), not as containers. Infra services in
+# docker-compose.yml are sufficient.
+#
+# Add service overrides here if you need dev-specific changes, e.g.:
+#   - mount extra volumes into postgres for seed scripts
+#   - expose an extra debug port on redis
+#   - run a stub/mock service alongside infra

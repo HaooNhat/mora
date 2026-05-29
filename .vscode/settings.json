@@ -1,5 +1,5 @@
 {
   "tailwindCSS.experimental.configFile": "packages/ui/src/styles/globals.css",
   "tailwindCSS.classFunctions": ["tw", "clsx", "tw\\.[a-z-]+"],
-  "cSpell.words": ["healthcheck"]
+  "cSpell.words": ["amqp", "healthcheck", "kafkajs"]
 }

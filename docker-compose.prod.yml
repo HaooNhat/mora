@@ -1,0 +1,48 @@
+# Production deployment — API and worker only.
+# Infra (postgres, redis, rabbitmq, kafka) and o11y are external managed services.
+#
+# Local prod test (run infra first, then this):
+#   docker compose up -d
+#   docker compose -f docker-compose.prod.yml up -d
+#   → api/worker join the shared `mora` network and reach postgres/redis by service name
+#
+# Real prod deploy (infra is external — set real URLs in apps/api/.env, apps/worker/.env):
+#   docker compose -f docker-compose.prod.yml build
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# All connection strings (DATABASE_URL, REDIS_URL, etc.) must be set in
+# apps/api/.env and apps/worker/.env on the target server — no defaults here.
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: mora/api:latest
+    restart: unless-stopped
+    networks: [mora]
+    ports:
+      - "3001:3000"
+    env_file:
+      - apps/api/.env.production
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    image: mora/worker:latest
+    restart: unless-stopped
+    networks: [mora]
+    env_file:
+      - apps/worker/.env
+
+networks:
+  mora:
+    name: mora
+    external: true
